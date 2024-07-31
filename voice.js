@@ -7,6 +7,7 @@ import nodeCron from 'node-cron'
 import db from './src/models/index.js';
 
 import callRouter from './src/routes/call.route.js';
+import UserRouter from './src/routes/user.route.js';
 
 
 dotenv.config();
@@ -20,8 +21,8 @@ app.use(express.json())
 
 db.sequelize.sync({alter: true})
 
-app.use("/api/calls", callRouter)
-
+app.use("/api/calls", callRouter);
+app.use("/api/user", UserRouter);
 
 
 
@@ -61,9 +62,9 @@ async function getCallsAndDetails() {
 }
 
 // every two minutes
-const job = nodeCron.schedule('*/1 * * * *', getCallsAndDetails);
+// const job = nodeCron.schedule('*/1 * * * *', getCallsAndDetails);
 
-job.start();
+// job.start();
 
 
 const server = app.listen(process.env.Port, () => {

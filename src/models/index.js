@@ -1,5 +1,6 @@
 import dbConfig from "../config/db.config.js";
 import CallModel from "./call.model.js";
+import User from "./user.model.js";
 
 
 import Sequelize from 'sequelize'
@@ -24,6 +25,9 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
  
+
+db.User = User(sequelize, Sequelize);
 db.CallModel = CallModel(sequelize, Sequelize);
+
 
 export default db;
