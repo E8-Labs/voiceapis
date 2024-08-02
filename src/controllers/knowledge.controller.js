@@ -20,16 +20,17 @@ export const StoreToDb = async (req, res) => {
 
 
   export const SearchDb =  async (req, res) => {
-    console.log("Calling api from custom action")
+    
     try {
       let { text, agent } = req.query;
+      console.log("Calling api from custom action", text)
       if (typeof text == "undefined"){
         text = null;
       }
       let search = await sendMessageToGPT(text, agent);
       
-      res.send(search.choices[0].message.content)
-      // res.send({ message: 'Search results', data: search.choices[0].message.content });
+      // res.send(search.choices[0].message.content)
+      res.send({ message: 'Search results', data: search.choices[0].message.content });
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
