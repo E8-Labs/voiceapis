@@ -132,7 +132,7 @@ export const ConvertAndStoreEmbeddings = async (text, agent = 'Tai-Lopez') => {
         },
     });
     console.log("QUERY IS ", query)
-console.log('Comtext Result', searchResults)
+console.log('Comtext Result', searchResults.count)
     const contextTexts = searchResults.matches.map((match) => match.metadata.text);
     return contextTexts
   } catch (error) {
