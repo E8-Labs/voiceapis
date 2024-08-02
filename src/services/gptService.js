@@ -114,7 +114,7 @@ export const ConvertAndStoreEmbeddings = async (text, agent = 'Tai-Lopez') => {
  const FindContext = async (query, agent = "Tai-Lopez") => {
   try {
     // const { chatId, query } = req.body;
-    let topVectors = 50
+    let topVectors = 20
     if(query == null){
       console.log("Find Context  query null", query)
       topVectors = 50
