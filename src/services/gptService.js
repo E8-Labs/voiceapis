@@ -54,7 +54,7 @@ export const sendMessageToGPT = async (message, agent) => {
     // return 
     let messages = [{role: "system", content: history, type: "history", command: "Answer according to this context."}, { role: "user", content: message , command: "Answer according to the previous context. Be short and specific. Not too much details. Do not answer if the answer doesn't fall under the given context. Just say that you don't know the answer to that."}]
     
-    console.log("Messages sent to gpt ", messages)
+    // console.log("Messages sent to gpt ", messages)
     const completion = await openai.chat.completions.create({
       messages: messages,//[...previousMessages, {role: "user", content: message}],
       model: "gpt-4o",
