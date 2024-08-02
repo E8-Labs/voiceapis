@@ -50,7 +50,7 @@ export const sendMessageToGPT = async (message, agent) => {
     if(contexts.length > 0){
       history = contexts.join('\n');
     }
-    console.log("Context is ", history)
+    // console.log("Context is ", history)
     // return 
     let messages = [{role: "system", content: history, type: "history", command: "Answer according to this context."}, { role: "user", content: message , command: "Answer according to the previous context. Be short and specific. Not too much details. Do not answer if the answer doesn't fall under the given context. Just say that you don't know the answer to that."}]
     
