@@ -22,7 +22,11 @@ export const StoreToDb = async (req, res) => {
   export const SearchDb =  async (req, res) => {
     
     try {
-      let { text, agent } = req.query;
+      let { agent } = req.query;
+      let text = req.query.text || null
+      if(text == null){
+        text = req.query.question;
+      }
       console.log("Calling api from custom action", text)
       if (typeof text == "undefined"){
         text = null;
