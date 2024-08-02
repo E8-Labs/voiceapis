@@ -7,6 +7,7 @@ export const StoreToDb = async (req, res) => {
     try {
         console.log("Storing context")
       const { text, agent } = req.body;
+      
       console.log("Splitting ", text)
       let saved = await ConvertAndStoreEmbeddings(text, agent);
 
@@ -21,7 +22,10 @@ export const StoreToDb = async (req, res) => {
   export const SearchDb =  async (req, res) => {
     console.log("Calling api from custom action")
     try {
-      const { text, agent } = req.query;
+      let { text, agent } = req.query;
+      if (typeof text == "undefined"){
+        text = null;
+      }
       let search = await sendMessageToGPT(text, agent);
       
       

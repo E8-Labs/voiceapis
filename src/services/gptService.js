@@ -114,11 +114,17 @@ export const ConvertAndStoreEmbeddings = async (text, agent = 'Tai-Lopez') => {
  const FindContext = async (query, agent = "Tai-Lopez") => {
   try {
     // const { chatId, query } = req.body;
+    let topVectors = 2
+    if(query == null){
+      console.log("Find Context  query null", query)
+      topVectors = 50
+      query = "Tai Lopez"
+    }
     const queryEmbedding = await getEmbedding(query);
     const index = pineconeClient.Index(indexName);
     const searchResults = await index.query({
       
-        topK: 2,
+        topK: topVectors,
         vector: queryEmbedding,
         includeMetadata: true,
         filter: {
