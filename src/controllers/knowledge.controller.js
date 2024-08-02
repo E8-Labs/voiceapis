@@ -7,7 +7,7 @@ export const StoreToDb = async (req, res) => {
     try {
         console.log("Storing context")
       const { text, agent } = req.body;
-      // console.log("Splitting ", text)
+      console.log("Splitting ", text)
       let saved = await ConvertAndStoreEmbeddings(text, agent);
 
       
