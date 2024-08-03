@@ -27,6 +27,7 @@ export const StoreToDb = async (req, res) => {
       if(text == null){
         text = req.query.question;
       }
+      console.log("Agent is ", agent)
       console.log("Calling api from custom action", text)
       if (typeof text == "undefined"){
         text = null;
