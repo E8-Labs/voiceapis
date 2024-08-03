@@ -151,6 +151,7 @@ if(!searchResults){
 
 async function getChunkEmbeddings(textChunks) {
     const embeddings = await Promise.all(textChunks.map(async (chunk) => {
+      console.log("Chunk size is ", chunk.length)
       const response = await openai.embeddings.create({
         model: 'text-embedding-ada-002',
         input: chunk,
