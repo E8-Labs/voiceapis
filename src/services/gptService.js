@@ -46,6 +46,9 @@ export const sendMessageToGPT = async (message, agent) => {
   try {
 
     const contexts = await FindContext(message, agent) || "";
+    if(contexts == null){
+      return null
+    }
     let history = ""
     if(contexts.length > 0){
       history = contexts.join('\n');
@@ -132,7 +135,10 @@ export const ConvertAndStoreEmbeddings = async (text, agent = 'Tai-Lopez') => {
         },
     });
     console.log("QUERY IS ", query)
-console.log('Comtext Result', searchResults.count)
+console.log('Comtext Result', searchResults)
+if(!searchResults){
+  return null
+}
     const contextTexts = searchResults.matches.map((match) => match.metadata.text);
     return contextTexts
   } catch (error) {
