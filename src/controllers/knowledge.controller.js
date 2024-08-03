@@ -35,7 +35,8 @@ export const StoreToDb = async (req, res) => {
       let search = await sendMessageToGPT(text, agent);
       
       if(search){
-        res.send({ message: 'Search results', data: search.choices[0].message.content });
+        console.log("Answer is ", search)
+        res.send({ message: 'Search results', data: search });
       }
       else{
         res.send({ message: 'Search results', data: "No results found" });
