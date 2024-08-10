@@ -30,7 +30,12 @@ async function getCallsAndDetails() {
     try {
         let calls = await db.CallModel.findAll({
             where: {
-                status: { [db.Sequelize.Op.ne]: "completed" }
+                status: { 
+                    [db.Sequelize.Op.notIn]: ["completed", "failed"] 
+                 },
+                 createdAt: {
+                    [db.Sequelize.Op.gte]: new Date(new Date() - 20 * 60 * 1000) // Fetch calls created in the last 20 minutes
+                }
             }
         });
         console.log("Calls found: ", calls.length);
