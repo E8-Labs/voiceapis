@@ -97,7 +97,7 @@ export const MakeACall = async (req, res) => {
       let response = await axios.request(config)
         // .then(async (response) => {
           
-          console.log(response);
+          // console.log(response);
           if(response.status == 200){
             let json = response.data
             console.log("Call data success")
@@ -109,7 +109,7 @@ export const MakeACall = async (req, res) => {
                 }
             })
             if(dbCall && (dbCall.status === "" || dbCall.status == null
-               || dbCall.status == "in-progress" || dbCall.status == "initiated")){
+               || dbCall.status == "in-progress" || dbCall.status == "initiated" || dbCall.status == "pending")){
                 console.log("Updating call in db");
                 dbCall.transcript = data.transcript;
                 dbCall.status = data.status;
