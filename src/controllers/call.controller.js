@@ -102,7 +102,7 @@ export const MakeACall = async (req, res) => {
             let json = response.data
             console.log("Call data success")
             let data = json[0]
-            console.log("Call data is ", data);
+            // console.log("Call data is ", data);
             let dbCall = await db.CallModel.findOne({
                 where:{
                   callId: callId
