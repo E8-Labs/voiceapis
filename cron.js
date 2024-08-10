@@ -43,7 +43,7 @@ async function getCallsAndDetails() {
                 
                 try {
                     let data = await GetACall(callId);
-                    console.log("Call fetched and updated: ", data);
+                    // console.log("Call fetched and updated: ", data);
                 } catch (error) {
                     console.error(`Error fetching call with id ${callId}:`, error);
                 }

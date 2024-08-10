@@ -121,6 +121,7 @@ export const MakeACall = async (req, res) => {
             res.send({status: true, message: "call obtained", data: dbCall})
           }
           else{
+            console.log("Call not obtained ", response)
             return {status: false, message: "call not obtained", data: response}
             res.send({status: false, message: "call not obtained", data: response})
           }
