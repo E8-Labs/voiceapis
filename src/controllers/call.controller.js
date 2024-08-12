@@ -339,7 +339,7 @@ You have the tool create_booking. Use create_booking in the following circumstan
       "name": Name,
       "phone": PhoneNumber,
       "model": "1722652829145x214249543190325760",
-      // prompt: basePrompt
+      prompt: basePrompt
     });
 
     let config = {
