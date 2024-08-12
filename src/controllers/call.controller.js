@@ -130,7 +130,7 @@ export const GetACall = async (callId) => {
       url: `https://fine-tuner.ai/api/1.1/wf/v2_voice_agent_transcript?call_id=${callId}`,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer 1716566901317x213622515056508930'
+        'Authorization': 'Bearer 1722652770290x657720203450142300'
       }
     };
 
