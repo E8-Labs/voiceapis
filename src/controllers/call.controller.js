@@ -71,7 +71,7 @@ export const MakeACall = async (req, res) => {
     let data = JSON.stringify({
       "name": Name,
       "phone": PhoneNumber,
-      "model": "1716230980845x885692917254193200",
+      "model": "1722652829145x214249543190325760",
       prompt: basePrompt
     });
 
