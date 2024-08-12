@@ -10,6 +10,11 @@ const CallModel = (sequelize, Sequelize) => {
             default: '',
             allowNull: false
         },
+        model: {
+            type: Sequelize.STRING,
+            default: '',
+            allowNull: false
+        },
         transcript: {
             type: Sequelize.TEXT,
             default: '',
@@ -30,6 +35,7 @@ const CallModel = (sequelize, Sequelize) => {
             default: '',
             allowNull: false
         },
+
     })
     return Model
 }
