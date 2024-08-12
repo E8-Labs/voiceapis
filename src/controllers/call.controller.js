@@ -59,7 +59,8 @@ export const MakeACall = async (req, res) => {
     }
   })
 
-  console.log("Calling assistant", assistant)
+  console.log("Calling assistant", assistant.name)
+  console.log("Model ", assistant.modelId)
   try {
 
 
