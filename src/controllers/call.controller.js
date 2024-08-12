@@ -59,6 +59,7 @@ export const MakeACall = async (req, res) => {
     }
   })
 
+  console.log("Calling assistant", assistant)
   try {
 
 
