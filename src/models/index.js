@@ -2,6 +2,7 @@ import dbConfig from "../config/db.config.js";
 import CallModel from "./call.model.js";
 import User from "./user.model.js";
 import Assistant from "./assistants.model.js";
+import PhoneVerificationCodeModel from "./phoneVerificationCode.model.js";
 
 
 import Sequelize from 'sequelize'
@@ -31,7 +32,7 @@ db.User = User(sequelize, Sequelize);
 db.CallModel = CallModel(sequelize, Sequelize);
 db.Assistant = Assistant(sequelize, Sequelize);
 
-
+db.PhoneVerificationCodeModel = PhoneVerificationCodeModel(sequelize, Sequelize);
 
 
 

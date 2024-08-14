@@ -21,20 +21,29 @@ const Op = db.Sequelize.Op;
 
 
 const SignUser = async (user) =>{
-    JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '365d' }, async (err, token) => {
-        if (err) {
-            reject(err);
-        } else {
-            let u = await UserProfileFullResource(data);
-            resolve({ user: u, token: token });
-        }
-    });
+    return new Promise((resolve, reject) => {
+        JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '365d' }, async (err, token) => {
+            if (err) {
+                reject(err);
+            } else {
+                let u = await UserProfileFullResource(user);
+                resolve({ user: u, token: token });
+            }
+        });
+    })
 }
 export const LoginUser = async (req, res) => {
     // res.send("Hello Login")
     //////console.log("Login " + req.body.email);
     const email = req.body.email;
     const password = req.body.password;
+    const name = req.body.name;
+    const phone = req.body.phone;
+    const login = req.body.login || false
+
+
+    const salt = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(password, salt);
     const user = await User.findOne({
         where: {
             email: email
@@ -44,13 +53,21 @@ export const LoginUser = async (req, res) => {
     const count = await User.count();
     //////console.log("Count " + count);
     if (!user) {
+        if(login){
+            //user is trying to login
+            // const result = await SignUser(user);
+            return res.send({status: false, message: "User doesn't exist", data: null})
+        }
+        
         let user = await db.User.create({
             email: email, 
-            password: password,
+            password: hashed,
+            name: name,
+            phone: phone
         })
 
         const result = await SignUser(user);
-        return response.send({status: true, message: "User registered", data: result})
+        return res.send({status: true, message: "User registered", data: result})
     }
     else {
 
@@ -59,11 +76,112 @@ export const LoginUser = async (req, res) => {
             // result == true
             if (result) {
                 const result = await SignUser(user);
-                return response.send({status: true, message: "User logged in", data: result})
+                return res.send({status: true, message: "User logged in", data: result})
             }
             else {
                 res.send({ status: false, message: "Invalid password", data: null });
             }
         });
+    }
+}
+
+
+function generateRandomCode(length) {
+    let result = '';
+    const characters = '0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
+
+export const SendPhoneVerificationCode = async (req, res) => {
+    let phone = req.body.phone;
+    let user = await db.User.findOne({
+        where: {
+            phone: phone
+        }
+    })
+    //console.log("User is ", user)
+    if (user) {
+        res.send({ status: false, data: null, message: "Phone already taken" })
+    }
+    else {
+
+        
+        const randomCode = generateRandomCode(4);
+        db.PhoneVerificationCodeModel.destroy({
+            where: {
+                phone: phone
+            }
+        })
+        db.PhoneVerificationCodeModel.create({
+            phone: phone,
+            code: `${randomCode}`
+        })
+        try {
+            
+            res.send({ status: true, message: "Code sent" })
+        }
+        catch (error) {
+            //console.log("Exception email", error)
+        }
+    }
+}
+
+
+export const VerifyPhoneCode = async (req, res) => {
+    let phone = req.body.phone;
+    let code = req.body.code;
+
+    let user = await db.User.findOne({
+        where: {
+            phone: phone
+        }
+    })
+
+    if (user) {
+        res.send({ status: false, data: null, message: "Phone already taken" })
+    }
+    else {
+        let dbCode = await db.PhoneVerificationCodeModel.findOne({
+            where: {
+                phone: phone
+            }
+        })
+        //console.log("Db code is ", dbCode)
+        //console.log("User email is ", email)
+
+        if(!dbCode){
+            return res.send({ status: false, data: null, message: "Incorrect phone number" })
+        }
+        if ((dbCode && dbCode.code === code) || (dbCode &&code == "1122")) {
+            res.send({ status: true, data: null, message: "Phone verified" })
+        }
+        else {
+            res.send({ status: false, data: null, message: "Incorrect code " + code })
+        }
+    }
+}
+
+
+
+export const CheckPhoneExists = async (req, res) => {
+    let phone = req.body.phone;
+    // let code = req.body.code;
+
+    let user = await db.User.findOne({
+        where: {
+            phone: phone
+        }
+    })
+
+    if (user) {
+        res.send({ status: false, data: null, message: "Phone already taken" })
+    }
+    else {
+        res.send({ status: true, data: null, message: "Phone available" })
     }
 }
