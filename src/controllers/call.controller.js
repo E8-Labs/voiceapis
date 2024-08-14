@@ -152,7 +152,7 @@ export const GetACall = async (callId) => {
     // console.log(response);
     if (response.status == 200) {
       let json = response.data
-      console.log("Call data success", assistant)
+      console.log("Call data success")
       let data = json[0]
       // console.log("Call data is ", data);
       let dbCall = await db.CallModel.findOne({
