@@ -32,14 +32,17 @@ async function getCompletedCallsNotCharged() {
         });
         if (user) {
           let charge = await ChargeCustomer(amount, user);
-
+          console.log("Charge is ", charge);
           call.paymentStatus = charge.reason;
-          call.paymentId = charge.payment.id;
+          if(charge.payment){
+            call.paymentId = charge.payment.id;
+            call.paymentAmount = charge.payment.amount;
+          }
           call.chargeDescription = charge.message;
+          
           let saved = await call.save();
-        }
-        else{
-            console.log("No user to charge")
+        } else {
+          console.log("No user to charge");
         }
       }
     }
@@ -87,7 +90,7 @@ async function getCallsAndDetails() {
   }
 }
 const job = nodeCron.schedule("*/1 * * * *", getCallsAndDetails);
-// job.start();
+job.start();
 
 const jobCharges = nodeCron.schedule(
   "*/1 * * * *",

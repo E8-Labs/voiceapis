@@ -1,6 +1,6 @@
 import axios from 'axios';
 import db from '../models/index.js';
-
+import { loadCards } from "../services/stripe.js";
 
 // export const MakeACall = async(req, res) => {
 
@@ -48,7 +48,7 @@ export const MakeACall = async (req, res) => {
   // setLoading(true);
   let PhoneNumber = req.body.phone;
   let Name = req.body.name;
-  let LastName = req.body.lastName;
+  let LastName = req.body.lastName || '';
   let Email = req.body.email
   let model = req.body.model || "tate"
 
@@ -58,6 +58,40 @@ export const MakeACall = async (req, res) => {
       name: model
     }
   })
+
+  let user = await db.User.findOne({
+    where:{
+      phone: PhoneNumber
+    }
+  })
+
+
+  if(user){
+    // user is in the database.
+    //check if he has pending previous transactions
+    let calls = await db.CallModel.findAll({
+      where: {
+        status: 'completed',
+        paymentStatus: {
+          [db.Sequelize.Op.ne]: "succeeded"
+        }
+      }
+    })
+    let cards = await loadCards(user);
+    if(cards && cards.length > 0){
+      if(calls && calls.length > 0){
+        return res.send({status: false, message: "Please pay your previous charges", data: null})
+      }
+    }
+    else{
+      return res.send({status: false, message: "No payment source added", data: null, reason: "no_payment_source"})
+    }
+
+    
+  }
+  else{
+    return res.send({status: false, message: "User with this phone number does not exist", data: null, reason: "no_such_user"})
+  }
 
   console.log("Calling assistant", assistant.name)
   console.log("Model ", assistant.modelId)
@@ -111,7 +145,9 @@ export const MakeACall = async (req, res) => {
             summary: "",
             duration: '',
             status: '',
-            model: assistant.name
+            model: assistant.name,
+            paymentStatus: '',
+            chargeDescription: '',
 
           })
           console.log("Saved ", saved)

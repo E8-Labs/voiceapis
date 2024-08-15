@@ -49,6 +49,10 @@ const CallModel = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             defaultValue: '',
             allowNull: false
+        },
+        paymentAmount: {
+            type: Sequelize.DOUBLE,
+            allowNull: true
         }
 
     })

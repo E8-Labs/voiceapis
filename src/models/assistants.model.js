@@ -2,7 +2,7 @@ const Assistant = (sequelize, Sequelize) => {
     const Assistant = sequelize.define("Assistant", {
       name: {
         type: Sequelize.STRING, //tate, tristan
-        unique: true,
+        // unique: true,
       },
       phone: {
         type: Sequelize.STRING,

@@ -482,7 +482,8 @@ export async function ChargeCustomer(amountInCents, user) {
       return {
         status: false,
         message: `Charge failed: ${error.message}`,
-        reason: error.type || 'unknown_error'
+        reason: error.type || 'unknown_error',
+        payment: null
       };
     }
   }
