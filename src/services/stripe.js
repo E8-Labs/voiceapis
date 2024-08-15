@@ -22,7 +22,8 @@ export const SubscriptionTypesProduction = [
     { type: "Yearly", price: 49.99, id: "price_1P9VrLB5evLOKOQykDvowoG5", environment: "Production" },
 ]
 
-const AppSuffix = "Neo"
+const AppSuffix = ""
+const AppPrefix = "Voice_"
 export const createCustomer = async (user, whoami = "default") => {
 
 
@@ -36,7 +37,7 @@ export const createCustomer = async (user, whoami = "default") => {
         let alreadyCustomer = await findCustomer(user)
         console.log("Customer is ", alreadyCustomer)
         let u = await db.User.findByPk(user.id)
-        if (alreadyCustomer.data.length >= 1) {
+        if (alreadyCustomer && alreadyCustomer.data.length >= 1) {
             console.log("Already found ")
             u.customerId = alreadyCustomer.data[0].id;
             let updated = await u.save()
@@ -46,8 +47,8 @@ export const createCustomer = async (user, whoami = "default") => {
         else {
             const customer = await stripe.customers.create({
                 name: user.name,
-                email: user.email + AppSuffix,
-                metadata: { id: user.id + AppSuffix, dob: user.dob || '', image: user.profile_image || '', points: user.points }
+                email: AppPrefix + user.email,
+                metadata: { id: AppPrefix + user.id, dob: user.dob || '', image: user.profile_image || '', points: user.points }
             });
 
             console.log("Customer New ", customer)
@@ -77,13 +78,13 @@ export const findCustomer = async (user) => {
         // }); 
 
         const customer = await stripe.customers.search({
-            query: `metadata['id']:'${user.id}${AppSuffix}'`
+            query: `metadata['id']:'${AppPrefix}${user.id}${AppSuffix}'`
         });
 
         return customer
     }
     catch (error) {
-        //console.log(error)
+        console.log(error)
         return null
     }
 }
