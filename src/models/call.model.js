@@ -35,6 +35,21 @@ const CallModel = (sequelize, Sequelize) => {
             default: '',
             allowNull: false
         },
+        paymentStatus: {
+            type: Sequelize.STRING, // charged, failed
+            default: '',
+            allowNull: false
+        },
+        chargeDescription: {
+            type: Sequelize.STRING, // charged, failed
+            default: '',
+            allowNull: false
+        },
+        paymentId: {
+            type: Sequelize.STRING,
+            defaultValue: '',
+            allowNull: false
+        }
 
     })
     return Model

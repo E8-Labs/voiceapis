@@ -28,14 +28,14 @@ export const createCustomer = async (user, whoami = "default") => {
 
 
     let key = process.env.Environment === "Sandbox" ? process.env.STRIPE_SK_TEST : process.env.STRIPE_SK_PRODUCTION;
-    console.log("Key is create customer ", key)
+    // console.log("Key is create customer ", key)
     console.log('whoami', whoami)
 
 
     try {
         const stripe = StripeSdk(key);
         let alreadyCustomer = await findCustomer(user)
-        console.log("Customer is ", alreadyCustomer)
+        // console.log("Customer is ", alreadyCustomer)
         let u = await db.User.findByPk(user.id)
         if (alreadyCustomer && alreadyCustomer.data.length >= 1) {
             console.log("Already found ")
@@ -51,7 +51,7 @@ export const createCustomer = async (user, whoami = "default") => {
                 metadata: { id: AppPrefix + user.id, dob: user.dob || '', image: user.profile_image || '', points: user.points }
             });
 
-            console.log("Customer New ", customer)
+            console.log("Customer New ")
             u.customerId = customer.id;
             await u.save();
             return customer
@@ -444,6 +444,48 @@ export const GetActiveSubscriptions = async (user) => {
 }
 
 
+export async function ChargeCustomer(amountInCents, user) {
+    let key = process.env.Environment === "Sandbox" ? process.env.STRIPE_SK_TEST : process.env.STRIPE_SK_PRODUCTION;
+    try {
+        const stripe = StripeSdk(key);
+        let customer = await createCustomer(user, "cancelsub");
+      // Create a payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amountInCents),
+        currency: 'usd',
+        customer: customer.id,
+        payment_method_types: ['card'],
+        confirm: true,
+        off_session: true,
+      });
+
+      console.log("Payment intent ", paymentIntent)
+  
+      if (paymentIntent.status === 'succeeded') {
+        return {
+          status: true,
+          message: 'Charge was successful.',
+          reason: 'succeeded',
+          payment: paymentIntent
+        };
+      } else {
+        return {
+          status: false,
+          message: `Charge was not successful. Status: ${paymentIntent.status}`,
+          reason: paymentIntent.status,
+          payment: paymentIntent
+        };
+      }
+    } catch (error) {
+      // Handle errors
+      console.log("Error Charging ", error)
+      return {
+        status: false,
+        message: `Charge failed: ${error.message}`,
+        reason: error.type || 'unknown_error'
+      };
+    }
+  }
 
 // export const deleteCard = async (user, token) => {
 
