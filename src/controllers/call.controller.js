@@ -74,9 +74,12 @@ export const MakeACall = async (req, res) => {
         status: 'completed',
         paymentStatus: {
           [db.Sequelize.Op.ne]: "succeeded"
+        },
+        phoneNumber: {
+          [db.Sequelize.Op.like]: `%phone%`
         }
       }
-    })
+    });
     let cards = await loadCards(user);
     if(cards && cards.length > 0){
       if(calls && calls.length > 0){
