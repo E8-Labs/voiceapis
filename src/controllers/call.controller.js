@@ -75,8 +75,8 @@ export const MakeACall = async (req, res) => {
         paymentStatus: {
           [db.Sequelize.Op.ne]: "succeeded"
         },
-        phoneNumber: {
-          [db.Sequelize.Op.like]: `%phone%`
+        phone: {
+          [db.Sequelize.Op.like]: `%${PhoneNumber}%`
         }
       }
     });
