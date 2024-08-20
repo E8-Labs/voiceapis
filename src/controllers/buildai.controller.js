@@ -6,6 +6,7 @@ import db from "../models/index.js"
 import fs from 'fs';
 import path from 'path';
 import { generateThumbnail, ensureDirExists } from '../utils/generateThumbnail.js';
+import { create } from 'domain';
 
 export const BuildYourAi = async(req, res)=> {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
@@ -63,6 +64,59 @@ export const BuildYourAi = async(req, res)=> {
                 }
               }
               res.send({status: true, message: "Ai created", data: createdAI})
+
+        }
+        else{
+            res.send({status: false, message: "Unauthenticated User"})
+        }
+    })
+}
+
+
+
+export const BuildAiScript = async(req, res)=> {
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            let userId = authData.user.id;
+            let {greeting, possibleUserQuery, price, isFree} = req.body;
+            let questions = req.body.kycQuestions;
+            
+
+
+              let createdAI = await db.UserAi.findOne({
+                where:{
+                    userId: userId
+                }
+              })
+              if(createdAI){
+                createdAI.greeting = greeting;
+                    createdAI.possibleUserQuery = possibleUserQuery;
+                    createdAI.price = price;
+                    createdAI.isFree = isFree;
+
+                    let saved = await createdAI.save();
+                if(createdAI && questions && questions.length > 0){
+                    
+                
+                    for(let i = 0; i < questions.length; i++){
+                        let p = questions[i]
+                        let questionCreated = await db.KycQuestions.create(
+                            {
+                                question: p.question,
+                                userId: userId
+                            }
+                        )
+                        if(questionCreated){
+                            console.log(`Question ${p.question} created`)
+                        }
+                    }
+                  }
+                  res.send({status: true, message: "Ai updated", data: createdAI})
+              }
+              else{
+                res.send({status: false, message: "Build AI Step incomplete", data: null})
+              }
+              
 
         }
         else{
