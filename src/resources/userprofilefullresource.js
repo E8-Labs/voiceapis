@@ -29,7 +29,7 @@ async function getUserData(user, currentUser = null) {
         full_profile_image: user.full_profile_image,
         email: user.email,
         phone: user.phone,
-        
+        role: user.role
     }
 
 

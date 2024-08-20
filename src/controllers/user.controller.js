@@ -38,8 +38,10 @@ export const LoginUser = async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const name = req.body.name;
+    const username = req.body.username;
     const phone = req.body.phone;
     const login = req.body.login || false
+    const role = req.body.role || "caller"
 
 
     const salt = await bcrypt.genSalt(10);
@@ -63,7 +65,9 @@ export const LoginUser = async (req, res) => {
             email: email, 
             password: hashed,
             name: name,
-            phone: phone
+            phone: phone, 
+            username: username,
+            role: role,
         })
 
         const result = await SignUser(user);
@@ -183,5 +187,61 @@ export const CheckPhoneExists = async (req, res) => {
     }
     else {
         res.send({ status: true, data: null, message: "Phone available" })
+    }
+}
+
+
+export const GetProfileWithUsername = async (req, res) => {
+    let phone = req.body.username;
+    // let code = req.body.code;
+
+    let user = await db.User.findOne({
+        where: {
+            username: phone
+        }
+    })
+
+    if (user) {
+        let resource = await UserProfileFullResource(user)
+        res.send({ status: true, data: null, message: "User profile details", data: resource })
+    }
+    else {
+        res.send({ status: false, data: null, message: "No such user" })
+    }
+}
+export const CheckUsernameExists = async (req, res) => {
+    let phone = req.body.username;
+    // let code = req.body.code;
+
+    let user = await db.User.findOne({
+        where: {
+            username: phone
+        }
+    })
+
+    if (user) {
+        res.send({ status: false, data: null, message: "Username already taken" })
+    }
+    else {
+        res.send({ status: true, data: null, message: "Username available" })
+    }
+}
+
+
+export const CheckEmailExists = async (req, res) => {
+    let phone = req.body.email;
+    // let code = req.body.code;
+
+    let user = await db.User.findOne({
+        where: {
+            email: phone
+        }
+    })
+
+    if (user) {
+        res.send({ status: false, data: null, message: "Email already taken" })
+    }
+    else {
+        res.send({ status: true, data: null, message: "email available" })
     }
 }

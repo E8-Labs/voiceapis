@@ -4,6 +4,10 @@ const User = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         defaultValue: ''
       },
+      username: {
+        type: Sequelize.STRING,
+        defaultValue: ''
+      },
       phone: {
         type: Sequelize.STRING,
         defaultValue: ''
@@ -14,6 +18,10 @@ const User = (sequelize, Sequelize) => {
       },
       password: {
         type: Sequelize.STRING
+      },
+      role: {
+        type: Sequelize.STRING, //"caller", "creator"
+        defaultValue: 'caller'
       },
       
       profile_image: { // we store smaller image for fast loading here

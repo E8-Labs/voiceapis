@@ -8,6 +8,7 @@ import db from './src/models/index.js';
 
 import callRouter from './src/routes/call.route.js';
 import UserRouter from './src/routes/user.route.js';
+import AiRouter from './src/routes/ai.route.js';
 
 
 dotenv.config();
@@ -38,7 +39,7 @@ db.sequelize.sync({alter: true})
 
 app.use("/api/calls", callRouter);
 app.use("/api/user", UserRouter);
-
+app.use("/api/ai", AiRouter);
 
 
 
