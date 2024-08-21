@@ -19,6 +19,14 @@ const Assistant = (sequelize, Sequelize) => {
       prompt: {
         type: Sequelize.TEXT
       },
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Users', // Table name (plural form)
+          key: 'id'
+        }
+      },
     });
   
     return Assistant;

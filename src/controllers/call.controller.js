@@ -1,6 +1,7 @@
 import axios from 'axios';
 import db from '../models/index.js';
 import { loadCards } from "../services/stripe.js";
+import CallLiteResource from '../resources/callliteresource.js';
 
 // export const MakeACall = async(req, res) => {
 
@@ -228,4 +229,27 @@ export const GetACall = async (callId) => {
     return { status: false, message: "Call data error", error: error }
     res.send({ status: false, message: "call not obtained", data: null })
   }
+}
+
+
+export const GetRecentAndOngoingCalls = async(req, res)=>{
+
+  let calls = await db.CallModel.findAll({
+    where: {
+      status: {
+        [db.Sequelize.Op.in]: [
+          "completed",
+          "in-progress",
+        ],
+      },
+      createdAt: {
+        [db.Sequelize.Op.gte]: new Date(new Date() - 60000 * 60 * 1000), // Fetch calls created in the last 60 minutes
+      },
+    },
+    limit: 15
+  });
+
+
+  let callsRes = await CallLiteResource(calls)
+  res.send({ status: true, message: "calls obtained", data: callsRes })
 }
