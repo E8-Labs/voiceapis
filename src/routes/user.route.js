@@ -1,6 +1,6 @@
 import express from 'express'
 import { LoginUser, SendPhoneVerificationCode, VerifyPhoneCode, CheckPhoneExists,
-    CheckUsernameExists, CheckEmailExists, GetProfileWithUsername
+    CheckUsernameExists, CheckEmailExists, GetProfileWithUsername, SendEmailVerificationCode, VerifyEmailCode
  } from '../controllers/user.controller.js'
 
 import { StoreToDb, SearchDb } from '../controllers/knowledge.controller.js';
@@ -17,6 +17,9 @@ UserRouter.get("/getProfileFromUsername", GetProfileWithUsername);
 UserRouter.post("/checkEmailExists", CheckEmailExists);
 UserRouter.post("/sendVerificationCode", SendPhoneVerificationCode);
 UserRouter.post("/verifyCode", VerifyPhoneCode);
+
+UserRouter.post("/sendVerificationEmail", SendEmailVerificationCode);
+UserRouter.post("/verifyEmail", VerifyEmailCode);
 
 UserRouter.post("/store", StoreToDb);
 

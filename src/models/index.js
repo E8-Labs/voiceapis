@@ -6,6 +6,7 @@ import PhoneVerificationCodeModel from "./phoneVerificationCode.model.js";
 import UserAi from "./ai/userai.model.js";
 import SellingProducts from "./ai/sellingproducts.model.js";
 import KycQuestions from "./ai/kycquestions.model.js";
+import EmailVerificationCode from "./emailverificationcode.model.js";
 
 
 import Sequelize from 'sequelize'
@@ -52,6 +53,10 @@ models["SellingProducts"] = db.SellingProducts
 
 db.KycQuestions = KycQuestions(sequelize, Sequelize);
 models["KycQuestions"] = db.KycQuestions
+
+db.EmailVerificationCode = EmailVerificationCode(sequelize, Sequelize);
+models["EmailVerificationCode"] = db.EmailVerificationCode
+
 
 Object.keys(models).forEach(modelName => {
   if (models[modelName].associate) {
