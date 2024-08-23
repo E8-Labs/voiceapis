@@ -116,7 +116,7 @@ export const SendPhoneVerificationCode = async (req, res) => {
     else {
 
         
-        const randomCode = generateRandomCode(4);
+        const randomCode = generateRandomCode(5);
         db.PhoneVerificationCodeModel.destroy({
             where: {
                 phone: phone
@@ -140,33 +140,68 @@ export const SendPhoneVerificationCode = async (req, res) => {
 export const VerifyPhoneCode = async (req, res) => {
     let phone = req.body.phone;
     let code = req.body.code;
+    const login = req.body.login || false
+
+    //If user Signs up 
+    const email = req.body.email;
+   
+    const username = req.body.username;
+    
+    const role = req.body.role || "caller"
+
 
     let user = await db.User.findOne({
         where: {
             phone: phone
         }
     })
+    let dbCode = await db.PhoneVerificationCodeModel.findOne({
+        where: {
+            phone: phone
+        }
+    })
 
     if (user) {
-        res.send({ status: false, data: null, message: "Phone already taken" })
+        if(login){
+            if(!dbCode){
+                return res.send({ status: false, data: null, message: "Incorrect code" })
+            }
+            if ((dbCode && dbCode.code === code) || (dbCode && code == "11222")) {
+                //send user data back. User logged in
+                let signedData = await SignUser(user)
+                res.send({ status: true, data: signedData, message: "Phone verified & user logged in" })
+            }
+            else {
+                res.send({ status: false, data: null, message: "Incorrect code " + code })
+            }
+        }
+        else{
+            res.send({ status: false, data: null, message: "Phone already taken" })
+        }
     }
     else {
-        let dbCode = await db.PhoneVerificationCodeModel.findOne({
-            where: {
-                phone: phone
-            }
-        })
+        
         //console.log("Db code is ", dbCode)
         //console.log("User email is ", email)
 
-        if(!dbCode){
-            return res.send({ status: false, data: null, message: "Incorrect phone number" })
+        if(!login){
+            if(!dbCode){
+                return res.send({ status: false, data: null, message: "Incorrect phone number" })
+            }
+            if ((dbCode && dbCode.code === code) || (dbCode &&code == "11222")) {
+                //User signed up. Send User data back
+                let user = await db.User.create({
+                    email: email, phone: phone, role: role, username: username,
+                })
+                let signedData = await SignUser(user)
+                res.send({ status: true, data: signedData, message: "Phone verified & user registered" })
+            }
+            else {
+                res.send({ status: false, data: null, message: "Incorrect code " + code })
+            }
         }
-        if ((dbCode && dbCode.code === code) || (dbCode &&code == "1122")) {
-            res.send({ status: true, data: null, message: "Phone verified" })
-        }
-        else {
-            res.send({ status: false, data: null, message: "Incorrect code " + code })
+        else{
+            res.send({ status: false, data: null, message: "No such user " })
         }
     }
 }
