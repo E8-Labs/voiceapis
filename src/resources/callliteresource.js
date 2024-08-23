@@ -24,6 +24,7 @@ const CallLiteResource = async (user, currentUser = null) => {
 
 async function getUserData(call, currentUser = null) {
 
+    //caller can be identified with the phone number in the call object
     let caller = await db.User.findOne({
         where:{
             phone: call.phone
@@ -34,9 +35,10 @@ async function getUserData(call, currentUser = null) {
         callRes = await UserProfileFullResource(caller)
     }
 
+    //userId in the call object is of the assistant owner with whom we are calling 
     let model = await db.Assistant.findOne({
         where: {
-            name: call.model
+            userId: call.userId
         }
     })
     let modelRes = null
