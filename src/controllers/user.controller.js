@@ -193,6 +193,10 @@ export const VerifyPhoneCode = async (req, res) => {
                 let user = await db.User.create({
                     email: email, phone: phone, role: role, username: username,
                 })
+
+                let assistant = await db.Assistant.create({
+                    name: username, phone: phone, userId: user.id
+                })
                 let signedData = await SignUser(user)
                 res.send({ status: true, data: signedData, message: "Phone verified & user registered" })
             }
@@ -228,7 +232,7 @@ export const CheckPhoneExists = async (req, res) => {
 
 
 export const GetProfileWithUsername = async (req, res) => {
-    let phone = req.body.username;
+    let phone = req.query.username;
     // let code = req.body.code;
 
     let user = await db.User.findOne({

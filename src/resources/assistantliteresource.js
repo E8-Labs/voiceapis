@@ -4,7 +4,7 @@ import UserProfileFullResource from "./userprofilefullresource.js";
 const Op = db.Sequelize.Op;
 
 //This is Assistant Resource
-const AssistantResource = async (user, currentUser = null) => {
+const AssistantLiteResource = async (user, currentUser = null) => {
     if (!Array.isArray(user)) {
         //////console.log("Not array")
         return await getUserData(user, currentUser);
@@ -25,27 +25,14 @@ const AssistantResource = async (user, currentUser = null) => {
 async function getUserData(user, currentUser = null) {
 
     
-    let ownerRes = null
-    if(user.userId){
-        let owner = await db.User.findOne({
-            where:{
-                id: user.userId
-            }
-        })
-        ownerRes = await UserProfileFullResource(owner)
-    }
-
-    
-
     
 
     const UserFullResource = {
         id: user.id,
         name: user.name,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-        owner: ownerRes,
-        // assistant: model,
+        userId: user.userId,
+        modelId: user.modelId,
+        apikey: user.apikey,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
     }
@@ -54,4 +41,4 @@ async function getUserData(user, currentUser = null) {
     return UserFullResource;
 }
 
-export default AssistantResource;
+export default AssistantLiteResource;
