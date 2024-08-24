@@ -17,7 +17,7 @@ async function rechargeUsersAccounts() {
     for (let i = 0; i < users.length; i++) {
       let u = users[i];
       let amount = 1000;
-      console.log(`User ${u.email} has balance `, user.seconds_available)
+      console.log(`User ${u.email} has balance `, u.seconds_available)
       let charge = await ChargeCustomer(amount, u);
       console.log("Charged in user is ", charge);
       call.paymentStatus = charge.reason;
