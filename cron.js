@@ -25,7 +25,7 @@ async function rechargeUsersAccounts() {
         // call.paymentId = charge.payment.id;
         // call.paymentAmount = charge.payment.amount;
 
-        let saved = await call.save();
+        // let saved = await call.save();
         u.seconds_available = u.seconds_available + 600;
         let userSaved = await u.save();
         console.log("User call time updated in user", u.seconds_available);
