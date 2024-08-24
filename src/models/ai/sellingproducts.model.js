@@ -8,7 +8,10 @@ const SellingProducts = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         defaultValue: ''
       },
-      
+      productPrice: {
+        type: Sequelize.DOUBLE,
+        defaultValue: 0
+      },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: true,

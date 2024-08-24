@@ -13,7 +13,7 @@ export const BuildYourAi = async(req, res)=> {
         if (authData) {
             let userId = authData.user.id;
             let {name, action, tagline, } = req.body;
-            let products = req.body.products;
+            
             let audio = null;
             if (req.files.media) {
                 let file = req.files.media[0];
@@ -50,19 +50,7 @@ export const BuildYourAi = async(req, res)=> {
                 audio: audio,
                 userId: userId
               })
-              if(createdAI && products && products.length > 0){
-                
-                for(let i = 0; i < products.length; i++){
-                    let p = products[i]
-                    let productCreated = await db.SellingProducts.create(
-                        {
-                            name: p.name,
-                            productUrl: p.productUrl,
-                            userId: userId
-                        }
-                    )
-                }
-              }
+              
               res.send({status: true, message: "Ai created", data: createdAI})
 
         }
@@ -78,9 +66,10 @@ export const BuildAiScript = async(req, res)=> {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             let userId = authData.user.id;
+            let products = req.body.products;
             let {greeting, possibleUserQuery, price, isFree} = req.body;
             let questions = req.body.kycQuestions;
-            
+            // let price = req.body.productPrice
 
 
               let createdAI = await db.UserAi.findOne({
@@ -109,6 +98,20 @@ export const BuildAiScript = async(req, res)=> {
                         if(questionCreated){
                             console.log(`Question ${p.question} created`)
                         }
+                    }
+                  }
+
+                  if(products && products.length > 0){
+                
+                    for(let i = 0; i < products.length; i++){
+                        let p = products[i]
+                        let productCreated = await db.SellingProducts.create(
+                            {
+                                name: p.name,
+                                productPrice: p.productPrice,
+                                userId: userId
+                            }
+                        )
                     }
                   }
                   res.send({status: true, message: "Ai updated", data: createdAI})

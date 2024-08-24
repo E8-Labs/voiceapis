@@ -16,8 +16,9 @@ async function rechargeUsersAccounts() {
     for (let i = 0; i < users.length; i++) {
       let u = users[i];
       let amount = 1000;
+      console.log(`User ${u.email} has balance `, user.seconds_available)
       let charge = await ChargeCustomer(amount, u);
-      console.log("Charge in user is ", charge);
+      console.log("Charged in user is ", charge);
       call.paymentStatus = charge.reason;
       if (charge.payment) {
         call.paymentId = charge.payment.id;
@@ -147,11 +148,11 @@ const jobCharges = nodeCron.schedule(
 );
 
 
-jobCharges.start();
+// jobCharges.start();
 
 
 const jobUserTopup = nodeCron.schedule(
-  "*/5 * * * *",
+  "*/1 * * * *",
   rechargeUsersAccounts
 );
 jobUserTopup.start()
