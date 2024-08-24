@@ -30,20 +30,42 @@ async function getCompletedCallsNotCharged() {
             phone: call.phone,
           },
         });
-        if (user) {
-          let charge = await ChargeCustomer(amount, user);
-          console.log("Charge is ", charge);
-          call.paymentStatus = charge.reason;
-          if(charge.payment){
-            call.paymentId = charge.payment.id;
-            call.paymentAmount = charge.payment.amount;
+        if(user){
+          if(user.seconds_available - duration < 120){
+            //charge user
+  
+            // if (user) {
+            //We are using hardcoded amount of $10 for now. A minite is worth $1. So we will add 10 minutes for now
+            //to the user's call time 
+              let charge = await ChargeCustomer(amount, user);
+              console.log("Charge is ", charge);
+              call.paymentStatus = charge.reason;
+              if(charge.payment){
+                call.paymentId = charge.payment.id;
+                call.paymentAmount = charge.payment.amount;
+              }
+              call.chargeDescription = charge.message;
+              
+              let saved = await call.save();
+              user.seconds_available = user.seconds_available + 600;
+              let userSaved = await user.save();
+              console.log("User call time updated ", user.seconds_available)
+            // } else {
+            //   console.log("No user to charge");
+            // }
           }
-          call.chargeDescription = charge.message;
-          
-          let saved = await call.save();
-        } else {
-          console.log("No user to charge");
+          else{
+            user.seconds_available = user.seconds_available - duration;
+            let saved = await user.save();
+            console.log("User call time updated ", user.seconds_available)
+          }
         }
+        else{
+          console.log("No user to charge")
+        }
+        call.paymentStatus = "Succeeded"
+        let callSaved = await call.save();
+        
       }
     }
   } catch (error) {

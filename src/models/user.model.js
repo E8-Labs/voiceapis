@@ -33,6 +33,11 @@ const User = (sequelize, Sequelize) => {
         defaultValue: ''
         
       },
+      seconds_available: {
+        type: Sequelize.INTEGER,
+        defaultValue: 300,
+        
+      }
     });
   
     return User;
