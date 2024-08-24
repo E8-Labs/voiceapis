@@ -11,6 +11,7 @@ async function rechargeUsersAccounts() {
       },
     },
   });
+  console.log(`${users.length} Users have less than 2 minutes`)
 
   if (users && users.length > 0) {
     for (let i = 0; i < users.length; i++) {
