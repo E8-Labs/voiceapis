@@ -143,12 +143,10 @@ async function getCallsAndDetails() {
 const job = nodeCron.schedule("*/1 * * * *", getCallsAndDetails);
 job.start();
 
-const jobCharges = nodeCron.schedule(
-  "*/1 * * * *",
-  getCompletedCallsNotCharged
-);
-
-
+// const jobCharges = nodeCron.schedule(
+//   "*/1 * * * *",
+//   getCompletedCallsNotCharged
+// );
 // jobCharges.start();
 
 
