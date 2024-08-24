@@ -90,6 +90,25 @@ export const LoginUser = async (req, res) => {
     }
 }
 
+export const UpdateUserToCreator = async(req, res)=>{
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            let userId = authData.user.id;
+            let username = req.body.username;
+            let user = await db.User.findByPk(userId)
+            user.username = username;
+            user.role = "creator";
+            let userUpdated = await user.save()
+            if(userUpdated){
+                res.send({ status: true, data: await UserProfileFullResource(user), message: "User role updated" })
+            }
+        }
+        else{
+            res.send({ status: false, data: null, message: "Unauthenticated user" })
+        }
+    })
+}
+
 
 function generateRandomCode(length) {
     let result = '';
