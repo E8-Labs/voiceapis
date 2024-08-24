@@ -3,6 +3,36 @@ import db from "./src/models/index.js";
 import { GetACall } from "./src/controllers/call.controller.js";
 import { ChargeCustomer } from "./src/services/stripe.js";
 
+async function rechargeUsersAccounts() {
+  let users = await db.User.findAll({
+    where: {
+      seconds_available: {
+        [db.Sequelize.lte]: 120,
+      },
+    },
+  });
+
+  if (users && users.length > 0) {
+    for (let i = 0; i < users.length; i++) {
+      let u = users[i];
+      let amount = 1000;
+      let charge = await ChargeCustomer(amount, u);
+      console.log("Charge in user is ", charge);
+      call.paymentStatus = charge.reason;
+      if (charge.payment) {
+        call.paymentId = charge.payment.id;
+        call.paymentAmount = charge.payment.amount;
+      }
+      call.chargeDescription = charge.message;
+
+      let saved = await call.save();
+      u.seconds_available = u.seconds_available + 600;
+      let userSaved = await u.save();
+      console.log("User call time updated in user", u.seconds_available);
+    }
+  }
+}
+
 async function getCompletedCallsNotCharged() {
   console.log("Running cron job Completed Calls");
   try {
@@ -23,49 +53,46 @@ async function getCompletedCallsNotCharged() {
         console.log("Getting call id ", callId);
 
         let duration = call.duration; //in seconds
-        let amount = (10 / 60) * duration * 100; //10 / 60 => amount per second & then x 100 to convert to cents
+        let amount = 1000; //(10 / 60) * duration * 100; //10 / 60 => amount per second & then x 100 to convert to cents
 
         let user = await db.User.findOne({
           where: {
             phone: call.phone,
           },
         });
-        if(user){
-          if(user.seconds_available - duration < 120){
+        if (user) {
+          if (user.seconds_available - duration < 120) {
             //charge user
-  
+
             // if (user) {
             //We are using hardcoded amount of $10 for now. A minite is worth $1. So we will add 10 minutes for now
-            //to the user's call time 
-              let charge = await ChargeCustomer(amount, user);
-              console.log("Charge is ", charge);
-              call.paymentStatus = charge.reason;
-              if(charge.payment){
-                call.paymentId = charge.payment.id;
-                call.paymentAmount = charge.payment.amount;
-              }
-              call.chargeDescription = charge.message;
-              
-              let saved = await call.save();
-              user.seconds_available = user.seconds_available + 600;
-              let userSaved = await user.save();
-              console.log("User call time updated ", user.seconds_available)
+            //to the user's call time
+            let charge = await ChargeCustomer(amount, user);
+            console.log("Charge is ", charge);
+            call.paymentStatus = charge.reason;
+            if (charge.payment) {
+              call.paymentId = charge.payment.id;
+              call.paymentAmount = charge.payment.amount;
+            }
+            call.chargeDescription = charge.message;
+
+            let saved = await call.save();
+            user.seconds_available = user.seconds_available + 600;
+            let userSaved = await user.save();
+            console.log("User call time updated ", user.seconds_available);
             // } else {
             //   console.log("No user to charge");
             // }
-          }
-          else{
+          } else {
             user.seconds_available = user.seconds_available - duration;
             let saved = await user.save();
-            console.log("User call time updated ", user.seconds_available)
+            console.log("User call time updated ", user.seconds_available);
           }
+        } else {
+          console.log("No user to charge");
         }
-        else{
-          console.log("No user to charge")
-        }
-        call.paymentStatus = "Succeeded"
+        call.paymentStatus = "Succeeded";
         let callSaved = await call.save();
-        
       }
     }
   } catch (error) {
@@ -118,4 +145,13 @@ const jobCharges = nodeCron.schedule(
   "*/1 * * * *",
   getCompletedCallsNotCharged
 );
+
+
 jobCharges.start();
+
+
+const jobUserTopup = nodeCron.schedule(
+  "*/5 * * * *",
+  rechargeUsersAccounts
+);
+jobUserTopup.start()
