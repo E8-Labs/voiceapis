@@ -11,26 +11,26 @@ async function rechargeUsersAccounts() {
       },
     },
   });
-  console.log(`${users.length} Users have less than 2 minutes`)
+  console.log(`${users.length} Users have less than 2 minutes`);
 
   if (users && users.length > 0) {
     for (let i = 0; i < users.length; i++) {
       let u = users[i];
       let amount = 1000;
-      console.log(`User ${u.email} has balance `, u.seconds_available)
+      console.log(`User ${u.email} has balance `, u.seconds_available);
       let charge = await ChargeCustomer(amount, u);
       console.log("Charged in user is ", charge);
-      call.paymentStatus = charge.reason;
+      // call.paymentStatus = charge.reason;
       if (charge.payment) {
-        call.paymentId = charge.payment.id;
-        call.paymentAmount = charge.payment.amount;
-      }
-      call.chargeDescription = charge.message;
+        // call.paymentId = charge.payment.id;
+        // call.paymentAmount = charge.payment.amount;
 
-      let saved = await call.save();
-      u.seconds_available = u.seconds_available + 600;
-      let userSaved = await u.save();
-      console.log("User call time updated in user", u.seconds_available);
+        let saved = await call.save();
+        u.seconds_available = u.seconds_available + 600;
+        let userSaved = await u.save();
+        console.log("User call time updated in user", u.seconds_available);
+      }
+      // call.chargeDescription = charge.message;
     }
   }
 }
@@ -149,9 +149,5 @@ job.start();
 // );
 // jobCharges.start();
 
-
-const jobUserTopup = nodeCron.schedule(
-  "*/1 * * * *",
-  rechargeUsersAccounts
-);
-jobUserTopup.start()
+const jobUserTopup = nodeCron.schedule("*/1 * * * *", rechargeUsersAccounts);
+jobUserTopup.start();
