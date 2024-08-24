@@ -7,7 +7,7 @@ async function rechargeUsersAccounts() {
   let users = await db.User.findAll({
     where: {
       seconds_available: {
-        [db.Sequelize.lte]: 120,
+        [db.Sequelize.Op.lte]: 120,
       },
     },
   });
