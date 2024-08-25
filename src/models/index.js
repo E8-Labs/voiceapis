@@ -7,6 +7,7 @@ import UserAi from "./ai/userai.model.js";
 import SellingProducts from "./ai/sellingproducts.model.js";
 import KycQuestions from "./ai/kycquestions.model.js";
 import EmailVerificationCode from "./emailverificationcode.model.js";
+import KnowledgeBase from "./ai/knowledgebase.model.js";
 
 
 import Sequelize from 'sequelize'
@@ -56,6 +57,9 @@ models["KycQuestions"] = db.KycQuestions
 
 db.EmailVerificationCode = EmailVerificationCode(sequelize, Sequelize);
 models["EmailVerificationCode"] = db.EmailVerificationCode
+
+db.KnowledgeBase = KnowledgeBase(sequelize, Sequelize);
+models["KnowledgeBase"] = db.KnowledgeBase;
 
 
 Object.keys(models).forEach(modelName => {
