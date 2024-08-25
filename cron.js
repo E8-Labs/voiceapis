@@ -140,8 +140,8 @@ async function getCallsAndDetails() {
     console.error("Error fetching calls:", error);
   }
 }
-const job = nodeCron.schedule("*/1 * * * *", getCallsAndDetails);
-job.start();
+// const job = nodeCron.schedule("*/1 * * * *", getCallsAndDetails);
+// job.start();
 
 const jobCharges = nodeCron.schedule(
   "*/1 * * * *",
@@ -149,5 +149,5 @@ const jobCharges = nodeCron.schedule(
 );
 jobCharges.start();
 
-const jobUserTopup = nodeCron.schedule("*/1 * * * *", rechargeUsersAccounts);
-jobUserTopup.start();
+// const jobUserTopup = nodeCron.schedule("*/1 * * * *", rechargeUsersAccounts);
+// jobUserTopup.start();
