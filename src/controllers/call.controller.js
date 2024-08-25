@@ -95,6 +95,7 @@ export const MakeACall = async (req, res) => {
           message: "No payment source added to top up your account",
           data: null,
           reason: "no_payment_source",
+          
         });
       }
     }
@@ -170,6 +171,7 @@ export const MakeACall = async (req, res) => {
             model: assistant.name,
             paymentStatus: "",
             chargeDescription: "",
+            userId: user.id,
           });
           console.log("Saved ", saved);
           res.send({ status: true, message: "call is initiated ", data: json });
