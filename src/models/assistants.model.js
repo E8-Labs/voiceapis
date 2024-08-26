@@ -1,7 +1,7 @@
 const Assistant = (sequelize, Sequelize) => {
     const Assistant = sequelize.define("Assistant", {
       name: {
-        type: Sequelize.STRING, //tate, tristan
+        type: Sequelize.STRING, //tate, tristan, this should come fro user's username table
         // unique: true,
       },
       phone: {

@@ -100,6 +100,11 @@ export const UpdateUserToCreator = async(req, res)=>{
             user.role = "creator";
             let userUpdated = await user.save()
             if(userUpdated){
+                let assistant = await db.Assistant.create({
+                    name: username,
+                    userId: user.id,
+                    phone: user.phone
+                })
                 res.send({ status: true, data: await UserProfileFullResource(user), message: "User role updated" })
             }
         }

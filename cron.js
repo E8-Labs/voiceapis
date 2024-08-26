@@ -127,7 +127,6 @@ async function getCallsAndDetails() {
       for (let i = 0; i < calls.length; i++) {
         let callId = calls[i].callId;
         console.log("Getting call id ", callId);
-
         try {
           let data = await GetACall(callId);
           // console.log("Call fetched and updated: ", data);
