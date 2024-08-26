@@ -27,7 +27,7 @@ async function getUserData(call, currentUser = null) {
     //caller can be identified with the phone number in the call object
     let caller = await db.User.findOne({
         where:{
-            phone: call.phone
+            userId: call.userId
         }
     })
     let callRes = null
@@ -38,21 +38,21 @@ async function getUserData(call, currentUser = null) {
     //userId in the call object is of the assistant owner with whom we are calling 
     let model = await db.Assistant.findOne({
         where: {
-            userId: call.userId
+            userId: call.modelId
         }
     })
     let modelRes = null
     let message = ""
     if(model){
         modelRes = await AssistantResource(model)
-        message = `on call with ${model.name}`
+        message = `on call with ${caller.name}`
         if(model.userId){
             let modelOwner = await db.User.findByPk(model.userId)
             if(modelOwner.name){
-                message = `on call with ${modelOwner.name}`
+                message = `on call with ${caller.name}`
             }
             else if(modelOwner.username){
-                message = `on call with ${modelOwner.username}`
+                message = `on call with ${caller.username}`
             }
         }
     }

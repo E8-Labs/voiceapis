@@ -270,7 +270,8 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
         [db.Sequelize.Op.gte]: new Date(new Date() - 60000 * 60 * 1000), // Fetch calls created in the last 60 minutes
       },
     },
-    limit: 25,
+    order: [["createdAt", "DESC"]],
+    limit: 20,
   });
 
   let callsRes = await CallLiteResource(calls);

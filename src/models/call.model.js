@@ -15,6 +15,14 @@ const CallModel = (sequelize, Sequelize) => {
       default: "",
       allowNull: false,
     },
+    modelId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      references: {
+        model: "Users", // Table name (plural form)
+        key: "id",
+      },
+    },
     userId: {
       type: Sequelize.INTEGER,
       allowNull: true,
