@@ -27,7 +27,7 @@ async function getUserData(call, currentUser = null) {
     //caller can be identified with the phone number in the call object
     let caller = await db.User.findOne({
         where:{
-            userId: call.userId
+            id: call.userId
         }
     })
     let callRes = null
