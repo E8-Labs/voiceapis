@@ -52,12 +52,22 @@ export const MakeACall = async (req, res) => {
   let LastName = req.body.lastName || "";
   let Email = req.body.email;
   let model = req.body.model || "tate";
+  let modelId = req.body.modelId;
 
   let assistant = await db.Assistant.findOne({
     where: {
-      name: model,
+      userId: modelId,
     },
   });
+  if(!assistant){
+    return res.send({
+      status: false,
+      message: "No such assistant",
+      data: null,
+      reason: "no_such_assistant",
+      
+    });
+  }
 
   let user = await db.User.findOne({
     where: {
@@ -169,6 +179,7 @@ export const MakeACall = async (req, res) => {
             duration: "",
             status: "",
             model: assistant.name,
+            modelId: assistant.userId,
             paymentStatus: "",
             chargeDescription: "",
             userId: user.id,
