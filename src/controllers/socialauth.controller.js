@@ -56,14 +56,26 @@ export const AddInstagramAuth = async (req, res) => {
                 );
 
                 // Step 4: Store the long-lived access token in the database
-                let d = await db.SocialAuthModel.create({
-                    accessToken: longLivedAccessToken,
-                    name: userResponse.data.username,
-                    socialUserId: userResponse.data.id,
-                    userId: user.id,
-                });
+                let instaUser = await db.SocialAuthModel.findOne({
+                    where:{
+                        userId: user.id
+                    }
+                })
+                if(instaUser){
+                    instaUser.accessToken = longLivedAccessToken;
+                    instaUser.name = userResponse.data.username;
+                    let saved = await instaUser.save();
+                }
+                else{
+                    instaUser = await db.SocialAuthModel.create({
+                        accessToken: longLivedAccessToken,
+                        name: userResponse.data.username,
+                        socialUserId: userResponse.data.id,
+                        userId: user.id,
+                    });
+                }
 
-                res.send({ status: true, message: "Auth success", data: d });
+                res.send({ status: true, message: "Auth success", data: instaUser });
             } catch (error) {
                 console.error('Error exchanging code for access token:', error.response ? error.response.data : error.message);
                 res.send({
