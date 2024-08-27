@@ -29,13 +29,15 @@ async function getUserData(user, currentUser = null) {
         }
     })
 
-    let totalEarned = await db.CallModel.sum("paymentAmount", {
+    let totalSeconds = await db.CallModel.sum("duration", {
         where: {
             userId: user.id,
             status: "completed",
             paymentStatus: "succeeded"
         }
     });
+
+    let totalEarned = (totalSeconds - 300) * 10 / 60;
     
     let totalCalls = await db.CallModel.count({
         where: {

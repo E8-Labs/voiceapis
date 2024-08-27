@@ -45,14 +45,14 @@ async function getUserData(call, currentUser = null) {
     let message = ""
     if(model){
         modelRes = await AssistantResource(model)
-        message = `on call with ${caller.name}`
+        message = `on call with ${caller.name.split(" ")[0]}`
         if(model.userId){
             let modelOwner = await db.User.findByPk(model.userId)
             if(modelOwner.name){
-                message = `on call with ${caller.name}`
+                message = `on call with ${caller.name.split(" ")[0]}`
             }
             else if(modelOwner.username){
-                message = `on call with ${caller.username}`
+                message = `on call with ${caller.username.split(" ")[0]}`
             }
         }
     }
