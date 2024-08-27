@@ -11,6 +11,7 @@ import KnowledgeBase from "./ai/knowledgebase.model.js";
 
 
 import Sequelize from 'sequelize'
+import SocialAuthModel from "./socialauth.model.js";
 
 const sequelize = new Sequelize(dbConfig.MYSQL_DB, dbConfig.MYSQL_DB_USER, dbConfig.MYSQL_DB_PASSWORD, {
   host: dbConfig.MYSQL_DB_HOST,
@@ -60,6 +61,10 @@ models["EmailVerificationCode"] = db.EmailVerificationCode
 
 db.KnowledgeBase = KnowledgeBase(sequelize, Sequelize);
 models["KnowledgeBase"] = db.KnowledgeBase;
+
+
+db.SocialAuthModel = SocialAuthModel(sequelize, Sequelize);
+models["SocialAuthModel"] = db.SocialAuthModel;
 
 
 Object.keys(models).forEach(modelName => {

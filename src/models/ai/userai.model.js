@@ -42,6 +42,26 @@ const UserAi = (sequelize, Sequelize) => {
           key: 'id'
         }
       },
+      fb_url: {
+        type: Sequelize.STRING, 
+        defaultValue: ''
+      },
+      insta_url: {
+        type: Sequelize.STRING, 
+        defaultValue: ''
+      },
+      twitter_url: {
+        type: Sequelize.STRING, 
+        defaultValue: ''
+      },
+      discord_url: {
+        type: Sequelize.STRING, 
+        defaultValue: ''
+      },
+      youtube_url: {
+        type: Sequelize.STRING, 
+        defaultValue: ''
+      },
     });
   
     return User;

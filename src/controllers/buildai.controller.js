@@ -17,7 +17,7 @@ export const BuildYourAi = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
-      let { name, action, tagline } = req.body;
+      let { name, action, tagline, fb_url, insta_url, youtube_url, discord_url, twitter_url } = req.body;
 
       let audio = null;
       if (req.files.media) {
@@ -51,6 +51,12 @@ export const BuildYourAi = async (req, res) => {
         tagline: tagline,
         audio: audio,
         userId: userId,
+        fb_url: fb_url,
+        insta_url: insta_url,
+        youtube_url: youtube_url,
+        discord_url: discord_url,
+        twitter_url: twitter_url,
+
       });
 
       res.send({ status: true, message: "Ai created", data: createdAI });
