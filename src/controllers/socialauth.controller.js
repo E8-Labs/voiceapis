@@ -17,7 +17,7 @@ const User = db.User;
 const Op = db.Sequelize.Op;
 
 export const AddInstagramAuth = async (req, res) => {
-    console.log("Add instagram login api", req.body)
+    console.log("Add instagram login api", req.body.clientId)
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             let user = await db.User.findByPk(authData.user.id);
@@ -25,10 +25,10 @@ export const AddInstagramAuth = async (req, res) => {
                 const response = await axios.post(
                   `https://api.instagram.com/oauth/access_token`,
                   {
-                    client_id: req.body.clientId,
-                    client_secret: req.body.clientSecret,
+                    client_id: process.env.InstaClientId,
+                    client_secret: process.env.InstaClientSecret,
                     grant_type: 'authorization_code',
-                    redirect_uri: req.body.redirectUri,
+                    redirect_uri: process.env.InstaredirectUri,
                     code: req.body.code,
                   }
                 );
@@ -50,7 +50,7 @@ export const AddInstagramAuth = async (req, res) => {
                 // setUserInfo(userResponse.data);
               } catch (error) {
                 console.error('Error exchanging code for access token:', error.response ? error.response.data : error.message);
-                res.send({ status: false, message: `Error exchanging code for access token: ${error.response} ? ${error.response.data} : ${error.message}`, data: d })
+                res.send({ status: false, message: `Error exchanging code for access token: ${error.response} ? ${error.response.data} : ${error.message}`, data: null })
               }
             
         }
