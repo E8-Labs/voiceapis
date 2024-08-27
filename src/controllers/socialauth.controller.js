@@ -29,7 +29,7 @@ export const AddInstagramAuth = async (req, res) => {
                     client_id: process.env.InstaClientId,
                     client_secret: process.env.InstaClientSecret,
                     grant_type: 'authorization_code',
-                    redirect_uri: process.env.InstaredirectUri,
+                    redirect_uri: process.env.InstaRedirectUri,
                     code: req.body.code,
                   }),
                   {
