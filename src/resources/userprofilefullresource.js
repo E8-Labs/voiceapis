@@ -57,7 +57,7 @@ async function getUserData(user, currentUser = null) {
         role: user.role,
         assitant: assistant ? await AssistantLiteResource(assistant) : null,
         calls: totalCalls,
-        earned: totalEarned / 100
+        earned: totalEarned
     }
 
 
