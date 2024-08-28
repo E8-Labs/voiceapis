@@ -1,5 +1,6 @@
 import db from "../models/index.js";
 import AssistantLiteResource from "./assistantliteresource.js";
+import UserSubscriptionResource from "./usersubscription.resource.js";
 
 const Op = db.Sequelize.Op;
 
@@ -47,6 +48,21 @@ async function getUserData(user, currentUser = null) {
         }
     });
 
+
+    let sub = await db.SubscriptionModel.findOne({
+        where: {
+            userId: user.id,
+            environment: process.env.Environment
+        },
+        order: [
+            ["createdAt", "DESC"]
+        ]
+    })
+    let plan = null
+    if (sub) {
+        plan = await UserSubscriptionResource(sub)
+    }
+
     const UserFullResource = {
         id: user.id,
         name: user.name,
@@ -57,7 +73,8 @@ async function getUserData(user, currentUser = null) {
         role: user.role,
         assitant: assistant ? await AssistantLiteResource(assistant) : null,
         calls: totalCalls,
-        earned: totalEarned
+        earned: totalEarned,
+        plan: plan
     }
 
 

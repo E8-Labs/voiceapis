@@ -14,6 +14,7 @@ import YouTubeVideo from "./videos.model.js";
 import Sequelize from 'sequelize'
 import SocialAuthModel from "./socialauth.model.js";
 import GoogleAuthModel from "./googleauth.model.js";
+import SubscriptionModel from "./subscription.model.js";
 
 const sequelize = new Sequelize(dbConfig.MYSQL_DB, dbConfig.MYSQL_DB_USER, dbConfig.MYSQL_DB_PASSWORD, {
   host: dbConfig.MYSQL_DB_HOST,
@@ -73,6 +74,10 @@ models["GoogleAuthModel"] = db.GoogleAuthModel;
 
 db.YouTubeVideo = YouTubeVideo(sequelize, Sequelize);
 models["YouTubeVideo"] = db.YouTubeVideo;
+
+
+db.SubscriptionModel = SubscriptionModel(sequelize, Sequelize);
+models["SubscriptionModel"] = db.SubscriptionModel;
 
 Object.keys(models).forEach(modelName => {
   if (models[modelName].associate) {

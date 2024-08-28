@@ -10,9 +10,9 @@ import path from'path';
 
 
 export const SubscriptionTypesSandbox = [
-    { type: "Monthly", price: 19.99, id: "price_1PBeaHB5evLOKOQy7eCxKp1l", environment: "Sandbox" },
-    { type: "HalfYearly", price: 100, id: "price_1PBebWB5evLOKOQyCNx2ISuW", environment: "Sandbox" },
-    { type: "Yearly", price: 49.99, id: "price_1PBebjB5evLOKOQynjl9AAOO", environment: "Sandbox" },
+    { type: "Monthly", price: 97, id: "price_1Ps1G3JlIaVux60FW8ouEjlx", environment: "Sandbox" },
+    // { type: "HalfYearly", price: 100, id: "price_1PBebWB5evLOKOQyCNx2ISuW", environment: "Sandbox" },
+    { type: "Yearly", price: 1200, id: "price_1Ps1D6JlIaVux60FgJlUK55j", environment: "Sandbox" },
 ]
 
 //update the subscription ids here to live ones
@@ -331,6 +331,7 @@ export const CreateWebHook = async (req, res) => {
 
 
 export const SubscriptionUpdated = async (req, res)=>{
+    console.log("Subscription updated")
     let data = req.body;
     //console.log("Subscription updated", data)
     let type = data.type;
@@ -340,7 +341,7 @@ export const SubscriptionUpdated = async (req, res)=>{
     switch (type) {
         case 'customer.subscription.created':
             console.log("Subscription created")
-            // await handleSubscriptionCreated(event.data.object);
+            await handleSubscriptionCreated(data.data.object);
             break;
         case 'customer.subscription.updated':
             await handleSubscriptionUpdated(data.data.object);
@@ -629,14 +630,27 @@ export function parseSubscription(subscription) {
 
 
 const handleSubscriptionCreated = async (subscription) => {
-    await db.SubscriptionModel.create({
-        subid: subscription.id,
-        userId: subscription.customer,
-        customerId: "",//subscription.customer,
-        status: subscription.status,
-        data: JSON.stringify(subscription)
-    });
-    console.log(`Subscription created: ${subscription.id}`);
+    let dbSub = await db.SubscriptionModel.findOne({
+        where: {
+            subid: subscription.id
+        }
+    })
+    if(dbSub){
+        dbSub.customerId = subscription.customer;
+        await dbSub.save();
+        console.log(`Subscription updated with customer: ${subscription.id}`);
+    }
+    else{
+        await db.SubscriptionModel.create({
+            subid: subscription.id,
+            userId: subscription.customer,
+            customerId: subscription.customer,
+            status: subscription.status,
+            data: JSON.stringify(subscription)
+        });
+        console.log(`Subscription created New: ${subscription.id}`);
+    }
+    
 };
 
 const handleSubscriptionUpdated = async (subscription) => {

@@ -5,9 +5,14 @@ import { LoginUser, SendPhoneVerificationCode, VerifyPhoneCode, CheckPhoneExists
  } from '../controllers/user.controller.js'
 
 import { StoreToDb, SearchDb } from '../controllers/knowledge.controller.js';
-import { AddCard, GetUserPaymentSources, DownloadInvoice, GetTransactions } from '../controllers/paymentController.js';
+import { AddCard, GetUserPaymentSources, DownloadInvoice, GetTransactions, subscribeUser, CancelSubscription } from '../controllers/paymentController.js';
 
 import { AddInstagramAuth, AddGoogleAuth } from '../controllers/socialauth.controller.js';
+
+import { CreateWebHook, SubscriptionUpdated } from "../services/stripe.js";
+
+
+
 let UserRouter = express.Router()
 
 
@@ -34,6 +39,11 @@ UserRouter.get("/search", SearchDb);
 UserRouter.post("/add_card", verifyJwtToken, AddCard);
 UserRouter.get("/get_transactions", verifyJwtToken, GetTransactions);
 UserRouter.get("/list_cards", verifyJwtToken, GetUserPaymentSources);
+UserRouter.post("/subscribe", verifyJwtToken, subscribeUser);
+UserRouter.post("/cancel_subscription", verifyJwtToken, CancelSubscription);
+
+UserRouter.post("/create_webhook", CreateWebHook);
+UserRouter.post("/subscription_updated", SubscriptionUpdated);
 
 
 //Oauth
