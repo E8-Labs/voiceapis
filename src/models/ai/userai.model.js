@@ -42,23 +42,43 @@ const UserAi = (sequelize, Sequelize) => {
           key: 'id'
         }
       },
-      fb_url: {
+      fbUrl: {
         type: Sequelize.STRING, 
         defaultValue: ''
       },
-      insta_url: {
+      instaUrl: {
         type: Sequelize.STRING, 
         defaultValue: ''
       },
-      twitter_url: {
+      twitterUrl: {
         type: Sequelize.STRING, 
         defaultValue: ''
       },
-      discord_url: {
+      discordUrl: {
         type: Sequelize.STRING, 
         defaultValue: ''
       },
-      youtube_url: {
+      youtubeUrl: {
+        type: Sequelize.STRING, 
+        defaultValue: ''
+      },
+      goalType: { // product, webinar, other
+        type: Sequelize.STRING, 
+        defaultValue: ''
+      },
+      productToSell: { // if product provided
+        type: Sequelize.INTEGER, 
+        allowNull: true
+      },
+      webinarUrl: {
+        type: Sequelize.STRING, 
+        defaultValue: ''
+      },
+      goalTitle: {
+        type: Sequelize.STRING, 
+        defaultValue: ''
+      },
+      goalUrl: {
         type: Sequelize.STRING, 
         defaultValue: ''
       },

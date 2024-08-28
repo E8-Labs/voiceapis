@@ -8,10 +8,12 @@ import SellingProducts from "./ai/sellingproducts.model.js";
 import KycQuestions from "./ai/kycquestions.model.js";
 import EmailVerificationCode from "./emailverificationcode.model.js";
 import KnowledgeBase from "./ai/knowledgebase.model.js";
+import YouTubeVideo from "./videos.model.js";
 
 
 import Sequelize from 'sequelize'
 import SocialAuthModel from "./socialauth.model.js";
+import GoogleAuthModel from "./googleauth.model.js";
 
 const sequelize = new Sequelize(dbConfig.MYSQL_DB, dbConfig.MYSQL_DB_USER, dbConfig.MYSQL_DB_PASSWORD, {
   host: dbConfig.MYSQL_DB_HOST,
@@ -66,6 +68,11 @@ models["KnowledgeBase"] = db.KnowledgeBase;
 db.SocialAuthModel = SocialAuthModel(sequelize, Sequelize);
 models["SocialAuthModel"] = db.SocialAuthModel;
 
+db.GoogleAuthModel = GoogleAuthModel(sequelize, Sequelize);
+models["GoogleAuthModel"] = db.GoogleAuthModel;
+
+db.YouTubeVideo = YouTubeVideo(sequelize, Sequelize);
+models["YouTubeVideo"] = db.YouTubeVideo;
 
 Object.keys(models).forEach(modelName => {
   if (models[modelName].associate) {

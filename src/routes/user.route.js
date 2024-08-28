@@ -7,7 +7,7 @@ import { LoginUser, SendPhoneVerificationCode, VerifyPhoneCode, CheckPhoneExists
 import { StoreToDb, SearchDb } from '../controllers/knowledge.controller.js';
 import { AddCard, GetUserPaymentSources, DownloadInvoice, GetTransactions } from '../controllers/paymentController.js';
 
-import { AddInstagramAuth } from '../controllers/socialauth.controller.js';
+import { AddInstagramAuth, AddGoogleAuth } from '../controllers/socialauth.controller.js';
 let UserRouter = express.Router()
 
 
@@ -38,5 +38,7 @@ UserRouter.get("/list_cards", verifyJwtToken, GetUserPaymentSources);
 
 //Oauth
 UserRouter.post("/login_instagram", verifyJwtToken, AddInstagramAuth);
+UserRouter.post("/login_google", verifyJwtToken, AddGoogleAuth);
+
 
 export default UserRouter

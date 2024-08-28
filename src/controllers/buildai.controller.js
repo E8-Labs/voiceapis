@@ -17,7 +17,9 @@ export const BuildYourAi = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
-      let { name, action, tagline, fb_url, insta_url, youtube_url, discord_url, twitter_url } = req.body;
+      let { name, action, tagline, fb_url, insta_url, youtube_url, discord_url, twitter_url, 
+        
+       } = req.body;
 
       let audio = null;
       if (req.files.media) {
@@ -51,11 +53,12 @@ export const BuildYourAi = async (req, res) => {
         tagline: tagline,
         audio: audio,
         userId: userId,
-        fb_url: fb_url,
-        insta_url: insta_url,
-        youtube_url: youtube_url,
-        discord_url: discord_url,
-        twitter_url: twitter_url,
+        fbUrl: fb_url,
+        instaUrl: insta_url,
+        youtubeUrl: youtube_url,
+        discordUrl: discord_url,
+        twitterUrl: twitter_url,
+        
 
       });
 
@@ -71,7 +74,7 @@ export const BuildAiScript = async (req, res) => {
     if (authData) {
       let userId = authData.user.id;
       let products = req.body.products;
-      let { greeting, possibleUserQuery, price, isFree } = req.body;
+      let { greeting, possibleUserQuery, price, isFree, goalType, productToSell, webinarUrl, goalTitle, goalUrl } = req.body;
       let questions = req.body.kycQuestions;
       // let price = req.body.productPrice
 
@@ -85,6 +88,10 @@ export const BuildAiScript = async (req, res) => {
         createdAI.possibleUserQuery = possibleUserQuery;
         createdAI.price = price;
         createdAI.isFree = isFree;
+        createdAI.goalUrl = goalUrl;
+        createdAI.goalTitle = goalTitle;
+        createdAI.webinarUrl = webinarUrl;
+        createdAI.goalType = goalType;
 
         let saved = await createdAI.save();
         if (createdAI && questions && questions.length > 0) {
@@ -108,6 +115,10 @@ export const BuildAiScript = async (req, res) => {
               productPrice: p.productPrice,
               userId: userId,
             });
+            if(p.name == productToSell){
+              createdAI.productToSell = productCreated.id;
+              await createdAI.save();
+            }
           }
         }
         res.send({ status: true, message: "Ai updated", data: createdAI });

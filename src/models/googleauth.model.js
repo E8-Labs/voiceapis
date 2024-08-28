@@ -1,14 +1,17 @@
-const SocialAuthModel = (sequelize, Sequelize) => {
-    const Assistant = sequelize.define("SocialAuthModel", {
+const GoogleAuthModel = (sequelize, Sequelize) => {
+    const Assistant = sequelize.define("GoogleAuthModel", {
       name: {
-        type: Sequelize.STRING, //tate, tristan, this should come fro user's username table
-        // unique: true,
+        type: Sequelize.STRING, //
       },
-      socialUserId: {
+      providerAccountId: {
         type: Sequelize.STRING,
         defaultValue: ''
       },
       
+      idToken: {
+        type: Sequelize.STRING(5000),
+        defaultValue: ''
+      },
       accessToken: {
         type: Sequelize.STRING ,
         defaultValue: ''
@@ -26,7 +29,7 @@ const SocialAuthModel = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'Users', // Table name (plural form)
+          model: 'Users', //
           key: 'id'
         }
       },
@@ -35,4 +38,4 @@ const SocialAuthModel = (sequelize, Sequelize) => {
     return Assistant;
   };
 
-  export default SocialAuthModel;
+  export default GoogleAuthModel;
