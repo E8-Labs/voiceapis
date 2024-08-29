@@ -120,5 +120,92 @@ async function getUserCallStats(userId) {
     return results;
   }
   
-  export default getUserCallStats;
+
   
+
+
+  export const MyAi = async(req, res)=>{
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            let userId = authData.user.id;
+            let ai = await db.UserAi.findOne({
+                where:{
+                    userId: userId
+                }
+            })
+            let kb = await db.KnowledgeBase.findAll({
+                where:{
+                    userId: userId
+                }
+            })
+
+            let products = await db.SellingProducts.findAll({
+                where:{
+                    userId: userId
+                }
+            })
+
+            let questions = await db.KycQuestions.findAll({
+                where:{
+                    userId: userId
+                }
+            })
+            res.send({ status: true, data: {ai, kb, products, questions}, message: "My AI" })
+        }
+        else{
+            res.send({ status: false, data: null, message: "Unauthenticated user" })
+        }
+    })
+}
+
+
+export const AssistantCalls = async(req, res)=>{
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            let userId = authData.user.id;
+            let calls = await getPaginatedCalls(userId)
+            
+            res.send({ status: true, data: calls, message: "My AI" })
+        }
+        else{
+            res.send({ status: false, data: null, message: "Unauthenticated user" })
+        }
+    })
+}
+
+
+async function getPaginatedCalls(userId, offset, limit = 10) {
+    // Fetch paginated calls
+    const calls = await db.CallModel.findAll({
+        where: {
+            modelId: userId,
+            status: "completed"
+        },
+      offset: offset,
+      limit: limit,
+    });
+  
+    // Calculate totalCalls, totalMinutes, and revenue
+    const allCalls = await db.CallModel.findAll({
+        where: {
+            modelId: userId
+        }
+    });
+  
+    const totalCalls = allCalls.length;
+  
+    const totalDurationSeconds = allCalls.reduce((sum, call) => sum + Number(call.duration), 0);
+    const totalMinutes = Math.floor(totalDurationSeconds / 60);
+  
+    const revenue = allCalls.reduce((sum, call) => {
+      const durationMinutes = Math.floor(Number(call.duration) / 60);
+      return sum + Math.max(0, durationMinutes) * 10;
+    }, 0);
+  
+    return {
+      calls: await CallLiteResource(calls),
+      totalCalls,
+      totalMinutes,
+      revenue,
+    };
+  }
