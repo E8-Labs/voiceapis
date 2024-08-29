@@ -10,7 +10,7 @@ import { AddCard, GetUserPaymentSources, DownloadInvoice, GetTransactions, subsc
 import { AddInstagramAuth, AddGoogleAuth } from '../controllers/socialauth.controller.js';
 
 import { CreateWebHook, SubscriptionUpdated } from "../services/stripe.js";
-
+import { CreatorDashboard } from '../controllers/profile.controller.js';
 
 
 let UserRouter = express.Router()
@@ -50,5 +50,8 @@ UserRouter.post("/subscription_updated", SubscriptionUpdated);
 UserRouter.post("/login_instagram", verifyJwtToken, AddInstagramAuth);
 UserRouter.post("/login_google", verifyJwtToken, AddGoogleAuth);
 
+
+//Creator Profile
+UserRouter.get("/creator_dashboard", verifyJwtToken, CreatorDashboard);
 
 export default UserRouter

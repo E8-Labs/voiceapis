@@ -32,22 +32,22 @@ async function getUserData(user, currentUser = null) {
 
     let totalSeconds = await db.CallModel.sum("duration", {
         where: {
-            userId: user.id,
+            modelId: user.id,
             status: "completed",
-            paymentStatus: "succeeded"
+            // paymentStatus: "succeeded"
         }
     });
 
     let totalEarned = (totalSeconds - 300) * 10 / 60;
-    
+    console.log(`TotalSeconds for ${user.id}`, totalSeconds)
     let totalCalls = await db.CallModel.count({
         where: {
-            userId: user.id,
+            modelId: user.id,
             status: "completed",
-            paymentStatus: "succeeded"
+            // paymentStatus: "succeeded"
         }
     });
-
+    console.log(`TotalCalls for ${user.id}`, totalCalls)
 
     let sub = await db.SubscriptionModel.findOne({
         where: {

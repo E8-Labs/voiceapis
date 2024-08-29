@@ -9,14 +9,7 @@ import axios from "axios";
 import chalk from "chalk";
 import nodemailer from 'nodemailer'
 import UserProfileFullResource from '../resources/userprofilefullresource.js'
-// import nodemailer from 'nodemailer'
-// import NotificationType from '../models/user/notificationtype.js'
-// import {createThumbnailAndUpload, uploadMedia, deleteFileFromS3} from '../utilities/storage.js'
-// import crypto from 'crypto'
-// import { fetchOrCreateUserToken } from "./plaid.controller.js";
-// const fs = require("fs");
-// var Jimp = require("jimp");
-// require("dotenv").config();
+
 const User = db.User;
 const Op = db.Sequelize.Op;
 
@@ -174,15 +167,19 @@ export const VerifyPhoneCode = async (req, res) => {
     
     const role = req.body.role || "caller"
 
-
+    console.log('UserWithPhone', phone)
     let user = await db.User.findOne({
         where: {
-            phone: phone
+            phone: {
+                [db.Sequelize.Op.like]: `%${phone}%`
+            }
         }
     })
     let dbCode = await db.PhoneVerificationCodeModel.findOne({
         where: {
-            phone: phone
+            phone: {
+                [db.Sequelize.Op.like]: `%${phone}%`
+            }
         }
     })
 
