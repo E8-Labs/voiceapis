@@ -160,10 +160,12 @@ async function getUserCallStats(userId) {
 
 
 export const AssistantCalls = async(req, res)=>{
+    let offset = req.body.offset || 0;
+    let limit = 20;
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             let userId = authData.user.id;
-            let calls = await getPaginatedCalls(userId)
+            let calls = await getPaginatedCalls(userId, offset, limit)
             
             res.send({ status: true, data: calls, message: "My AI" })
         }
