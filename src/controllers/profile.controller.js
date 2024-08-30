@@ -118,7 +118,7 @@ async function getUserCallStats(userId) {
       topCallers[callerId].callTimeMinutes += durationMinutes;
       topCallers[callerId].callTimeSeconds += call.duration
       console.log(`Duration in minuites for ${callerId}`, durationMinutes)
-      let min = topCallers[callerId].callTimeMinutes || 0
+      let min = topCallers[callerId].callTimeSeconds / 60 || 0
       let secs = topCallers[callerId].callTimeSeconds % 60 || 0
       topCallers[callerId].totalMinutes = `${min < 10 ? `0${min}` : min}:${secs < 10 ? `0${secs}` : secs}`
       topCallers[callerId].totalSpent += Math.max(0, call.duration ) * amountToChargePerMin / 60;
