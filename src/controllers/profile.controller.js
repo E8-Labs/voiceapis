@@ -113,10 +113,10 @@ async function getUserCallStats(userId) {
       // let totalEarned = 0; // if the creator has free calls
       
 
-      const durationMinutes = Math.floor(call.duration / 60);
+      const durationMinutes = Math.floor(Number(call.duration) / 60);
 
       topCallers[callerId].callTimeMinutes += durationMinutes;
-      topCallers[callerId].callTimeSeconds += call.duration
+      topCallers[callerId].callTimeSeconds += Number(call.duration)
       console.log(`Duration in minuites for ${callerId}`, durationMinutes)
       let min = topCallers[callerId].callTimeSeconds / 60 || 0
       let secs = topCallers[callerId].callTimeSeconds % 60 || 0
