@@ -7,7 +7,7 @@ import { LoginUser, SendPhoneVerificationCode, VerifyPhoneCode, CheckPhoneExists
 import { StoreToDb, SearchDb } from '../controllers/knowledge.controller.js';
 import { AddCard, GetUserPaymentSources, DownloadInvoice, GetTransactions, subscribeUser, CancelSubscription } from '../controllers/paymentController.js';
 
-import { AddInstagramAuth, AddGoogleAuth } from '../controllers/socialauth.controller.js';
+import { AddInstagramAuth, AddGoogleAuth, ScrapeTweets } from '../controllers/socialauth.controller.js';
 
 import { CreateWebHook, SubscriptionUpdated } from "../services/stripe.js";
 import { CreatorDashboard, AssistantCalls, MyAi } from '../controllers/profile.controller.js';
@@ -49,6 +49,7 @@ UserRouter.post("/subscription_updated", SubscriptionUpdated);
 //Oauth
 UserRouter.post("/login_instagram", verifyJwtToken, AddInstagramAuth);
 UserRouter.post("/login_google", verifyJwtToken, AddGoogleAuth);
+UserRouter.post("/scrap_tweets", verifyJwtToken, ScrapeTweets);
 
 
 //Creator Profile

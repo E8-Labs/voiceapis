@@ -7,6 +7,64 @@ import { google } from "googleapis";
 const User = db.User;
 const Op = db.Sequelize.Op;
 
+import * as cheerio from "cheerio";
+import puppeteer from "puppeteer";
+
+export const ScrapeTweets = async (req, res) => {
+  let url = req.body.url;
+  try {
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+
+    // Set User-Agent to avoid being blocked
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36');
+
+    await page.goto(url, { waitUntil: 'networkidle2' });
+
+    let tweets = [];
+    let previousTweetCount = 0;
+    const maxScrolls = 30; // Increase the number of scrolls
+    let scrollCount = 0;
+
+    while (tweets.length < 100 && scrollCount < maxScrolls) {
+        // Extract tweets from the page
+        const newTweets = await page.evaluate(() => {
+            return Array.from(document.querySelectorAll('article div[lang]')).map(tweet => tweet.innerText);
+        });
+
+        tweets = [...tweets, ...newTweets];
+        tweets = [...new Set(tweets)]; // Remove duplicates
+console.log("Twwets", tweets)
+        // If no new tweets were loaded, break the loop
+        if (tweets.length === previousTweetCount) {
+            console.log('No more tweets loaded, breaking out of the loop.');
+            break;
+        }
+
+        previousTweetCount = tweets.length;
+
+        // Scroll down
+        await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
+
+        // Wait longer between scrolls to allow new content to load
+        await new Promise(resolve => setTimeout(resolve, 4000));
+
+        scrollCount++;
+    }
+
+    await browser.close();
+    // console.log(tweets);
+    return res.send({ status: true, message: "Tweets", data: tweets });
+  } catch (error) {
+    console.error("Error fetching the URL:", error);
+    return res.send({
+      status: false,
+      message: "Error fetching the URL:",
+      data: null,
+    });
+  }
+};
+
 export const AddInstagramAuth = async (req, res) => {
   console.log("Add instagram login api", process.env.InstaClientId);
 
@@ -168,7 +226,7 @@ const fetchYouTubeVideos = async (accessToken) => {
   }
 
   const channelId = channelsResponse.data.items[0].id;
-    console.log("Channel id ", channelId)
+  console.log("Channel id ", channelId);
   // Fetch the user's videos
   const videosResponse = await youtube.search.list({
     part: "snippet",
@@ -177,36 +235,41 @@ const fetchYouTubeVideos = async (accessToken) => {
     type: "video",
     order: "date",
   });
-  console.log("Videos ", videosResponse)
+  console.log("Videos ", videosResponse);
 
   return videosResponse.data.items;
 };
 
 const fetchVideoCaptions = async (youtube, videoId) => {
-    const captionsResponse = await youtube.captions.list({
-      part: 'snippet',
-      videoId: videoId,//'k_g0uYWIhm0',
-    });
-  
-    if (!captionsResponse.data.items || captionsResponse.data.items.length === 0) {
-        console.log("No captions found")
-      return null; // No captions found
-    }
-    console.log("Captions found", captionsResponse.data.items)
-    const captionId = captionsResponse.data.items[0].id;
-  
-    // Download the caption (in default format, usually .srt or .vtt)
-    const captionResponse = await youtube.captions.download({
-      id: captionId,
-      tfmt: 'srt', // Change format if needed (e.g., 'vtt')
-    });
-  
-    // Convert the caption data to a string if it's not already
-    const captionData = captionResponse.data;
-  
-    // Ensure captionData is a string (e.g., if it's an array or object, convert to JSON or join into a string)
-    return typeof captionData === 'string' ? captionData : JSON.stringify(captionData);
-  };
+  const captionsResponse = await youtube.captions.list({
+    part: "snippet",
+    videoId: videoId, //'k_g0uYWIhm0',
+  });
+
+  if (
+    !captionsResponse.data.items ||
+    captionsResponse.data.items.length === 0
+  ) {
+    console.log("No captions found");
+    return null; // No captions found
+  }
+  console.log("Captions found", captionsResponse.data.items);
+  const captionId = captionsResponse.data.items[0].id;
+
+  // Download the caption (in default format, usually .srt or .vtt)
+  const captionResponse = await youtube.captions.download({
+    id: captionId,
+    tfmt: "srt", // Change format if needed (e.g., 'vtt')
+  });
+
+  // Convert the caption data to a string if it's not already
+  const captionData = captionResponse.data;
+
+  // Ensure captionData is a string (e.g., if it's an array or object, convert to JSON or join into a string)
+  return typeof captionData === "string"
+    ? captionData
+    : JSON.stringify(captionData);
+};
 
 export const AddGoogleAuth = async (req, res) => {
   console.log("Add Google login API");
@@ -242,37 +305,35 @@ export const AddGoogleAuth = async (req, res) => {
 
         // Fetch YouTube videos
         const videos = await fetchYouTubeVideos(accessToken);
-        
+
         const oauth2Client = new google.auth.OAuth2();
         oauth2Client.setCredentials({ access_token: accessToken });
         const youtube = google.youtube({ version: "v3", auth: oauth2Client });
 
-        console.log("Fetching captions")
+        console.log("Fetching captions");
         // Save videos and captions to the database
         for (const video of videos) {
           const caption = await fetchVideoCaptions(youtube, video.id.videoId);
-            console.log("Captions are ", caption)
-            let vid = await db.YouTubeVideo.findOne({
-                where: {
-                    videoId: video.id.videoId
-                }
-            })
-            if(vid){
-                // await vid.destroy()
-                vid.caption = caption || ''
-                await vid.save();
-            }
-            else{
-                await db.YouTubeVideo.create({
-                    videoId: video.id.videoId,
-                    title: video.snippet.title,
-                    description: video.snippet.description,
-                    thumbnailUrl: video.snippet.thumbnails.default.url,
-                    caption: caption || null,
-                    userId: user.id,
-                  });
-            }
-          
+          console.log("Captions are ", caption);
+          let vid = await db.YouTubeVideo.findOne({
+            where: {
+              videoId: video.id.videoId,
+            },
+          });
+          if (vid) {
+            // await vid.destroy()
+            vid.caption = caption || "";
+            await vid.save();
+          } else {
+            await db.YouTubeVideo.create({
+              videoId: video.id.videoId,
+              title: video.snippet.title,
+              description: video.snippet.description,
+              thumbnailUrl: video.snippet.thumbnails.default.url,
+              caption: caption || null,
+              userId: user.id,
+            });
+          }
         }
 
         res.send({
