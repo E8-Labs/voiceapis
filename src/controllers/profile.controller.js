@@ -102,7 +102,8 @@ async function getUserCallStats(userId) {
           user: profile,
           name: user ? user.name : "Unknown",
           callId: call.id,
-          totalMinutes: 0,
+          totalMinutes: "00:00",
+          callTimeMinutes: 0,
           totalSpent: 0,
           callCount: 0,
         };
