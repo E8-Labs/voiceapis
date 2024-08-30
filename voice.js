@@ -36,7 +36,7 @@ app.use(express.json())
 //   });
 
 
-//https://voiceai-ruby.vercel.app
+https://voiceai-ruby.vercel.app
   app.use(cors({
     origin: 'https://voiceai-ruby.vercel.app',//
     methods: ['GET', 'POST'],

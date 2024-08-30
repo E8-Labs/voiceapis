@@ -21,6 +21,7 @@ export const BuildYourAi = async (req, res) => {
         
        } = req.body;
 
+       console.log("URLS in request", {fb_url, insta_url, youtube_url, discord_url, twitter_url})
       let audio = null;
       if (req.files.media) {
         let file = req.files.media[0];
