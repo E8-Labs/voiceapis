@@ -59,7 +59,7 @@ async function getCompletedCallsNotCharged() {
 
         let user = await db.User.findOne({
           where: {
-            phone: call.phone,
+            userId: call.userId,
           },
         });
         if (user) {

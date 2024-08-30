@@ -37,8 +37,22 @@ async function getUserData(user, currentUser = null) {
             // paymentStatus: "succeeded"
         }
     });
-
-    let totalEarned = (totalSeconds - 300) * 10 / 60;
+    let totalEarned = 0 // if the creator has free calls
+    let amountToChargePerMin = 10;// Dollars
+    let ai = await db.UserAi.findOne({
+        where:{
+            userId: user.id
+        }
+    })
+    if(ai){
+        console.log("An AI Found for user ", ai)
+        amountToChargePerMin = ai.price
+    }
+    else{
+        amountToChargePerMin = 10; // by default 10
+    }
+    console.log(`User ${user.id} charges ${amountToChargePerMin}/min`)
+    totalEarned = (totalSeconds - 300) * amountToChargePerMin / 60;
     console.log(`TotalSeconds for ${user.id}`, totalSeconds)
     let totalCalls = await db.CallModel.count({
         where: {
