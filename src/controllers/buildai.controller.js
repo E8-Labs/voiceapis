@@ -136,79 +136,156 @@ export const BuildAiScript = async (req, res) => {
   });
 };
 
-// export async function AddKnowledgebase(req, res) {
-//   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
-//     if (authData) {
-//       let userId = authData.user.id;
-//       let type = req.body.type;
-//       let content = req.body.content;  // Default content from request body
-//       let pdf = null;
 
-//       if (req.files && req.files.media) {
-//         let file = req.files.media[0];
 
-//         const mediaBuffer = file.buffer;
-//         const mediaType = file.mimetype;
-//         const mediaExt = path.extname(file.originalname);
-//         const mediaFilename = `${Date.now()}${mediaExt}`;
-//         console.log("There is a file uploaded");
+export const UpdateYourAi = async (req, res) => {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (authData) {
+      let userId = authData.user.id;
+      let { name, action, tagline, fb_url, insta_url, youtube_url, discord_url, twitter_url, 
+        greeting, possibleUserQuery, price, isFree, productToSell, goalType, webinarUrl, goalTitle, goalUrl 
+       } = req.body;
 
-//         // Ensure directories exist
-//         let dir = process.env.DocsDir; // e.g., /var/www/neo/neoapis/uploads
-//         const docsDir = path.join(dir + "/documents");
-//         ensureDirExists(docsDir);
+       console.log("URLS in request", {fb_url, insta_url, youtube_url, discord_url, twitter_url})
+      let audio = null;
+      if (req.files.media) {
+        let file = req.files.media[0];
 
-//         // Save the PDF file
-//         const docPath = path.join(docsDir, mediaFilename);
-//         fs.writeFileSync(docPath, mediaBuffer);
-//         pdf = `https://www.blindcircle.com:444/neo/uploads/documents/${mediaFilename}`;
-//         console.log("Pdf uploaded is ", pdf);
+        const mediaBuffer = file.buffer;
+        const mediaType = file.mimetype;
+        const mediaExt = path.extname(file.originalname);
+        const mediaFilename = `${Date.now()}${mediaExt}`;
+        console.log("There is a file uploaded");
+        if (mediaType.includes("audio")) {
+          // Ensure directories exist
+          let dir = process.env.DocsDir; ///var/www/neo/neoapis/uploads
+          const audioDir = path.join(dir + "/audios"); //path.join(__dirname, '../../uploads/images');
+          //   const thumbnailDir = path.join(dir + "/thumbnails"); //path.join(__dirname, '../../uploads/thumbnails');
+          ensureDirExists(audioDir);
+          //   ensureDirExists(thumbnailDir);
 
-//         // If the file is a PDF, extract text from it using pdf-lib
-//         if (mediaType.includes("pdf")) {
-//           try {
-//             // Load the PDF document
-//             const pdfDoc = await PDFDocument.load(mediaBuffer);
+          // Save audio
+          const audioPath = path.join(audioDir, mediaFilename);
+          fs.writeFileSync(audioPath, mediaBuffer);
+          // image = `/uploads/images/${mediaFilename}`;
+          audio = `https://www.blindcircle.com:444/neo/uploads/audios/${mediaFilename}`;
+          // Generate and save thumbnail
+        }
+      }
 
-//             // Extract text from each page
-//             let extractedText = '';
-//             const pages = pdfDoc.getPages();
-//             console.log("Pages pdf", pages.length)
-//             for (const page of pages) {
-//               const textContent = await page.getTextContent();
-//               extractedText += textContent.items.map(item => item.str).join(' ') + '\n';
-//             }
 
-//             // Update content with the extracted text
-//             content = extractedText;
-//             console.log("Extracted text from PDF:", content);
-//           } catch (err) {
-//             console.error("Error extracting text from PDF:", err);
-//             return res.status(500).send({ status: false, message: "Error processing PDF file." });
-//           }
-//         }
-//       }
+      const updateData = {};
+        
+        if (name !== null && name !== undefined) updateData.name = name;
+        if (action !== null && action !== undefined) updateData.action = action;
+        if (tagline !== null && tagline !== undefined) updateData.tagline = tagline;
+        if (fb_url !== null && fb_url !== undefined) updateData.fbUrl = fb_url;
+        if (insta_url !== null && insta_url !== undefined) updateData.instaUrl = insta_url;
+        if (youtube_url !== null && youtube_url !== undefined) updateData.youtubeUrl = youtube_url;
+        if (discord_url !== null && discord_url !== undefined) updateData.discordUrl = discord_url;
+        if (twitter_url !== null && twitter_url !== undefined) updateData.twitterUrl = twitter_url;
+        if (greeting !== null && greeting !== undefined) updateData.greeting = greeting;
+        if (possibleUserQuery !== null && possibleUserQuery !== undefined) updateData.possibleUserQuery = possibleUserQuery;
+        if (price !== null && price !== undefined) updateData.price = price;
+        if (isFree !== null && isFree !== undefined) updateData.isFree = isFree;
+        if (goalType !== null && goalType !== undefined) updateData.goalType = goalType;
+        if (productToSell !== null && productToSell !== undefined) updateData.productToSell = productToSell;
+        if (webinarUrl !== null && webinarUrl !== undefined) updateData.webinarUrl = webinarUrl;
+        if (goalTitle !== null && goalTitle !== undefined) updateData.goalTitle = goalTitle;
+        if (goalUrl !== null && goalUrl !== undefined) updateData.goalUrl = goalUrl;
 
-//       // Create the knowledge base entry
-//       let kbcreated = await db.KnowledgeBase.create({
-//         type: type,
-//         content: content, // Use the extracted text content
-//         documentUrl: pdf,
-//         userId: userId,
-//       });
+        console.log("Data to update ", updateData)
+        // Update the table in the database using Sequelize
 
-//       if (kbcreated) {
-//         res.send({
-//           status: true,
-//           message: "Knowledge base added",
-//           data: kbcreated,
-//         });
-//       }
-//     } else {
-//       res.send({ status: false, message: "Unauthenticated User" });
-//     }
-//   });
-// }
+      let createdAI = await db.UserAi.update(updateData, {
+        where: {
+          userId: authData.user.id
+        }
+      });
+
+
+      let questions = req.body.kycQuestions;
+      if (questions && questions.length > 0) {
+        for (let i = 0; i < questions.length; i++) {
+          let p = questions[i];
+          let questionId = p.questionId || null
+          if(questionId){
+            let question = await db.KycQuestions.update({question: p.question, userId: userId}, {
+              where: {
+                id: questionId
+              }
+            })
+            if (question) {
+              console.log(`Question ${p.question} updated`);
+            }
+          }
+          else{
+            let questionCreated = await db.KycQuestions.create({
+              question: p.question,
+              userId: userId,
+            });
+            if (questionCreated) {
+              console.log(`Question ${p.question} created`);
+            }
+          }
+        }
+      }
+
+      let products = req.body.products;
+      if (products && products.length > 0) {
+        for (let i = 0; i < products.length; i++) {
+          let p = products[i];
+          let productId = p.productId || null;
+          if(productId){
+            let pUpdated = await db.SellingProducts.update({name: p.name,
+              productPrice: p.productPrice,}, {
+              where: {
+                id: productId
+              }
+            })
+          }
+          else{
+            let productCreated = await db.SellingProducts.create({
+              name: p.name,
+              productPrice: p.productPrice,
+              userId: userId,
+            });
+          }
+          
+        }
+      }
+
+
+      
+
+      res.send({ status: true, message: "Ai Updated", data: createdAI });
+    } else {
+      res.send({ status: false, message: "Unauthenticated User" });
+    }
+  });
+};
+
+
+
+export const DeleteKb = async(req, res)=> {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (authData) {
+      let userId = authData.user.id;
+      let kbToDel = req.body.kbId;
+      let del = await db.KnowledgeBase.destroy({
+        where: {
+          id: kbToDel
+        }
+      })
+      res.send({ status: true, message: "Knowledge base removed", data: null });
+    }
+    else {
+      res.send({ status: false, message: "Unauthenticated User" });
+    }
+  })
+}
+
+
 
 export async function AddKnowledgebase(req, res) {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {

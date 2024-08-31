@@ -38,6 +38,18 @@ async function getUserCallStats(userId) {
 
   const results = {};
 
+  //Calculate unique total callers
+  const totalCallers = await db.CallModel.count({
+    distinct: 'userId',
+    where: {
+      modelId: userId,
+      status: "completed",
+      createdAt: {
+        [db.Sequelize.Op.between]: [startDate, now],
+      },
+    },
+  });
+
   for (const [key, startDate] of Object.entries(intervals)) {
     const calls = await db.CallModel.findAll({
       where: {
@@ -137,6 +149,7 @@ async function getUserCallStats(userId) {
       totalDurationMinutes,
       totalEarnings,
       topTenCallers,
+      totalCallers
     };
   }
 
