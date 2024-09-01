@@ -19,8 +19,14 @@ export const CreatorDashboard = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
+      //Get User Products
+      let products = await db.SellingProducts.findAll({
+        where: {
+          userId: userId,
+        },
+      });
       let data = await getUserCallStats(userId);
-      res.send({ status: true, data: data, message: "Dashboard" });
+      res.send({ status: true, data: {...data, products}, message: "Dashboard" });
     } else {
       res.send({ status: false, data: null, message: "Unauthenticated user" });
     }
@@ -39,18 +45,19 @@ async function getUserCallStats(userId) {
   const results = {};
 
   //Calculate unique total callers
-  const totalCallers = await db.CallModel.count({
-    distinct: 'userId',
-    where: {
-      modelId: userId,
-      status: "completed",
-      createdAt: {
-        [db.Sequelize.Op.between]: [startDate, now],
-      },
-    },
-  });
 
   for (const [key, startDate] of Object.entries(intervals)) {
+    const uniqueCallers = await db.CallModel.count({
+      distinct: "userId",
+      where: {
+        modelId: userId,
+        status: "completed",
+        createdAt: {
+          [db.Sequelize.Op.between]: [startDate, now],
+        },
+      },
+    });
+
     const calls = await db.CallModel.findAll({
       where: {
         modelId: userId,
@@ -62,17 +69,17 @@ async function getUserCallStats(userId) {
     });
 
     let amountToChargePerMin = 10; // Dollars
-      let ai = await db.UserAi.findOne({
-        where: {
-          userId: userId,
-        },
-      });
-      if (ai) {
-        console.log("An AI Found for user ", ai);
-        amountToChargePerMin = ai.price;
-      } else {
-        amountToChargePerMin = 10; // by default 10
-      }
+    let ai = await db.UserAi.findOne({
+      where: {
+        userId: userId,
+      },
+    });
+    if (ai) {
+      console.log("An AI Found for user ", ai);
+      amountToChargePerMin = ai.price;
+    } else {
+      amountToChargePerMin = 10; // by default 10
+    }
 
     const totalCalls = calls.length;
     console.log(`Calls between ${startDate} - ${now}`, totalCalls);
@@ -123,20 +130,22 @@ async function getUserCallStats(userId) {
       }
 
       // let totalEarned = 0; // if the creator has free calls
-      
 
       const durationMinutes = Math.floor(Number(call.duration) / 60);
 
       topCallers[callerId].callTimeMinutes += durationMinutes;
-      topCallers[callerId].callTimeSeconds += Number(call.duration)
-      console.log(`Duration in minuites for ${callerId}`, durationMinutes)
-      let min = Math.floor(topCallers[callerId].callTimeSeconds / 60) || 0
-      if(min < 1){
-        min = 0
+      topCallers[callerId].callTimeSeconds += Number(call.duration);
+      console.log(`Duration in minuites for ${callerId}`, durationMinutes);
+      let min = Math.floor(topCallers[callerId].callTimeSeconds / 60) || 0;
+      if (min < 1) {
+        min = 0;
       }
-      let secs = topCallers[callerId].callTimeSeconds % 60 || 0
-      topCallers[callerId].totalMinutes = `${min < 10 ? `0${min}` : min}:${secs < 10 ? `0${secs}` : secs}`
-      topCallers[callerId].totalSpent += Math.max(0, call.duration ) * amountToChargePerMin / 60;
+      let secs = topCallers[callerId].callTimeSeconds % 60 || 0;
+      topCallers[callerId].totalMinutes = `${min < 10 ? `0${min}` : min}:${
+        secs < 10 ? `0${secs}` : secs
+      }`;
+      topCallers[callerId].totalSpent +=
+        (Math.max(0, call.duration) * amountToChargePerMin) / 60;
       topCallers[callerId].callCount += 1;
     }
     //   console.log("Top callers", topCallers)
@@ -149,7 +158,8 @@ async function getUserCallStats(userId) {
       totalDurationMinutes,
       totalEarnings,
       topTenCallers,
-      totalCallers
+      uniqueCallers,
+      // products
     };
   }
 

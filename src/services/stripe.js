@@ -806,3 +806,55 @@ export const createInvoicePdf = async (invoiceId) => {
     
     return docUrl;
 };
+
+
+
+
+//Products
+export async function createProductAndPaymentLink(userId, name, description, productPrice, imageUrl = '') {
+    try {
+        
+      // Step 1: Connect Stripe
+      let key = process.env.Environment === "Sandbox" ? process.env.STRIPE_SK_TEST : process.env.STRIPE_SK_PRODUCTION;
+      //console.log("Key is ", key)
+      const stripe = StripeSdk(key);
+  
+      // Step 2: Create a Product with the unique ID in metadata
+      const product = await stripe.products.create({
+        name: name,
+        description: description,
+        images: [imageUrl], // Optional: Replace with your image URL
+        metadata: { userId: userId }, // Store the unique ID in metadata
+      });
+  
+      console.log('Product created with User ID:', userId);
+  
+      // Step 3: Create a Price for the Product
+      const price = await stripe.prices.create({
+        product: product.id,
+        unit_amount: productPrice * 100, // Price in cents (e.g., 2000 cents = $20.00)
+        currency: 'usd',
+      });
+  
+      console.log('Price created:', price.id);
+  
+      // Step 4: Create a Payment Link
+      const paymentLink = await stripe.paymentLinks.create({
+        line_items: [
+          {
+            price: price.id,
+            quantity: 1,
+          },
+        ],
+      });
+
+  
+      console.log('Payment Link created:', paymentLink.url);
+  
+      return { paymentLink: paymentLink.url, productId: product.id, priceId: price.id };
+  
+    } catch (error) {
+      console.error('Error creating product and payment link:', error);
+      return null
+    }
+  }

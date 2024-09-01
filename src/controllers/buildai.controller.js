@@ -12,6 +12,7 @@ import {
   ensureDirExists,
 } from "../utils/generateThumbnail.js";
 import { create } from "domain";
+import { createProductAndPaymentLink } from "../services/stripe.js";
 
 export const BuildYourAi = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
@@ -111,11 +112,17 @@ export const BuildAiScript = async (req, res) => {
         if (products && products.length > 0) {
           for (let i = 0; i < products.length; i++) {
             let p = products[i];
+            let stripeProduct = await createProductAndPaymentLink(userId, p.name, `Buy ${p.name} at $${p.productPrice}`, Number(p.productPrice), 'image')
             let productCreated = await db.SellingProducts.create({
               name: p.name,
               productPrice: p.productPrice,
               userId: userId,
+              stripeProductId: stripeProduct.productId,
+              stripePriceId: stripeProduct.priceId,
+              stripePaymentLink: stripeProduct.paymentLink,
             });
+            
+
             if(p.name == productToSell){
               createdAI.productToSell = productCreated.id;
               await createdAI.save();

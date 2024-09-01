@@ -18,8 +18,21 @@ const SellingProducts = (sequelize, Sequelize) => {
         references: {
           model: 'Users', // Table name (plural form)
           key: 'id'
-        }
+        },
+        
       },
+      stripeProductId: {
+        type: Sequelize.STRING,
+        defaultValue: ''
+      },
+      stripePriceId: {
+        type: Sequelize.STRING,
+        defaultValue: ''
+      },
+      stripePaymentLink: {
+        type: Sequelize.STRING,
+        defaultValue: ''
+      }
     });
   
     return User;
