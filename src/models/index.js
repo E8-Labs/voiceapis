@@ -9,6 +9,7 @@ import KycQuestions from "./ai/kycquestions.model.js";
 import EmailVerificationCode from "./emailverificationcode.model.js";
 import KnowledgeBase from "./ai/knowledgebase.model.js";
 import YouTubeVideo from "./videos.model.js";
+import PurchasedProduct from "./ai/purchasedproducts.model.js";
 
 
 import Sequelize from 'sequelize'
@@ -78,6 +79,10 @@ models["YouTubeVideo"] = db.YouTubeVideo;
 
 db.SubscriptionModel = SubscriptionModel(sequelize, Sequelize);
 models["SubscriptionModel"] = db.SubscriptionModel;
+
+
+db.PurchasedProduct = PurchasedProduct(sequelize, Sequelize);
+models["PurchasedProduct"] = db.PurchasedProduct;
 
 Object.keys(models).forEach(modelName => {
   if (models[modelName].associate) {

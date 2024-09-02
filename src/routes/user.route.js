@@ -11,6 +11,7 @@ import { AddInstagramAuth, AddGoogleAuth, ScrapeTweets } from '../controllers/so
 
 import { CreateWebHook, SubscriptionUpdated } from "../services/stripe.js";
 import { CreatorDashboard, AssistantCalls, MyAi } from '../controllers/profile.controller.js';
+import { GetCallLogs, ListCustomerInvoices } from '../controllers/callerprofile.controller.js';
 
 
 let UserRouter = express.Router()
@@ -57,4 +58,9 @@ UserRouter.get("/creator_dashboard", verifyJwtToken, CreatorDashboard);
 UserRouter.get("/creator_calls", verifyJwtToken, AssistantCalls);
 UserRouter.get("/my_ai", verifyJwtToken, MyAi);
 
+
+
+//Caller Profile
+UserRouter.get("/call_logs", verifyJwtToken, GetCallLogs);
+UserRouter.get("/invoices", verifyJwtToken, ListCustomerInvoices);
 export default UserRouter

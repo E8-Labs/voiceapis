@@ -41,6 +41,29 @@ async function getUserData(call, currentUser = null) {
             userId: call.modelId
         }
     })
+    let chargeAmountForModel = 1;
+    let ai = await db.UserAi.findOne({
+        where:{
+            userId: call.modelId
+        }
+    })
+    if(ai){
+        chargeAmountForModel = Number(ai.price) || 1;
+    }
+
+    let totalChargeForCall = chargeAmountForModel * call.duration / 60;
+
+    let min = Math.floor(call.duration / 60) || 0;
+      if (min < 1) {
+        min = 0;
+      }
+      let secs = call.duration % 60 || 0;
+      let durationString = `${min < 10 ? `0${min}` : min}:${
+        secs < 10 ? `0${secs}` : secs
+      }`;
+
+
+
     let modelRes = null
     let message = ""
     if(model){
@@ -65,7 +88,10 @@ async function getUserData(call, currentUser = null) {
         updatedAt: call.updatedAt,
         caller: callRes,
         model: modelRes,
-        message: message
+        message: message,
+        amount: totalChargeForCall,
+        durationString: durationString,
+        durationInSec: call.duration
     }
 
 
