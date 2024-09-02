@@ -5,7 +5,8 @@ import { LoginUser, SendPhoneVerificationCode, VerifyPhoneCode, CheckPhoneExists
  } from '../controllers/user.controller.js'
 
 import { StoreToDb, SearchDb } from '../controllers/knowledge.controller.js';
-import { AddCard, GetUserPaymentSources, DownloadInvoice, GetTransactions, subscribeUser, CancelSubscription } from '../controllers/paymentController.js';
+import { AddCard, GetUserPaymentSources, DownloadInvoice, GetTransactions, 
+    subscribeUser, CancelSubscription, DeleteCard } from '../controllers/paymentController.js';
 
 import { AddInstagramAuth, AddGoogleAuth, ScrapeTweets } from '../controllers/socialauth.controller.js';
 
@@ -38,6 +39,7 @@ UserRouter.get("/search", SearchDb);
 
 //Payment
 UserRouter.post("/add_card", verifyJwtToken, AddCard);
+UserRouter.post("/delete_card", verifyJwtToken, DeleteCard);
 UserRouter.get("/get_transactions", verifyJwtToken, GetTransactions);
 UserRouter.get("/list_cards", verifyJwtToken, GetUserPaymentSources);
 UserRouter.post("/subscribe", verifyJwtToken, subscribeUser);

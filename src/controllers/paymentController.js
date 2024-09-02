@@ -32,6 +32,20 @@ export const AddCard = async (req, res) => {
     })
 }
 
+export const DeleteCard = async (req, res) => {
+    console.log("Delete card api")
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            let user = await db.User.findByPk(authData.user.id);
+            let cardId = req.body.cardId;
+            console.log("User deleting card ", cardId)
+            let cardDeleted = await stripe.deleteCard(user, cardId);
+
+            res.send({ status: true, message: cardDeleted !== null ? "Card deleted" : "Card not deleted", data: cardDeleted })
+        }
+    })
+}
+
 
 export const GetUserPaymentSources = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {

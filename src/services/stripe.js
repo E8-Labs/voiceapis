@@ -187,6 +187,28 @@ export const createCard = async (user, token) => {
   }
 };
 
+export const deleteCard = async (user, cardId) => {
+    let key =
+      process.env.Environment === "Sandbox"
+        ? process.env.STRIPE_SK_TEST
+        : process.env.STRIPE_SK_PRODUCTION;
+    //console.log("Key is ", key)
+  
+    try {
+      const stripe = StripeSdk(key);
+      let customer = await createCustomer(user, "deleteCard");
+  
+      const deleted = await stripe.customers.deleteSource(customer.id, cardId);
+      
+  
+      return deleted;
+    } catch (error) {
+      console.log("Card error ");
+      console.log(error);
+      return null;
+    }
+  };
+
 export const createPromo = async (
   code,
   repetition = "once",
