@@ -10,6 +10,7 @@ import chalk from "chalk";
 import nodemailer from "nodemailer";
 import UserProfileFullResource from "../resources/userprofilefullresource.js";
 import CallLiteResource from "../resources/callliteresource.js";
+import ProductResource from '../resources/productresource.js'
 
 import { start } from "repl";
 import { listCustomerInvoices } from "../services/stripe.js";
@@ -130,7 +131,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           let pRes = await UserProfileFullResource(p);
 
 
-          return {profile: pRes, products: topProducts};
+          return {profile: pRes, products: await ProductResource(topProducts)};
         }));
 
         console.log("Finding purchased for ", userId)
@@ -151,7 +152,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           }
         })
         // Return the result
-        return res.send({status: true, message: "Products list", data: {callersDashboardData, products}});
+        return res.send({status: true, message: "Products list", data: {callersDashboardData, products: await ProductResource(products)}});
       } catch (error) {
         console.error("Error fetching creators and products:", error);
         return res.send({status: false, message: "Error fetching products", data: null, error: error});
