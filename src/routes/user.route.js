@@ -6,13 +6,13 @@ import { LoginUser, SendPhoneVerificationCode, VerifyPhoneCode, CheckPhoneExists
 
 import { StoreToDb, SearchDb } from '../controllers/knowledge.controller.js';
 import { AddCard, GetUserPaymentSources, DownloadInvoice, GetTransactions, 
-    subscribeUser, CancelSubscription, DeleteCard } from '../controllers/paymentController.js';
+    subscribeUser, CancelSubscription, DeleteCard, BuyProduct } from '../controllers/paymentController.js';
 
 import { AddInstagramAuth, AddGoogleAuth, ScrapeTweets } from '../controllers/socialauth.controller.js';
 
 import { CreateWebHook, SubscriptionUpdated } from "../services/stripe.js";
 import { CreatorDashboard, AssistantCalls, MyAi } from '../controllers/profile.controller.js';
-import { GetCallLogs, ListCustomerInvoices } from '../controllers/callerprofile.controller.js';
+import { GetCallLogs, ListCustomerInvoices, GetCreatorsAndTopProducts } from '../controllers/callerprofile.controller.js';
 
 
 let UserRouter = express.Router()
@@ -39,6 +39,7 @@ UserRouter.get("/search", SearchDb);
 
 //Payment
 UserRouter.post("/add_card", verifyJwtToken, AddCard);
+UserRouter.post("/buy_product", verifyJwtToken, BuyProduct);
 UserRouter.post("/delete_card", verifyJwtToken, DeleteCard);
 UserRouter.get("/get_transactions", verifyJwtToken, GetTransactions);
 UserRouter.get("/list_cards", verifyJwtToken, GetUserPaymentSources);
@@ -65,4 +66,5 @@ UserRouter.get("/my_ai", verifyJwtToken, MyAi);
 //Caller Profile
 UserRouter.get("/call_logs", verifyJwtToken, GetCallLogs);
 UserRouter.get("/invoices", verifyJwtToken, ListCustomerInvoices);
+UserRouter.get("/caller_dashboard", verifyJwtToken, GetCreatorsAndTopProducts);
 export default UserRouter

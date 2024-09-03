@@ -74,3 +74,69 @@ export const GetCallLogs = async (req, res) => {
       }
     })
 }
+
+
+
+export const GetCreatorsAndTopProducts = async (req, res) => {
+
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({status: false, message: "Unauthorized", data: null});
+    }
+
+    if (authData) {
+      let userId = authData.user.id;
+      try {
+        // Fetch all the unique creators (modelId) you have talked to
+        const creators = await db.CallModel.findAll({
+          where: {
+            userId: userId,
+          },
+          attributes: ['modelId'],
+          group: ['modelId'],
+        });
+
+        // Extract the modelIds (creator IDs) from the result
+        const creatorIds = creators.map((creator) => creator.modelId);
+
+        if (creatorIds.length === 0) {
+          return res.send({status: false, message: "No creators found", data: null});
+        }
+
+        // Fetch the creator profiles
+        let creatorProfiles = await db.User.findAll({
+          where: {
+            id: {
+              [db.Sequelize.Op.in]: creatorIds,
+            },
+          },
+        });
+
+        if (!creatorProfiles || creatorProfiles.length === 0) {
+          return res.send({status: false, message: "No profiles found", data: null});
+        }
+
+        // Fetch the top 20 products for each creator
+        let callersDashboardData = await Promise.all(creatorProfiles.map(async (p) => {
+          const topProducts = await db.SellingProducts.findAll({
+            where: {
+              userId: p.id,
+            },
+            order: [['productPrice', 'DESC']], // Assuming top products are determined by price, adjust if necessary
+            limit: 20,
+          });
+          
+          // Assuming `UserProfileFullResource` is an asynchronous function
+          let pRes = await UserProfileFullResource(p);
+          return {profile: pRes, products: topProducts};
+        }));
+
+        // Return the result
+        return res.send({status: true, message: "Products list", data: callersDashboardData});
+      } catch (error) {
+        console.error("Error fetching creators and products:", error);
+        return res.send({status: false, message: "Error fetching products", data: null, error: error});
+      }
+    }
+  });
+};
