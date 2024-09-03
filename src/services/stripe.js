@@ -980,7 +980,7 @@ export async function listCustomerInvoices(user, lastInvoiceId = null) {
 
         if(lastInvoiceId == null){
             const response = await stripe.invoices.list({
-                customer: "cus_QlFR8OMwbTtxLf",//customer.id,
+                customer: customer.id,
                 limit: 20, // Adjust the limit as needed
                 
             });
