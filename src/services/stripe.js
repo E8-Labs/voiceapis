@@ -8,6 +8,9 @@ import fs from "fs";
 import path from "path";
 // import logo from '../assets/applogo.png'
 
+
+
+
 export const SubscriptionTypesSandbox = [
   {
     type: "Monthly",
@@ -48,6 +51,26 @@ export const SubscriptionTypesProduction = [
 
 const AppSuffix = "";
 const AppPrefix = "Voice_";
+
+export const getStripe = async(whoami = "Create Stripe instance")=>{
+  let key =
+    process.env.Environment === "Sandbox"
+      ? process.env.STRIPE_SK_TEST
+      : process.env.STRIPE_SK_PRODUCTION;
+  // console.log("Key is create customer ", key)
+  console.log("whoami", whoami);
+
+  try {
+    const stripe = StripeSdk(key);
+    return stripe
+  }
+  catch(error){
+    console.log("Error createing stripe")
+    return null
+  }
+}
+
+
 export const createCustomer = async (user, whoami = "default") => {
   let key =
     process.env.Environment === "Sandbox"
@@ -607,7 +630,7 @@ export const loadCards = async (user) => {
     let config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://api.stripe.com/v1/customers/${customer.id}/cards?limit=3`,
+      url: `https://api.stripe.com/v1/customers/${customer.id}/cards?limit=10`,
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         Authorization: `Bearer ${key}`,
@@ -631,6 +654,40 @@ export const loadCards = async (user) => {
     return null;
   }
 };
+
+export async function setDefaultPaymentMethod(user, paymentMethodId) {
+  try {
+    let key =
+    process.env.Environment === "Sandbox"
+      ? process.env.STRIPE_SK_TEST
+      : process.env.STRIPE_SK_PRODUCTION;
+  //console.log("Key is ", key)
+  const stripe = StripeSdk(key);
+    // Fetch the user profile to get the customerId
+    // const user = await db.User.findOne({ where: { id: user.id } });
+
+    
+    let customer = await createCustomer(user)
+    // Attach the payment method to the customer, if not already attached
+    // await stripe.paymentMethods.attach(paymentMethodId, { customer: user.customerId });
+
+    // Set the default payment method
+    console.log("Setting default ", paymentMethodId)
+    const customerUpdated = await stripe.customers.update(customer.id, {
+      invoice_settings: {
+        default_payment_method: paymentMethodId,
+      },
+    });
+
+    console.log('Default payment method set successfully:', customerUpdated);
+    return customerUpdated
+    // return { status: true, message: 'Default payment method set successfully', customer };
+  } catch (error) {
+    console.error('Error setting default payment method:', error);
+    return null
+    // return { status: false, message: 'Error setting default payment method', error };
+  }
+}
 
 //function that parses the subscription object and retrieves only desired info to show to the user
 // status of the subscription // active, cancelled, trialing, paused etc

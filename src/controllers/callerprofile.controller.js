@@ -128,11 +128,30 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           
           // Assuming `UserProfileFullResource` is an asynchronous function
           let pRes = await UserProfileFullResource(p);
+
+
           return {profile: pRes, products: topProducts};
         }));
 
+        console.log("Finding purchased for ", userId)
+        let productsPurchased = await db.PurchasedProduct.findAll({
+          where: {
+            userId: userId
+          },
+          attributes: ['productId'],
+          group: ['productId'],
+        })
+
+        const productIds = productsPurchased.map((product) => product.productId);
+        let products = await db.SellingProducts.findAll({
+          where: {
+            id:{
+              [db.Sequelize.Op.in]: productIds
+            }
+          }
+        })
         // Return the result
-        return res.send({status: true, message: "Products list", data: callersDashboardData});
+        return res.send({status: true, message: "Products list", data: {callersDashboardData, products}});
       } catch (error) {
         console.error("Error fetching creators and products:", error);
         return res.send({status: false, message: "Error fetching products", data: null, error: error});

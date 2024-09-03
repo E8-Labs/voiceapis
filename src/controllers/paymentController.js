@@ -57,9 +57,47 @@ export const GetUserPaymentSources = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let user = await db.User.findByPk(authData.user.id);
+      let customer = await stripe.createCustomer(user);
+      const defaultPaymentMethodId =
+        customer.invoice_settings.default_payment_method;
       let cards = await stripe.loadCards(user);
+      const paymentMethodsWithDefault = cards.map((paymentMethod) => {
+        return {
+          id: paymentMethod.id,
+          brand: paymentMethod.brand,
+          last4: paymentMethod.last4,
+          exp_month: paymentMethod.exp_month,
+          exp_year: paymentMethod.exp_year,
+          isDefault: paymentMethod.id === defaultPaymentMethodId, // Mark if this is the default
+        };
+      });
       //console.log("cards loaded ", cards)
-      res.send({ status: true, message: "Card loaded", data: cards });
+      res.send({
+        status: true,
+        message: "Card loaded",
+        data: paymentMethodsWithDefault,
+        default: defaultPaymentMethodId,
+      });
+    }
+  });
+};
+
+export const MakeDefaultPaymentMethod = async (req, res) => {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (authData) {
+      let user = await db.User.findByPk(authData.user.id);
+      // let customer = await stripe.createCustomer(user)
+      let cardId = req.body.cardId;
+      // const defaultPaymentMethodId = customer.invoice_settings.default_payment_method;
+      let customer = await stripe.setDefaultPaymentMethod(user, cardId);
+      //console.log("cards loaded ", cards)
+      res.send({ status: true, message: "Card set default", data: customer });
+    } else {
+      res.send({
+        status: false,
+        message: `Unauthenticated User`,
+        data: null,
+      });
     }
   });
 };
@@ -226,7 +264,7 @@ export const BuyProduct = async (req, res) => {
     } else {
       let user = await db.User.findByPk(authData.user.id);
       const { productId } = req.body; // Assume productId is passed in the request body
-      const  userId  = user.id; 
+      const userId = user.id;
 
       try {
         // Fetch the product from the database
@@ -235,53 +273,94 @@ export const BuyProduct = async (req, res) => {
         });
 
         if (!product) {
-          return res
-            .send({ status: false, message: "Product not found" });
+          return res.send({ status: false, message: "Product not found" });
         }
 
         // Fetch the user profile to get the customerId
         const user = await db.User.findOne({ where: { id: userId } });
 
-        if (!user ) {
-          return res
-            .send({ status: false, message: "Customer not found" });
+        if (!user) {
+          return res.send({ status: false, message: "Customer not found" });
         }
 
         // Check if stripeProductId is empty
         if (!product.stripeProductId) {
           // Create a new product in Stripe
-          const stripeProduct = await stripe.products.create({
-            name: product.name,
-            description: `Product for ${product.name}`,
-          });
-
+          // const stripeProduct = await stripe.products.create({
+          //   name: product.name,
+          //   description: `Product for ${product.name}`,
+          // });
+          let stripeProduct = await stripe.createProductAndPaymentLink(
+            userId,
+            product.name,
+            `Buy ${product.name} at $${product.productPrice}`,
+            Number(product.productPrice),
+            "image"
+          );
           // Create a price for the product
-          const stripePrice = await stripe.prices.create({
-            product: stripeProduct.id,
-            unit_amount: Math.round(product.productPrice * 100), // Stripe requires the amount in cents
-            currency: "usd", // Adjust the currency as needed
-          });
+          // const stripePrice = await stripe.prices.create({
+          //   product: stripeProduct.id,
+          //   unit_amount: Math.round(product.productPrice * 100), // Stripe requires the amount in cents
+          //   currency: "usd", // Adjust the currency as needed
+          // });
 
           // Update the product in the database with the Stripe product and price IDs
-          product.stripeProductId = stripeProduct.id;
-          product.stripePriceId = stripePrice.id;
+          product.stripeProductId = stripeProduct.productId;
+          product.stripePriceId = stripeProduct.priceId;
           await product.save();
         }
 
+        let customer = await stripe.createCustomer(
+          user,
+          "buy product payment controller"
+        );
         // Create a payment intent for the product
-        const paymentIntent = await stripe.paymentIntents.create({
+
+        let defaultPaymentMethodId =
+          customer.invoice_settings.default_payment_method;
+        if (!defaultPaymentMethodId) { // if no default payment method
+          let cards = await stripe.loadCards(user);
+
+          if (cards.length === 0) {
+            return res.send({
+              status: false,
+              message: "No payment source found",
+              data: null,
+
+            });
+          }
+          defaultPaymentMethodId = cards[0].id
+        }
+        let stripeInstance = await stripe.getStripe()
+        const paymentIntent = await stripeInstance.paymentIntents.create({
           amount: Math.round(product.productPrice * 100), // Amount in cents
           currency: "usd", // Adjust the currency as needed
-          customer: user.customerId, // Stripe customer ID
+          customer: customer.id, // Stripe customer ID
           payment_method_types: ["card"],
+          payment_method: defaultPaymentMethodId,
+          off_session: true, // Set to true to indicate that this is an off-session payment (like saving cards)
+          confirm: true, // Automatically confirms the payment
           description: `Purchase of ${product.name}`,
         });
+        console.log("payment intent", paymentIntent)
+        if(paymentIntent){
+          let purchasedProduct = await db.PurchasedProduct.create({
+            userId: user.id,
+            productId: product.id,
+            productPrice: product.productPrice,
+            paymentIntentId: paymentIntent.id,
+            data: JSON.stringify(paymentIntent),
+            status: paymentIntent.status,
+            livemode: paymentIntent.livemode
+          })
+        }
 
         // Respond with the payment intent client secret
         return res.send({
           status: true,
           message: "Payment intent created",
-          clientSecret: paymentIntent.client_secret,
+          // clientSecret: paymentIntent.client_secret,
+          intent: paymentIntent
         });
       } catch (error) {
         console.error("Error processing payment:", error);

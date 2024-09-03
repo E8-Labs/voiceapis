@@ -22,12 +22,20 @@ const PurchasedProduct = (sequelize, Sequelize) => {
         },
         
       },
-      stripePurchseId: {
+      paymentIntentId: {
         type: Sequelize.STRING,
         defaultValue: ''
       },
-      stripeInvoiceId: {
+      livemode:{
+        type: Sequelize.BOOLEAN,
+        default: false,
+      },
+      status:{
         type: Sequelize.STRING,
+        default: "succeeded",
+      },
+      data: {
+        type: Sequelize.TEXT,
         defaultValue: ''
       },
       

@@ -1,4 +1,6 @@
 import express from 'express'
+import multer from 'multer';
+
 import {verifyJwtToken} from '../middleware/jwtmiddleware.js'
 import { LoginUser, SendPhoneVerificationCode, VerifyPhoneCode, CheckPhoneExists, UpdateUserToCreator,
     CheckUsernameExists, CheckEmailExists, GetProfileWithUsername, SendEmailVerificationCode, VerifyEmailCode
@@ -6,7 +8,7 @@ import { LoginUser, SendPhoneVerificationCode, VerifyPhoneCode, CheckPhoneExists
 
 import { StoreToDb, SearchDb } from '../controllers/knowledge.controller.js';
 import { AddCard, GetUserPaymentSources, DownloadInvoice, GetTransactions, 
-    subscribeUser, CancelSubscription, DeleteCard, BuyProduct } from '../controllers/paymentController.js';
+    subscribeUser, CancelSubscription, DeleteCard, BuyProduct, MakeDefaultPaymentMethod } from '../controllers/paymentController.js';
 
 import { AddInstagramAuth, AddGoogleAuth, ScrapeTweets } from '../controllers/socialauth.controller.js';
 
@@ -15,11 +17,15 @@ import { CreatorDashboard, AssistantCalls, MyAi } from '../controllers/profile.c
 import { GetCallLogs, ListCustomerInvoices, GetCreatorsAndTopProducts } from '../controllers/callerprofile.controller.js';
 
 
+const uploadFiles = multer().fields([
+    { name: 'media', maxCount: 1 }
+  ]);
+
 let UserRouter = express.Router()
 
 
 UserRouter.post("/login", LoginUser);
-UserRouter.post("/updateUserRole", verifyJwtToken, UpdateUserToCreator);
+UserRouter.post("/updateUserRole", verifyJwtToken, uploadFiles, UpdateUserToCreator);
 UserRouter.post("/checkPhoneNumber", CheckPhoneExists);
 UserRouter.post("/checkUsernameExists", CheckUsernameExists);
 UserRouter.get("/getProfileFromUsername", GetProfileWithUsername);
@@ -38,33 +44,34 @@ UserRouter.get("/search", SearchDb);
 
 
 //Payment
-UserRouter.post("/add_card", verifyJwtToken, AddCard);
-UserRouter.post("/buy_product", verifyJwtToken, BuyProduct);
-UserRouter.post("/delete_card", verifyJwtToken, DeleteCard);
-UserRouter.get("/get_transactions", verifyJwtToken, GetTransactions);
-UserRouter.get("/list_cards", verifyJwtToken, GetUserPaymentSources);
-UserRouter.post("/subscribe", verifyJwtToken, subscribeUser);
-UserRouter.post("/cancel_subscription", verifyJwtToken, CancelSubscription);
+UserRouter.post("/add_card", verifyJwtToken, uploadFiles, AddCard);
+UserRouter.post("/make_default", verifyJwtToken, uploadFiles, MakeDefaultPaymentMethod);
+UserRouter.post("/buy_product", verifyJwtToken, uploadFiles, BuyProduct);
+UserRouter.post("/delete_card", verifyJwtToken, uploadFiles, DeleteCard);
+UserRouter.get("/get_transactions", verifyJwtToken, uploadFiles, GetTransactions);
+UserRouter.get("/list_cards", verifyJwtToken, uploadFiles, GetUserPaymentSources);
+UserRouter.post("/subscribe", verifyJwtToken, uploadFiles, subscribeUser);
+UserRouter.post("/cancel_subscription", verifyJwtToken, uploadFiles, CancelSubscription);
 
 UserRouter.post("/create_webhook", CreateWebHook);
 UserRouter.post("/subscription_updated", SubscriptionUpdated);
 
 
 //Oauth
-UserRouter.post("/login_instagram", verifyJwtToken, AddInstagramAuth);
-UserRouter.post("/login_google", verifyJwtToken, AddGoogleAuth);
-UserRouter.post("/scrap_tweets", verifyJwtToken, ScrapeTweets);
+UserRouter.post("/login_instagram", verifyJwtToken, uploadFiles, AddInstagramAuth);
+UserRouter.post("/login_google", verifyJwtToken, uploadFiles, AddGoogleAuth);
+UserRouter.post("/scrap_tweets", verifyJwtToken, uploadFiles, ScrapeTweets);
 
 
 //Creator Profile
-UserRouter.get("/creator_dashboard", verifyJwtToken, CreatorDashboard);
-UserRouter.get("/creator_calls", verifyJwtToken, AssistantCalls);
-UserRouter.get("/my_ai", verifyJwtToken, MyAi);
+UserRouter.get("/creator_dashboard", verifyJwtToken, uploadFiles, CreatorDashboard);
+UserRouter.get("/creator_calls", verifyJwtToken, uploadFiles, AssistantCalls);
+UserRouter.get("/my_ai", verifyJwtToken, uploadFiles, MyAi);
 
 
 
 //Caller Profile
-UserRouter.get("/call_logs", verifyJwtToken, GetCallLogs);
-UserRouter.get("/invoices", verifyJwtToken, ListCustomerInvoices);
-UserRouter.get("/caller_dashboard", verifyJwtToken, GetCreatorsAndTopProducts);
+UserRouter.get("/call_logs", verifyJwtToken, uploadFiles, GetCallLogs);
+UserRouter.get("/invoices", verifyJwtToken, uploadFiles, ListCustomerInvoices);
+UserRouter.get("/caller_dashboard", verifyJwtToken, uploadFiles, GetCreatorsAndTopProducts);
 export default UserRouter
