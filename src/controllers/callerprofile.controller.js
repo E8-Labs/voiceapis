@@ -43,6 +43,7 @@ export const GetCallLogs = async (req, res) => {
 
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
       if (authData) {
+        console.log("Calling invoices api ", authData.user.id)
         let userId = authData.user.id;
         let lastInvoiceId = req.query.lastInvoiceId || null
         try {
