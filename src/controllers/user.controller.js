@@ -4,11 +4,13 @@ import JWT from "jsonwebtoken";
 import bcrypt from 'bcryptjs';
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 import moment from "moment-timezone";
 import axios from "axios";
 import chalk from "chalk";
 import nodemailer from 'nodemailer'
 import UserProfileFullResource from '../resources/userprofilefullresource.js'
+import { createThumbnailAndUpload, ensureDirExists } from "../utils/generateThumbnail.js";
 
 const User = db.User;
 const Op = db.Sequelize.Op;
@@ -106,6 +108,73 @@ export const UpdateUserToCreator = async(req, res)=>{
         }
     })
 }
+
+
+
+
+export const UpdateProfile = async(req, res)=>{
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            let userId = authData.user.id;
+            
+
+            let user = await db.User.findByPk(userId)
+
+            let username = req.body.username || user.username;
+            let name = req.body.name || user.name;
+            let email = req.body.email || user.email;
+
+            user.username = username;
+            user.name = name;
+            user.email = email;
+            
+            let image = null;
+            let thumbnail = null;
+            //check profile image
+            if (req.files && req.files.media) {
+                let file = req.files.media[0];
+        
+                const mediaBuffer = file.buffer;
+                const mediaType = file.mimetype;
+                const mediaExt = path.extname(file.originalname);
+                const mediaFilename = `${Date.now()}${mediaExt}`;
+                console.log("There is a file uploaded");
+        
+                // Ensure directories exist
+                let dir = process.env.DocsDir; // e.g., /var/www/neo/neoapis/uploads
+                const docsDir = path.join(dir + "/images");
+                ensureDirExists(docsDir);
+        
+                // Save the PDF file
+                const docPath = path.join(docsDir, mediaFilename);
+                fs.writeFileSync(docPath, mediaBuffer);
+                image = `https://www.blindcircle.com:444/neo/uploads/images/${mediaFilename}`;
+                console.log("Pdf uploaded is ", image);
+
+                thumbnail = await createThumbnailAndUpload(mediaBuffer, mediaFilename, "images")
+                
+                // If the file is a PDF, extract text from it using pdf-extraction
+                if (mediaType.includes("image")) {
+                
+                }
+              }
+
+              user.full_profile_image = image;
+              user.profile_image = thumbnail;
+
+            let userUpdated = await user.save()
+            if(userUpdated){
+                
+                res.send({ status: true, data: await UserProfileFullResource(user), message: "User role updated" })
+            }
+        }
+        else{
+            res.send({ status: false, data: null, message: "Unauthenticated user" })
+        }
+    })
+}
+
+
 
 
 function generateRandomCode(length) {
