@@ -148,7 +148,7 @@ export const UpdateProfile = async(req, res)=>{
                 // Save the PDF file
                 const docPath = path.join(docsDir, mediaFilename);
                 fs.writeFileSync(docPath, mediaBuffer);
-                image = `https://www.blindcircle.com:444/neo/uploads/images/${mediaFilename}`;
+                image = `https://www.blindcircle.com:444/voiceapp/uploads/images/${mediaFilename}`;
                 console.log("Pdf uploaded is ", image);
 
                 thumbnail = await createThumbnailAndUpload(mediaBuffer, mediaFilename, "images")
