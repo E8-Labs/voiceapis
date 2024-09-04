@@ -44,7 +44,7 @@ export const BuildYourAi = async (req, res) => {
           const audioPath = path.join(audioDir, mediaFilename);
           fs.writeFileSync(audioPath, mediaBuffer);
           // image = `/uploads/images/${mediaFilename}`;
-          audio = `https://www.blindcircle.com:444/neo/uploads/audios/${mediaFilename}`;
+          audio = `https://www.blindcircle.com:444/voiceapp/uploads/audios/${mediaFilename}`;
           // Generate and save thumbnail
         }
       }
@@ -319,7 +319,7 @@ export async function AddKnowledgebase(req, res) {
         // Save the PDF file
         const docPath = path.join(docsDir, mediaFilename);
         fs.writeFileSync(docPath, mediaBuffer);
-        pdf = `https://www.blindcircle.com:444/neo/uploads/documents/${mediaFilename}`;
+        pdf = `https://www.blindcircle.com:444/voiceapp/uploads/documents/${mediaFilename}`;
         console.log("Pdf uploaded is ", pdf);
 
         // If the file is a PDF, extract text from it using pdf-extraction
