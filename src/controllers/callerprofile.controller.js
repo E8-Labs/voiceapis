@@ -168,7 +168,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           where: {
             userId: userId,
           },
-          attributes: ["productId"],
+          attributes: ["productId", "createdAt"],
           group: ["productId"],
         });
 
