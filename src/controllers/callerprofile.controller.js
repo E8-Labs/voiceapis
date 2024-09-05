@@ -92,41 +92,34 @@ export async function ListCustomerInvoices(req, res) {
 export const GetCreatorsAndTopProducts = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (error) {
-      return res.send({ status: false, message: "Unauthorized", data: null });
+      return res.status(401).send({ status: false, message: "Unauthorized", data: null });
     }
 
     if (authData) {
       let userId = authData.user.id;
+
       try {
-        // Fetch all the unique creators (modelId) you have talked to
+        // Fetch all unique creators (modelId) the user has talked to
         const creators = await db.CallModel.findAll({
           where: {
             userId: userId,
           },
           attributes: [
             "modelId",
-            [
-              db.Sequelize.fn("MAX", db.Sequelize.col("createdAt")),
-              "latestCreatedAt",
-            ], // Get the latest createdAt
-          ],
-          order: [[db.Sequelize.literal("latestCreatedAt"), "DESC"]], // Order by the latest createdAt
+            [db.Sequelize.fn("MAX", db.Sequelize.col("createdAt")), "latestCreatedAt"],
+          ], // Get the latest interaction (createdAt)
+          order: [[db.Sequelize.literal("latestCreatedAt"), "DESC"]],
           group: ["modelId"],
         });
 
-        // Extract the modelIds (creator IDs) from the result
         const creatorIds = creators.map((creator) => creator.modelId);
 
         if (creatorIds.length === 0) {
-          return res.send({
-            status: false,
-            message: "No creators found",
-            data: null,
-          });
+          return res.status(404).send({ status: false, message: "No creators found", data: null });
         }
 
         // Fetch the creator profiles
-        let creatorProfiles = await db.User.findAll({
+        const creatorProfiles = await db.User.findAll({
           where: {
             id: {
               [db.Sequelize.Op.in]: creatorIds,
@@ -135,26 +128,21 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
         });
 
         if (!creatorProfiles || creatorProfiles.length === 0) {
-          return res.send({
-            status: false,
-            message: "No profiles found",
-            data: null,
-          });
+          return res.status(404).send({ status: false, message: "No profiles found", data: null });
         }
 
-        // Fetch the top 20 products for each creator
-        let callersDashboardData = await Promise.all(
+        // Fetch top 20 products for each creator
+        const callersDashboardData = await Promise.all(
           creatorProfiles.map(async (p) => {
             const topProducts = await db.SellingProducts.findAll({
               where: {
                 userId: p.id,
               },
-              order: [["productPrice", "DESC"]], // Assuming top products are determined by price, adjust if necessary
+              order: [["productPrice", "DESC"]], // Top products by price, adjust if necessary
               limit: 20,
             });
 
-            // Assuming `UserProfileFullResource` is an asynchronous function
-            let pRes = await UserProfileFullResource(p);
+            const pRes = await UserProfileFullResource(p);
 
             return {
               profile: pRes,
@@ -163,41 +151,45 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           })
         );
 
-        console.log("Finding purchased for ", userId);
-        let productsPurchased = await db.PurchasedProduct.findAll({
+        // Fetch products purchased by the user
+        const productsPurchased = await db.PurchasedProduct.findAll({
           where: {
             userId: userId,
           },
-          attributes: ["productId", "createdAt"],
+          attributes: [
+            "productId", 
+            [db.Sequelize.fn("MAX", db.Sequelize.col("createdAt")), "latestPurchaseDate"]
+          ],
           group: ["productId"],
         });
 
         const productInfo = productsPurchased.map(product => ({
           productId: product.productId,
-          createdAt: product.createdAt
+          latestPurchaseDate: product.get("latestPurchaseDate") // Get the alias
         }));
-        
-        // Fetch selling products and merge with purchase data
-        let products = await db.SellingProducts.findAll({
+
+        // Fetch selling products based on purchased product IDs
+        const products = await db.SellingProducts.findAll({
           where: {
             id: {
-              [db.Sequelize.Op.in]: productInfo.map(info => info.productId)
-            }
-          }
+              [db.Sequelize.Op.in]: productInfo.map(info => info.productId),
+            },
+          },
         });
-        
-        // Attach `createdAt` from PurchasedProduct to the fetched SellingProducts
+
+        // Attach purchase date to the products
         const productsWithPurchaseDate = products.map(product => {
           const purchaseInfo = productInfo.find(info => info.productId === product.id);
           return {
-            ...product.toJSON(), // Convert product to a plain object
-            purchaseDate: purchaseInfo ? purchaseInfo.createdAt : null // Add purchase date
+            ...product.toJSON(),
+            purchaseDate: purchaseInfo ? purchaseInfo.latestPurchaseDate : null,
           };
         });
-        // Return the result
-        return res.send({
+
+        // Return the final response
+        return res.status(200).send({
           status: true,
-          message: "Products list",
+          message: "Creators and products retrieved successfully",
           data: {
             callersDashboardData,
             products: await ProductResource(productsWithPurchaseDate),
@@ -205,13 +197,14 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
         });
       } catch (error) {
         console.error("Error fetching creators and products:", error);
-        return res.send({
+        return res.status(500).send({
           status: false,
-          message: "Error fetching products",
+          message: "Error fetching creators and products",
           data: null,
-          error: error,
+          error: error.message,
         });
       }
     }
   });
 };
+
