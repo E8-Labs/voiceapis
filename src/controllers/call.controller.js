@@ -272,11 +272,24 @@ export const GetACall = async (callId) => {
 };
 
 export const GetRecentAndOngoingCalls = async (req, res) => {
+  let model = req.query.model || 6; // by default  tate
   let calls = await db.CallModel.findAll({
     where: {
       status: {
         [db.Sequelize.Op.in]: ["completed", "in-progress"],
       },
+      [db.Sequelize.Op.or]: [
+        {
+          userId: {
+            [db.Sequelize.Op.between]: [17,36]
+          },
+        },
+        {
+          userId: { // this will be used when i add another set of users here.
+            [db.Sequelize.Op.between]: [60,90]
+          },
+        }
+      ],
       createdAt: {
         [db.Sequelize.Op.gte]: new Date(new Date() - 60000 * 60 * 1000), // Fetch calls created in the last 60 minutes
       },
@@ -284,6 +297,8 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
     order: [["createdAt", "DESC"]],
     limit: 20,
   });
+
+
 
   let callsRes = await CallLiteResource(calls);
   res.send({ status: true, message: "calls obtained", data: callsRes });

@@ -30,6 +30,7 @@ export const GetCallLogs = async (req, res) => {
             userId: userId,
             status: "completed"
           },
+          order: [["createdAt", "DESC"]],
         });
         let data = await CallLiteResource(calls);
         res.send({ status: true, data: data, message: "Call Logs" });
@@ -95,6 +96,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
             userId: userId,
           },
           attributes: ['modelId'],
+          order: [["createdAt", "DESC"]],
           group: ['modelId'],
         });
 
