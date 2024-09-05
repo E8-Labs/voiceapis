@@ -168,6 +168,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           latestPurchaseDate: product.get("latestPurchaseDate") // Get the alias
         }));
 
+        console.log("Products purchased", productInfo)
         // Fetch selling products based on purchased product IDs
         const products = await db.SellingProducts.findAll({
           where: {
@@ -182,7 +183,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           const purchaseInfo = productInfo.find(info => info.productId === product.id);
           return {
             ...product.toJSON(),
-            purchaseDate: purchaseInfo ? purchaseInfo.latestPurchaseDate : null,
+            createdAt: purchaseInfo ? purchaseInfo.latestPurchaseDate : null,
           };
         });
 
