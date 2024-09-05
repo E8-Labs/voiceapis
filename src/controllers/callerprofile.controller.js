@@ -95,8 +95,11 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           where: {
             userId: userId,
           },
-          attributes: ['modelId'],
-          order: [["createdAt", "DESC"]],
+          attributes: [
+            'modelId',
+            [db.Sequelize.fn('MAX', db.Sequelize.col('createdAt')), 'latestCreatedAt'] // Get the latest createdAt
+          ],
+          order: [[db.Sequelize.literal('latestCreatedAt'), 'DESC']], // Order by the latest createdAt
           group: ['modelId'],
         });
 
