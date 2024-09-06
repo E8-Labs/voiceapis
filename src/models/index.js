@@ -10,6 +10,7 @@ import EmailVerificationCode from "./emailverificationcode.model.js";
 import KnowledgeBase from "./ai/knowledgebase.model.js";
 import YouTubeVideo from "./videos.model.js";
 import PurchasedProduct from "./ai/purchasedproducts.model.js";
+import UserCallSummary from "./usercallsummary.model.js";
 
 
 import Sequelize from 'sequelize'
@@ -83,6 +84,9 @@ models["SubscriptionModel"] = db.SubscriptionModel;
 
 db.PurchasedProduct = PurchasedProduct(sequelize, Sequelize);
 models["PurchasedProduct"] = db.PurchasedProduct;
+
+db.UserCallSummary = UserCallSummary(sequelize, Sequelize);
+models["UserCallSummary"] = db.UserCallSummary;
 
 Object.keys(models).forEach(modelName => {
   if (models[modelName].associate) {

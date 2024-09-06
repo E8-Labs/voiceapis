@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import twilio from 'twilio';
 import moment from "moment-timezone";
 import axios from "axios";
 import chalk from "chalk";
@@ -14,6 +15,14 @@ import { createThumbnailAndUpload, ensureDirExists } from "../utils/generateThum
 
 const User = db.User;
 const Op = db.Sequelize.Op;
+
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID; // Store in environment variables
+const authToken = process.env.TWILIO_AUTH_TOKEN;   // Store in environment variables
+
+
+
+// Initialize the Twilio client
 
 
 const SignUser = async (user) =>{
@@ -197,6 +206,8 @@ export const SendPhoneVerificationCode = async (req, res) => {
             phone: phone
         }
     })
+
+    
     //console.log("User is ", user)
     if (user && !login) {
         res.send({ status: false, data: null, message: "Phone already taken" })
@@ -215,7 +226,7 @@ export const SendPhoneVerificationCode = async (req, res) => {
             code: `${randomCode}`
         })
         try {
-            
+            let sent = await sendSMS(phone, `This is your verification code for voice.ai ${randomCode}`)
             res.send({ status: true, message: "Code sent" })
         }
         catch (error) {
@@ -251,8 +262,11 @@ export const VerifyPhoneCode = async (req, res) => {
             phone: {
                 [db.Sequelize.Op.like]: `%${phone}%`
             }
-        }
+        },
+        order: [["createdAt", "DESC"]]
     })
+
+    console.log("Db Code is ", dbCode)
 
     if (user) {
         if(login){
@@ -261,6 +275,13 @@ export const VerifyPhoneCode = async (req, res) => {
             }
             if ((dbCode && dbCode.code === code) || (dbCode && code == "11222")) {
                 //send user data back. User logged in
+                await db.PhoneVerificationCodeModel.destroy({
+                    where: {
+                        phone: {
+                            [db.Sequelize.Op.like]: `%${phone}%`
+                        }
+                    },
+                })
                 let signedData = await SignUser(user)
                 res.send({ status: true, data: signedData, message: "Phone verified & user logged in" })
             }
@@ -291,6 +312,13 @@ export const VerifyPhoneCode = async (req, res) => {
                     name: username, phone: phone, userId: user.id
                 })
                 let signedData = await SignUser(user)
+                await db.PhoneVerificationCodeModel.destroy({
+                    where: {
+                        phone: {
+                            [db.Sequelize.Op.like]: `%${phone}%`
+                        }
+                    },
+                })
                 res.send({ status: true, data: signedData, message: "Phone verified & user registered" })
             }
             else {
@@ -551,3 +579,21 @@ export const VerifyEmailCode = async (req, res) => {
         }
     }
 }
+
+
+export const sendSMS = async (to, body) => {
+    const client = twilio(accountSid, authToken);
+    try {
+      const message = await client.messages.create({
+        body: body, // The message body
+        to: to, // Recipient's phone number (in E.164 format, e.g., "+1234567890")
+        from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio phone number (also in E.164 format)
+      });
+  
+      console.log('SMS sent successfully:', message.sid);
+      return { status: true, message: "SMS sent successfully", sid: message.sid };
+    } catch (error) {
+      console.error('Failed to send SMS:', error);
+      return { status: false, message: "Failed to send SMS", error: error.message };
+    }
+  };
