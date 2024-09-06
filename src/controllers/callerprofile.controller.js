@@ -14,6 +14,7 @@ import ProductResource from "../resources/productresource.js";
 
 import { start } from "repl";
 import { listCustomerInvoices } from "../services/stripe.js";
+import PurchasedProductResource from "../resources/purchasedproductresource.js";
 
 const User = db.User;
 const Op = db.Sequelize.Op;
@@ -156,36 +157,37 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           where: {
             userId: userId,
           },
-          attributes: [
-            "productId", 
-            [db.Sequelize.fn("MAX", db.Sequelize.col("createdAt")), "latestPurchaseDate"]
-          ],
-          group: ["productId"],
+          order: [
+            ["createdAt", "DESC"]
+          ]
         });
 
-        const productInfo = productsPurchased.map(product => ({
-          productId: product.productId,
-          latestPurchaseDate: product.get("latestPurchaseDate") // Get the alias
-        }));
 
-        console.log("Products purchased", productInfo)
-        // Fetch selling products based on purchased product IDs
-        const products = await db.SellingProducts.findAll({
-          where: {
-            id: {
-              [db.Sequelize.Op.in]: productInfo.map(info => info.productId),
-            },
-          },
-        });
+        let purchasedRes = await PurchasedProductResource(productsPurchased)
+
+        // const productInfo = productsPurchased.map(product => ({
+        //   productId: product.productId,
+        //   latestPurchaseDate: product.get("latestPurchaseDate") // Get the alias
+        // }));
+
+        // console.log("Products purchased", productInfo)
+        // // Fetch selling products based on purchased product IDs
+        // const products = await db.SellingProducts.findAll({
+        //   where: {
+        //     id: {
+        //       [db.Sequelize.Op.in]: productInfo.map(info => info.productId),
+        //     },
+        //   },
+        // });
 
         // Attach purchase date to the products
-        const productsWithPurchaseDate = products.map(product => {
-          const purchaseInfo = productInfo.find(info => info.productId === product.id);
-          return {
-            ...product.toJSON(),
-            createdAt: purchaseInfo ? purchaseInfo.latestPurchaseDate : null,
-          };
-        });
+        // const productsWithPurchaseDate = products.map(product => {
+        //   const purchaseInfo = productInfo.find(info => info.productId === product.id);
+        //   return {
+        //     ...product.toJSON(),
+        //     createdAt: purchaseInfo ? purchaseInfo.latestPurchaseDate : null,
+        //   };
+        // });
 
         // Return the final response
         return res.status(200).send({
@@ -193,7 +195,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           message: "Creators and products retrieved successfully",
           data: {
             callersDashboardData,
-            products: await ProductResource(productsWithPurchaseDate),
+            products: purchasedRes,
           },
         });
       } catch (error) {
