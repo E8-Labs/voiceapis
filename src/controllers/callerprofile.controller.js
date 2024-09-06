@@ -93,7 +93,7 @@ export async function ListCustomerInvoices(req, res) {
 export const GetCreatorsAndTopProducts = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (error) {
-      return res.status(401).send({ status: false, message: "Unauthorized", data: null });
+      return res.status(200).send({ status: true, message: "Unauthorized", data: null });
     }
 
     if (authData) {
@@ -116,7 +116,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
         const creatorIds = creators.map((creator) => creator.modelId);
 
         if (creatorIds.length === 0) {
-          return res.status(200).send({ status: false, message: "No creators found", data: null });
+          return res.status(200).send({ status: true, message: "No creators found", data: null });
         }
 
         // Fetch the creator profiles
@@ -129,7 +129,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
         });
 
         if (!creatorProfiles || creatorProfiles.length === 0) {
-          return res.status(200).send({ status: false, message: "No profiles found", data: null });
+          return res.status(200).send({ status: true, message: "No profiles found", data: null });
         }
 
         // Fetch top 20 products for each creator
