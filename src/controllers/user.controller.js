@@ -128,8 +128,8 @@ export const UpdateProfile = async(req, res)=>{
             user.name = name;
             user.email = email;
             
-            let image = null;
-            let thumbnail = null;
+            let image = null;//user.full_profile_image;
+            let thumbnail = null;//user.profile_image;
             //check profile image
             if (req.files && req.files.media) {
                 let file = req.files.media[0];
@@ -157,10 +157,11 @@ export const UpdateProfile = async(req, res)=>{
                 if (mediaType.includes("image")) {
                 
                 }
+                user.full_profile_image = image;
+                user.profile_image = thumbnail;
               }
 
-              user.full_profile_image = image;
-              user.profile_image = thumbnail;
+              
 
             let userUpdated = await user.save()
             if(userUpdated){

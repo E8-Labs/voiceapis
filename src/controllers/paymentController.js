@@ -355,7 +355,8 @@ export const BuyProduct = async (req, res) => {
             status: paymentIntent.status,
             livemode: paymentIntent.livemode
           })
-          let sent = await SendPurchaseEmail(product, purchasedProduct, seller, user)
+          let sent = await SendPurchaseEmailToCreator(product, purchasedProduct, seller, user)
+          let sentToBuyer = await SendPurchaseEmailToBuyer(product, purchasedProduct, seller, user)
         }
 
         
@@ -377,7 +378,7 @@ export const BuyProduct = async (req, res) => {
 };
 
 
-export const SendPurchaseEmail = async (product, purchase, seller, buyer) => {
+export const SendPurchaseEmailToCreator = async (product, purchase, seller, buyer) => {
   let email = seller.email;
   let productName = product.name;
   let customerName = buyer.name;
@@ -516,3 +517,139 @@ export const SendPurchaseEmail = async (product, purchase, seller, buyer) => {
   }
 };
 
+
+export const SendPurchaseEmailToBuyer = async (product, purchase, seller, buyer) => {
+  let buyerEmail = buyer.email;
+  let productName = product.name;
+  let customerName = buyer.name;
+  if(customerName == null || customerName == ""){
+    customerName = buyer.email;
+  }
+
+  let sellerName = seller.name;
+  if(sellerName == null || sellerName == ""){
+    sellerName = seller.email;
+  }
+
+  let purchaseDate = purchase.createdAt;
+  let productPrice = product.productPrice;
+
+  if (!buyer) {
+      return { status: false, data: null, message: "Buyer email not found" };
+  }
+
+  let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com", 
+      port: 587, 
+      secure: false, 
+      auth: {
+          user: "salman@e8-labs.com",
+          pass: "uzmvwsljflyqnzgu",
+      },
+  });
+
+  try {
+      let mailOptions = {
+          from: '"Store Notification" <Voice.ai>',
+          to: buyerEmail, 
+          subject: `Purchase Receipt for ${sellerName}`, 
+          text: `Hey ${customerName},\n\nThis is a confirmation of your recent purchase from ${sellerName}'s store. Below are the details of your purchase:\n\nProduct Name: ${productName}\nAmount: $${productPrice}\nPurchase Date: ${purchaseDate}\n\nThank you for your purchase!\n\nBest Regards,\nYour Store Team`, 
+          html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchase Confirmation</title>
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f4f4f4;
+      }
+      .container {
+          max-width: 600px;
+          margin: 50px auto;
+          background-color: #ffffff;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+          text-align: center;
+          padding: 20px 0;
+          background-color: #28a745;
+          color: white;
+          border-radius: 8px 8px 0 0;
+      }
+      .header h1 {
+          margin: 0;
+          font-size: 24px;
+      }
+      .content {
+          padding: 20px;
+      }
+      .content p {
+          font-size: 16px;
+          line-height: 1.6;
+          color: #333333;
+      }
+      .content .details {
+          margin: 20px 0;
+          padding: 10px;
+          background-color: #f9f9f9;
+          border-left: 4px solid #28a745;
+          border-radius: 4px;
+      }
+      .footer {
+          text-align: center;
+          padding: 20px;
+          font-size: 14px;
+          color: #777777;
+      }
+      .footer a {
+          color: #007BFF;
+          text-decoration: none;
+      }
+      .footer a:hover {
+          text-decoration: underline;
+      }
+  </style>
+</head>
+<body>
+  <div class="container">
+      <div class="header">
+          <h1>Purchase Confirmation</h1>
+      </div>
+      <div class="content">
+          <p>Hey ${customerName},</p>
+          <p>This is a confirmation of your recent purchase from ${sellerName}'s store. Below are the details of your purchase:</p>
+          <div class="details">
+              <p><strong>Product Name:</strong> ${productName}</p>
+              <p><strong>Amount:</strong> $${productPrice}</p>
+              <p><strong>Purchase Date:</strong> ${purchaseDate}</p>
+          </div>
+          <p>Thank you for your purchase!</p>
+          <p>Best Regards,<br>Your Store Team</p>
+      </div>
+      <div class="footer">
+          <p>If you have any questions, please <a href="mailto:salman@e8-labs.com">contact us</a>.</p>
+      </div>
+  </div>
+</body>
+</html>
+`, 
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+              return { status: false, message: "Email not sent" };
+          } else {
+              return { status: true, message: "Purchase receipt sent to buyer" };
+          }
+      });
+  } catch (error) {
+      console.log("Exception email", error);
+      return { status: false, message: "An error occurred" };
+  }
+};
