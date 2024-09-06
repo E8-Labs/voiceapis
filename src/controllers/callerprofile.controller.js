@@ -116,7 +116,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
         const creatorIds = creators.map((creator) => creator.modelId);
 
         if (creatorIds.length === 0) {
-          return res.status(404).send({ status: false, message: "No creators found", data: null });
+          return res.status(200).send({ status: false, message: "No creators found", data: null });
         }
 
         // Fetch the creator profiles
@@ -129,7 +129,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
         });
 
         if (!creatorProfiles || creatorProfiles.length === 0) {
-          return res.status(404).send({ status: false, message: "No profiles found", data: null });
+          return res.status(200).send({ status: false, message: "No profiles found", data: null });
         }
 
         // Fetch top 20 products for each creator
