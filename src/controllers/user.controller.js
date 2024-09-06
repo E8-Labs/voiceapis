@@ -245,6 +245,7 @@ export const VerifyPhoneCode = async (req, res) => {
             }
         }
     })
+    console.log("User is ", user)
     let dbCode = await db.PhoneVerificationCodeModel.findOne({
         where: {
             phone: {
