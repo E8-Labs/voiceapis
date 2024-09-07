@@ -19,6 +19,12 @@ app.use(cors())
 app.use(express.json())
 
 
+app.use((req, res, next) => {
+  console.log(`${req.method} request for '${req.url}'`);
+  next();
+});
+
+
 //http://localhost:3000
 app.use(cors({
     origin: 'http://localhost:3000',//https://voiceai-ruby.vercel.app
@@ -36,7 +42,7 @@ app.use(cors({
   });
 
 
-https://voiceai-ruby.vercel.app
+// https://voiceai-ruby.vercel.app
   // app.use(cors({
   //   origin: 'https://voiceai-ruby.vercel.app',//
   //   methods: ['GET', 'POST'],
