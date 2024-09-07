@@ -536,7 +536,15 @@ export const GetActiveSubscriptions = async (user) => {
   }
 };
 
-export async function ChargeCustomer(amountInCents, user) {
+
+// description: 'Charge for purchasing Product XYZ', // Reason for the charge
+  // metadata: {
+  //   product_id: 'prod_ABC123',
+  //   product_name: 'Product XYZ',
+  //   product_description: 'This is a detailed description of Product XYZ',
+  //   order_id: 'order_987654321',
+  // },
+export async function ChargeCustomer(amountInCents, user, title = "", description = "") {
   let key =
     process.env.Environment === "Sandbox"
       ? process.env.STRIPE_SK_TEST
@@ -551,6 +559,11 @@ export async function ChargeCustomer(amountInCents, user) {
       customer: customer.id,
       payment_method_types: ["card"],
       confirm: true,
+      description: description,
+      metadata: {
+        product_name: title,
+        product_description: description  
+      },
       off_session: true,
     });
 

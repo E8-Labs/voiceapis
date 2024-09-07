@@ -81,11 +81,18 @@ export async function ListCallerInvoices(req, res) {
           }
 
           const productId = p?.id || "NA"; //charge?.metadata?.product_id || "N/A";
-          const productName = p?.name || "N/A";
-          const productDescription =
+          let productName = p?.name || "N/A";
+if(productName == null || productName == "N/A"){
+  productName = p?.metadata.product_name || "N/A";
+}
+          let productDescription =
             charge?.metadata?.product_description ||
             charge?.description ||
             "No description available";
+
+            if(productDescription == null || productDescription == "N/A"){
+              productDescription = p?.metadata.product_description || "N/A";
+            }
 
            filteredPaymentIntents.push({
             payment_intent_id: paymentIntent.id,

@@ -18,7 +18,7 @@ async function rechargeUsersAccounts() {
       let u = users[i];
       let amount = 1000;
       console.log(`User ${u.email} has balance `, u.seconds_available);
-      let charge = await ChargeCustomer(amount, u);
+      let charge = await ChargeCustomer(amount, u, "Recharged 10 minutes", "Charge for 10 minutes. Balance dropped below 2 minutes.");
       // console.log("Charged in user is ", charge);
       // call.paymentStatus = charge.reason;
       if (charge.payment) {
@@ -69,7 +69,7 @@ async function getCompletedCallsNotCharged() {
             // if (user) {
             //We are using hardcoded amount of $10 for now. A minite is worth $1. So we will add 10 minutes for now
             //to the user's call time
-            let charge = await ChargeCustomer(amount, user);
+            let charge = await ChargeCustomer(amount, user, "Recharged 10 minutes", "Charge for 10 minutes. Balance dropped below 2 minutes.");
             // console.log("Charge is ", charge);
             call.paymentStatus = charge.reason;
             if (charge.payment) {
