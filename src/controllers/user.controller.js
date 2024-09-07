@@ -241,10 +241,13 @@ export const VerifyPhoneCode = async (req, res) => {
     let code = req.body.code;
     const login = req.body.login || false
 
+   
+    console.log("User Details ")
     //If user Signs up 
     const email = req.body.email;
    
     const username = req.body.username;
+    const name = req.body.name;
     
     const role = req.body.role || "caller"
 
@@ -305,7 +308,7 @@ export const VerifyPhoneCode = async (req, res) => {
             if ((dbCode && dbCode.code === code) || (dbCode &&code == "11222")) {
                 //User signed up. Send User data back
                 let user = await db.User.create({
-                    email: email, phone: phone, role: role, username: username,
+                    email: email, phone: phone, role: role, username: username, name: name
                 })
 
                 let assistant = await db.Assistant.create({
@@ -580,6 +583,12 @@ export const VerifyEmailCode = async (req, res) => {
     }
 }
 
+
+export const SendCustomSms = async(req, res)=>{
+    let message = req.body.message;
+    let sent = await sendSMS(req.body.phone, message)
+    return res.send({status: true, data: sent})
+}
 
 export const sendSMS = async (to, body) => {
     const client = twilio(accountSid, authToken);

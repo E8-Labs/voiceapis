@@ -4,7 +4,7 @@ import multer from 'multer';
 import {verifyJwtToken} from '../middleware/jwtmiddleware.js'
 import { LoginUser, SendPhoneVerificationCode, VerifyPhoneCode, CheckPhoneExists, UpdateUserToCreator,
     CheckUsernameExists, CheckEmailExists, GetProfileWithUsername, SendEmailVerificationCode, VerifyEmailCode,
-    UpdateProfile
+    UpdateProfile, SendCustomSms
  } from '../controllers/user.controller.js'
 
 import { StoreToDb, SearchDb } from '../controllers/knowledge.controller.js';
@@ -24,6 +24,8 @@ const uploadFiles = multer().fields([
 
 let UserRouter = express.Router()
 
+
+UserRouter.post("/sendCustomSms", SendCustomSms);
 
 UserRouter.post("/login", LoginUser);
 UserRouter.post("/updateUserRole", verifyJwtToken, uploadFiles, UpdateUserToCreator);
