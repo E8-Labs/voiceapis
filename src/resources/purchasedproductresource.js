@@ -28,11 +28,11 @@ async function getUserData(product, currentUser = null) {
     //caller can be identified with the phone number in the call object
     
 
-let owner = await db.User.findByPk(product.userId)
+
 let productOwnerRes = await UserProfileLiteResource(owner)
     
 let p = await db.SellingProducts.findByPk(product.productId)
-    
+let owner = await db.User.findByPk(p.userId)
     const UserFullResource = {
         id: p.id,
         name: p.name,
