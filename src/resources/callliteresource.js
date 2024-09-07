@@ -90,6 +90,8 @@ async function getUserData(call, currentUser = null) {
         model: modelRes,
         message: message,
         amount: totalChargeForCall,
+        summary: call.summary,
+        transcript: call.transcript,
         durationString: durationString,
         durationInSec: call.duration
     }

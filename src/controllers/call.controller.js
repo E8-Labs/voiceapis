@@ -270,7 +270,8 @@ export const GetACall = async (callId) => {
           prevSummary = previousSummaryRow.summary;
         }
         const gptSummary = await generateGptSummary(dbCall.transcript, user, caller, prevSummary);
-
+        dbCall.summary = gptSummary;
+        let updatedSummaryForCall = await dbCall.save();
         // Save the summary in the UserCallSummary table
         if(previousSummaryRow){
           previousSummaryRow.summary = gptSummary;

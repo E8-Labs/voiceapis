@@ -242,7 +242,7 @@ export const VerifyPhoneCode = async (req, res) => {
     const login = req.body.login || false
 
    
-    console.log("User Details ")
+    console.log("User Details ", req.body)
     //If user Signs up 
     const email = req.body.email;
    
