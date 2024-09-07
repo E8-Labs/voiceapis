@@ -959,6 +959,7 @@ export const createInvoicePdf = async (invoiceId) => {
   return docUrl;
 };
 
+//This could be for the creator
 export async function listCustomerInvoices(user, lastInvoiceId = null) {
   try {
     let key =
@@ -996,6 +997,51 @@ export async function listCustomerInvoices(user, lastInvoiceId = null) {
         let invoices = response.data;
         console.log('All invoices:', invoices);
         return invoices;
+
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+    return null
+  }
+}
+
+///This is for Caller
+export async function listCustomerPaymentInvoices(user, lastInvoiceId = null) {
+  try {
+    let key =
+      process.env.Environment === "Sandbox"
+        ? process.env.STRIPE_SK_TEST
+        : process.env.STRIPE_SK_PRODUCTION;
+    //console.log("Key is ", key)
+    const stripe = StripeSdk(key);
+
+    let customers = await findCustomer(user);
+    let customer = null;
+    if (customers && customers.data.length > 0) {
+      customer = customers.data[0];
+    }
+    if(customer == null){
+        return null
+    }
+        
+
+        // Fetch payment intents
+    let paymentIntents = [];
+    if (lastInvoiceId == null) {
+      const paymentIntentResponse = await stripe.paymentIntents.list({
+        customer: customer.id,
+        limit: 50,
+      });
+      paymentIntents = paymentIntentResponse.data;
+    } else {
+      const paymentIntentResponse = await stripe.paymentIntents.list({
+        customer: customer.id,
+        limit: 50,
+        starting_after: lastInvoiceId,
+      });
+      paymentIntents = paymentIntentResponse.data;
+    }
+        console.log('All invoices:', paymentIntents);
+        return paymentIntents;
 
   } catch (error) {
     console.error("Error fetching invoices:", error);

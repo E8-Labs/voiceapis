@@ -15,7 +15,7 @@ import { AddInstagramAuth, AddGoogleAuth, ScrapeTweets } from '../controllers/so
 
 import { CreateWebHook, SubscriptionUpdated } from "../services/stripe.js";
 import { CreatorDashboard, AssistantCalls, MyAi } from '../controllers/profile.controller.js';
-import { GetCallLogs, ListCustomerInvoices, GetCreatorsAndTopProducts } from '../controllers/callerprofile.controller.js';
+import { GetCallLogs, ListCallerInvoices, GetCreatorsAndTopProducts } from '../controllers/callerprofile.controller.js';
 
 
 const uploadFiles = multer().fields([
@@ -76,6 +76,6 @@ UserRouter.get("/my_ai", verifyJwtToken, uploadFiles, MyAi);
 
 //Caller Profile
 UserRouter.get("/call_logs", verifyJwtToken, uploadFiles, GetCallLogs);
-UserRouter.get("/invoices", verifyJwtToken, uploadFiles, ListCustomerInvoices);
+UserRouter.get("/invoices", verifyJwtToken, uploadFiles, ListCallerInvoices);
 UserRouter.get("/caller_dashboard", verifyJwtToken, uploadFiles, GetCreatorsAndTopProducts);
 export default UserRouter

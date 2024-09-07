@@ -13,7 +13,10 @@ import CallLiteResource from "../resources/callliteresource.js";
 import ProductResource from "../resources/productresource.js";
 
 import { start } from "repl";
-import { listCustomerInvoices } from "../services/stripe.js";
+import {
+  listCustomerInvoices,
+  listCustomerPaymentInvoices,
+} from "../services/stripe.js";
 import PurchasedProductResource from "../resources/purchasedproductresource.js";
 
 const User = db.User;
@@ -40,41 +43,57 @@ export const GetCallLogs = async (req, res) => {
   });
 };
 
-export async function ListCustomerInvoices(req, res) {
+export async function ListCallerInvoices(req, res) {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       console.log("Calling invoices api ", authData.user.id);
       let userId = authData.user.id;
       let lastInvoiceId = req.query.lastInvoiceId || null;
       try {
-        const invoices = await listCustomerInvoices(
+        const paymentIntents = await listCustomerPaymentInvoices(
           authData.user,
           lastInvoiceId
         );
-        if (invoices == null) {
+        if (paymentIntents == null) {
           return res.send({
             status: true,
-            data: invoices,
+            data: paymentIntents,
             message: "no invoices",
           });
         }
-        const filteredInvoices = invoices.map((invoice) => {
+        const filteredPaymentIntents = paymentIntents.map((paymentIntent) => {
+
+          const charge = paymentIntent.charges?.data[0] || null;
+          
+          const productId = charge?.metadata?.product_id || "N/A";
+          const productName = charge?.metadata?.product_name || "N/A";
+          const productDescription =
+            charge?.metadata?.product_description ||
+            charge?.description ||
+            "No description available";
+
+
           return {
-            invoice_id: invoice.id,
-            customer_id: invoice.customer,
-            customer_email: invoice.customer_email,
-            invoice_amount: invoice.amount_due / 100, // Assuming the amount is in cents
-            // customer_custom_id: customer.metadata.id || 'No custom ID', // Custom attribute
-            product_id: invoice.lines.data[0]?.price?.product || "N/A",
-            name: invoice.lines.data[0]?.description || "N/A",
-            description: invoice.description || "No description available",
-            invoice_date: new Date(invoice.created * 1000).toLocaleDateString(
-              "en-US"
-            ),
-            pdf_url: invoice.invoice_pdf,
+            payment_intent_id: paymentIntent.id,
+            customer_id: paymentIntent.customer,
+            payment_amount: paymentIntent.amount / 100, // Assuming the amount is in cents
+            currency: paymentIntent.currency,
+            description:
+              paymentIntent.description || "No description available",
+            payment_date: new Date(
+              paymentIntent.created * 1000
+            ).toLocaleDateString("en-US"),
+            status: paymentIntent.status,
+            product_id: productId,
+            product_name: productName,
+            product_description: productDescription,
           };
         });
-        res.send({ status: true, data: filteredInvoices, message: "Invoices" });
+        res.send({
+          status: true,
+          data: filteredPaymentIntents,
+          message: "Invoices",
+        });
       } catch (error) {
         console.error("Error fetching invoices:", error);
         res.send({
@@ -93,7 +112,9 @@ export async function ListCustomerInvoices(req, res) {
 export const GetCreatorsAndTopProducts = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (error) {
-      return res.status(200).send({ status: true, message: "Unauthorized", data: null });
+      return res
+        .status(200)
+        .send({ status: true, message: "Unauthorized", data: null });
     }
 
     if (authData) {
@@ -107,7 +128,10 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           },
           attributes: [
             "modelId",
-            [db.Sequelize.fn("MAX", db.Sequelize.col("createdAt")), "latestCreatedAt"],
+            [
+              db.Sequelize.fn("MAX", db.Sequelize.col("createdAt")),
+              "latestCreatedAt",
+            ],
           ], // Get the latest interaction (createdAt)
           order: [[db.Sequelize.literal("latestCreatedAt"), "DESC"]],
           group: ["modelId"],
@@ -116,7 +140,9 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
         const creatorIds = creators.map((creator) => creator.modelId);
 
         if (creatorIds.length === 0) {
-          return res.status(200).send({ status: true, message: "No creators found", data: null });
+          return res
+            .status(200)
+            .send({ status: true, message: "No creators found", data: null });
         }
 
         // Fetch the creator profiles
@@ -129,7 +155,9 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
         });
 
         if (!creatorProfiles || creatorProfiles.length === 0) {
-          return res.status(200).send({ status: true, message: "No profiles found", data: null });
+          return res
+            .status(200)
+            .send({ status: true, message: "No profiles found", data: null });
         }
 
         // Fetch top 20 products for each creator
@@ -157,13 +185,10 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
           where: {
             userId: userId,
           },
-          order: [
-            ["createdAt", "DESC"]
-          ]
+          order: [["createdAt", "DESC"]],
         });
 
-
-        let purchasedRes = await PurchasedProductResource(productsPurchased)
+        let purchasedRes = await PurchasedProductResource(productsPurchased);
 
         // const productInfo = productsPurchased.map(product => ({
         //   productId: product.productId,
@@ -210,4 +235,3 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
     }
   });
 };
-
