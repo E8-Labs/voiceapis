@@ -83,7 +83,7 @@ export async function ListCallerInvoices(req, res) {
           const productId = p?.id || "NA"; //charge?.metadata?.product_id || "N/A";
           let productName = p?.name || "N/A";
 if(productName == null || productName == "N/A"){
-  productName = p?.metadata.product_name || "N/A";
+  productName = paymentIntent.metadata?.product_name || "N/A";
 }
           let productDescription =
             charge?.metadata?.product_description ||
@@ -91,7 +91,7 @@ if(productName == null || productName == "N/A"){
             "No description available";
 
             if(productDescription == null || productDescription == "N/A"){
-              productDescription = p?.metadata.product_description || "N/A";
+              productDescription = paymentIntent.metadata?.product_description || "N/A";
             }
 
            filteredPaymentIntents.push({
@@ -108,7 +108,7 @@ if(productName == null || productName == "N/A"){
             product_id: productId,
             product_name: productName,
             product_description: productDescription,
-            metadata: p?.metadata
+            metadata:paymentIntent.metadata
           })
         }
 
