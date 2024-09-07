@@ -82,19 +82,20 @@ export async function ListCallerInvoices(req, res) {
 
           const productId = p?.id || "NA"; //charge?.metadata?.product_id || "N/A";
           let productName = p?.name || "N/A";
-if(productName == null || productName == "N/A"){
-  productName = paymentIntent.metadata?.product_name || "N/A";
-}
+          if (productName == null || productName == "N/A") {
+            productName = paymentIntent.metadata?.product_name || "N/A";
+          }
           let productDescription =
             charge?.metadata?.product_description ||
             charge?.description ||
             "No description available";
 
-            if(productDescription == null || productDescription == "N/A"){
-              productDescription = paymentIntent.metadata?.product_description || "N/A";
-            }
+          if (productDescription == null || productDescription == "N/A") {
+            productDescription =
+              paymentIntent.metadata?.product_description || "N/A";
+          }
 
-           filteredPaymentIntents.push({
+          filteredPaymentIntents.push({
             payment_intent_id: paymentIntent.id,
             customer_id: paymentIntent.customer,
             payment_amount: paymentIntent.amount / 100, // Assuming the amount is in cents
@@ -108,8 +109,8 @@ if(productName == null || productName == "N/A"){
             product_id: productId,
             product_name: productName,
             product_description: productDescription,
-            metadata:paymentIntent.metadata
-          })
+            metadata: paymentIntent.metadata,
+          });
         }
 
         res.send({
