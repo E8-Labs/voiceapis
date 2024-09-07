@@ -29,10 +29,11 @@ async function getUserData(product, currentUser = null) {
     
 
 
-let productOwnerRes = await UserProfileLiteResource(owner)
+
     
 let p = await db.SellingProducts.findByPk(product.productId)
 let owner = await db.User.findByPk(p.userId)
+let productOwnerRes = await UserProfileLiteResource(owner)
     const UserFullResource = {
         id: p.id,
         name: p.name,
