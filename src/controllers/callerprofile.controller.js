@@ -108,6 +108,7 @@ if(productName == null || productName == "N/A"){
             product_id: productId,
             product_name: productName,
             product_description: productDescription,
+            metadata: p?.metadata
           })
         }
 
