@@ -4,6 +4,10 @@ const UserCallSummary = (sequelize, Sequelize) => {
         type: Sequelize.TEXT,
         defaultValue: ''
       },
+      summary: {
+        type: Sequelize.TEXT,
+        defaultValue: ''
+      },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: true,

@@ -2,6 +2,7 @@ import axios from "axios";
 import db from "../models/index.js";
 import { loadCards } from "../services/stripe.js";
 import CallLiteResource from "../resources/callliteresource.js";
+import OpenAI from "openai";
 
 
 // export const MakeACall = async(req, res) => {
@@ -211,6 +212,7 @@ export const MakeACall = async (req, res) => {
 
 export const GetACall = async (callId) => {
   //    let callId = req.query.callId
+  
   try {
     let config = {
       method: "get",
@@ -250,6 +252,41 @@ export const GetACall = async (callId) => {
         dbCall.duration = data.duration;
         let updated = await dbCall.save();
         console.log("Db call updated");
+
+
+        let user = await db.User.findByPk(dbCall.userId)
+        let caller = await db.User.findByPk(dbCall.modelId)
+
+
+        let previousSummaryRow = await db.UserCallSummary.findOne({
+          where: {
+            userId: user.id,
+            modelId: caller.id
+          }
+        })
+      
+        let prevSummary = ""
+        if(previousSummaryRow){
+          prevSummary = previousSummaryRow.summary;
+        }
+        const gptSummary = await generateGptSummary(dbCall.transcript, user, caller, prevSummary);
+
+        // Save the summary in the UserCallSummary table
+        if(previousSummaryRow){
+          previousSummaryRow.summary = gptSummary;
+          let saved = await previousSummaryRow.save();
+          console.log("Summary for call updated")
+        }
+        else{
+          await db.UserCallSummary.create({
+            name: `Summary for Call ${callId}`,
+            userId: dbCall.userId, // Assuming userId is part of dbCall
+            modelId: dbCall.modelId, // Assuming modelId is part of dbCall
+            summary: gptSummary, // Assuming you've added this column to the model
+          });
+        }
+
+        console.log("Summary saved in UserCallSummary");
       }
       return { status: true, message: "call obtained", data: dbCall };
       res.send({ status: true, message: "call obtained", data: dbCall });
@@ -303,4 +340,55 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
 
   let callsRes = await CallLiteResource(calls);
   res.send({ status: true, message: "calls obtained", data: callsRes });
+};
+
+
+
+const generateGptSummary = async (transcript, user, caller, prevSummary = "") => {
+  
+
+  try {
+    // const openaiClient = new openai.OpenAIApi({
+    //   apiKey: process.env.AIKey, // Make sure your API key is set in environment variables
+    // });
+    const prompt = {content: `You'll be summarizing the transcript between ${caller.name} AI and ${user.name}.
+
+1. Transcript Information:
+* Utilize the new call transcript provided here: ${transcript}.
+* Combine this with the existing call summary here: ${prevSummary}
+
+2. Comprehensive Summary Generation:
+* Create a complete and cohesive summary that integrates both the new and previous call information.
+* This summary should encompass all conversations held between ${caller.name} AI and ${user.name}, capturing the full scope of their interactions.
+
+3. Key Details to Include:
+* Ensure that names, personal stories, topics discussed, and any other pertinent details are thoroughly documented.
+* Highlight any significant themes, decisions, or follow-up actions that may be relevant for future conversations.
+
+4. Purpose and Usage:
+* This summary will be used to house and reference all the different calls and conversations between ${caller.name} AI and ${user.name}.
+* It is crucial that the summary is detailed and comprehensive to support future interactions, allowing for seamless continuity in conversations.`, role: 'system'};
+    
+const data = {
+  model: "gpt-4o",
+  // temperature: 1.2,
+  messages: [prompt],
+  // max_tokens: 1000,
+}
+// setMessages(old => [...old, {message: "Loading....", from: "gpt", id: 0, type: MessageType.Loading}])
+const result = await axios.post("https://api.openai.com/v1/chat/completions", data, {
+  headers: {
+      'content-type': 'application/json',
+      'Authorization': `Bearer ${process.env.AIKey}`
+  },
+  timeout: 240000 // Timeout in milliseconds (4 minutes)
+});
+
+    const summary = result.data.choices[0].message.content.trim();
+    console.log("GPT summary generated:", summary);
+    return summary;
+  } catch (error) {
+    console.error("Error generating GPT summary:", error);
+    return "Summary not available";
+  }
 };

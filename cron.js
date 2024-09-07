@@ -19,7 +19,7 @@ async function rechargeUsersAccounts() {
       let amount = 1000;
       console.log(`User ${u.email} has balance `, u.seconds_available);
       let charge = await ChargeCustomer(amount, u);
-      console.log("Charged in user is ", charge);
+      // console.log("Charged in user is ", charge);
       // call.paymentStatus = charge.reason;
       if (charge.payment) {
         // call.paymentId = charge.payment.id;
@@ -70,7 +70,7 @@ async function getCompletedCallsNotCharged() {
             //We are using hardcoded amount of $10 for now. A minite is worth $1. So we will add 10 minutes for now
             //to the user's call time
             let charge = await ChargeCustomer(amount, user);
-            console.log("Charge is ", charge);
+            // console.log("Charge is ", charge);
             call.paymentStatus = charge.reason;
             if (charge.payment) {
               call.paymentId = charge.payment.id;
@@ -111,22 +111,23 @@ async function getCallsAndDetails() {
           [db.Sequelize.Op.notIn]: [
             "completed",
             "failed",
+            "busy",
             "hangup_on_voicemail",
             "no-answer",
           ],
         },
         createdAt: {
-          [db.Sequelize.Op.gte]: new Date(new Date() - 60 * 60 * 1000), // Fetch calls created in the last 60 minutes
+          [db.Sequelize.Op.gte]: new Date(new Date() - 60 * 60 * 10000000), // Fetch calls created in the last 60 minutes
         },
       },
     });
-    console.log("Calls found: ", calls.length);
+    console.log("Calls found pending: ", calls.length);
 
     if (calls && calls.length > 0) {
       console.log("Pending calls found");
       for (let i = 0; i < calls.length; i++) {
         let callId = calls[i].callId;
-        console.log("Getting call id ", callId);
+        console.log("Getting call id ", calls[i].id);
         try {
           let data = await GetACall(callId);
           // console.log("Call fetched and updated: ", data);
@@ -139,6 +140,7 @@ async function getCallsAndDetails() {
     console.error("Error fetching calls:", error);
   }
 }
+//*/15 * * * * * every 15th second
 const job = nodeCron.schedule("*/1 * * * *", getCallsAndDetails);
 job.start();
 

@@ -554,7 +554,7 @@ export async function ChargeCustomer(amountInCents, user) {
       off_session: true,
     });
 
-    console.log("Payment intent ", paymentIntent);
+    // console.log("Payment intent ", paymentIntent);
 
     if (paymentIntent.status === "succeeded") {
       return {
