@@ -61,19 +61,33 @@ export async function ListCallerInvoices(req, res) {
             message: "no invoices",
           });
         }
-        const filteredPaymentIntents = paymentIntents.map((paymentIntent) => {
-
+        let filteredPaymentIntents = [];
+        for (let i = 0; i < paymentIntents.length; i++) {
+          let paymentIntent = paymentIntents[i];
           const charge = paymentIntent.charges?.data[0] || null;
-          
-          const productId = charge?.metadata?.product_id || "N/A";
-          const productName = charge?.metadata?.product_name || "N/A";
+
+          let purchased = await db.PurchasedProduct.findOne({
+            where: {
+              paymentIntentId: paymentIntent.id,
+            },
+          });
+          let p = null;
+          if (purchased) {
+            p = await db.SellingProducts.findOne({
+              where: {
+                id: purchased.productId,
+              },
+            });
+          }
+
+          const productId = p?.id || "NA"; //charge?.metadata?.product_id || "N/A";
+          const productName = p?.name || "N/A";
           const productDescription =
             charge?.metadata?.product_description ||
             charge?.description ||
             "No description available";
 
-
-          return {
+           filteredPaymentIntents.push({
             payment_intent_id: paymentIntent.id,
             customer_id: paymentIntent.customer,
             payment_amount: paymentIntent.amount / 100, // Assuming the amount is in cents
@@ -87,8 +101,9 @@ export async function ListCallerInvoices(req, res) {
             product_id: productId,
             product_name: productName,
             product_description: productDescription,
-          };
-        });
+          })
+        }
+
         res.send({
           status: true,
           data: filteredPaymentIntents,
