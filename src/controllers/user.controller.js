@@ -227,7 +227,7 @@ export const SendPhoneVerificationCode = async (req, res) => {
         })
         try {
             let sent = await sendSMS(phone, `This is your verification code for voice.ai ${randomCode}`)
-            res.send({ status: true, message: "Code sent" })
+            res.send({ status: true, message: "Code sent", twilio: sent })
         }
         catch (error) {
             //console.log("Exception email", error)
