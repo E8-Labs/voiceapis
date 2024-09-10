@@ -84,6 +84,7 @@ async function getUserData(call, currentUser = null) {
     const UserFullResource = {
         id: call.id,
         callId: call.callId,
+        status: call.status,
         createdAt: call.createdAt,
         updatedAt: call.updatedAt,
         caller: callRes,

@@ -95,6 +95,22 @@ export async function ListCallerInvoices(req, res) {
               paymentIntent.metadata?.product_description || "N/A";
           }
 
+          let creator = null//"CreatorX"
+          let purchasedProduct = await db.PurchasedProduct.findOne({
+            where: {
+              paymentIntentId: paymentIntent.id
+            }
+          })
+          if(purchasedProduct){
+            let prod = await db.SellingProducts.findOne({
+              where: {
+                id: purchasedProduct.productId
+              }
+            })
+            if(prod){
+              creator = await db.User.findByPk(prod.userId)
+            }
+          }
           filteredPaymentIntents.push({
             payment_intent_id: paymentIntent.id,
             customer_id: paymentIntent.customer,
@@ -108,6 +124,8 @@ export async function ListCallerInvoices(req, res) {
             status: paymentIntent.status,
             product_id: productId,
             product_name: productName,
+            creatorName: creator ? creator.name : "CreatorX",
+            creator: creator,
             product_description: productDescription,
             metadata: paymentIntent.metadata,
           });

@@ -315,7 +315,7 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
   let calls = await db.CallModel.findAll({
     where: {
       status: {
-        [db.Sequelize.Op.in]: ["completed", "in-progress"],
+        [db.Sequelize.Op.in]: ["completed", "in-progress", "hangup_on_voicemail"],
       },
       [db.Sequelize.Op.or]: [
         {
@@ -323,11 +323,11 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
             [db.Sequelize.Op.between]: [17,36]
           },
         },
-        {
-          userId: { // this will be used when i add another set of users here.
-            [db.Sequelize.Op.between]: [60,90]
-          },
-        }
+        // {
+        //   userId: { // this will be used when i add another set of users here.
+        //     [db.Sequelize.Op.between]: [60,90]
+        //   },
+        // }
       ],
       createdAt: {
         [db.Sequelize.Op.gte]: new Date(new Date() - 60000 * 60 * 1000), // Fetch calls created in the last 60 minutes
