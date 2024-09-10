@@ -186,6 +186,7 @@ export const checkCouponValidity = async (couponId) => {
   }
 };
 
+//Tags: AddCard, AddPaymentSource
 export const createCard = async (user, token) => {
   let key =
     process.env.Environment === "Sandbox"
@@ -201,6 +202,18 @@ export const createCard = async (user, token) => {
       source: token,
     });
     console.log("Card create ", customerSource);
+
+    //Check if there is no default payment source then set this card as default.
+    const defaultPaymentMethodId =
+        customer.invoice_settings.default_payment_method;
+        if(defaultPaymentMethodId == null){
+          const customerUpdated = await stripe.customers.update(customer.id, {
+            invoice_settings: {
+              default_payment_method: customerSource.id,
+            },
+          });
+        }
+    
 
     return customerSource;
   } catch (error) {
