@@ -254,14 +254,14 @@ export const GetACall = async (callId) => {
         console.log("Db call updated");
 
 
-        let user = await db.User.findByPk(dbCall.userId)
-        let caller = await db.User.findByPk(dbCall.modelId)
+        let caller = await db.User.findByPk(dbCall.userId)
+        let model = await db.User.findByPk(dbCall.modelId)
 
 
         let previousSummaryRow = await db.UserCallSummary.findOne({
           where: {
-            userId: user.id,
-            modelId: caller.id
+            userId: caller.id,
+            modelId: model.id
           }
         })
       
@@ -269,7 +269,7 @@ export const GetACall = async (callId) => {
         if(previousSummaryRow){
           prevSummary = previousSummaryRow.summary;
         }
-        const gptSummary = await generateGptSummary(dbCall.transcript, user, caller, prevSummary);
+        const gptSummary = await generateGptSummary(dbCall.transcript, model, caller, prevSummary);
         dbCall.summary = gptSummary;
         let updatedSummaryForCall = await dbCall.save();
         // Save the summary in the UserCallSummary table
@@ -345,14 +345,14 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
 
 
 
-const generateGptSummary = async (transcript, user, caller, prevSummary = "") => {
+const generateGptSummary = async (transcript, model, caller, prevSummary = "") => {
   
 
   try {
     // const openaiClient = new openai.OpenAIApi({
     //   apiKey: process.env.AIKey, // Make sure your API key is set in environment variables
     // });
-    const prompt = {content: `You'll be summarizing the transcript between ${caller.name} AI and ${user.name}.
+    const prompt = {content: `You'll be summarizing the transcript between ${model.name} AI and ${caller.name}.
 
 1. Transcript Information:
 * Utilize the new call transcript provided here: ${transcript}.
@@ -360,14 +360,14 @@ const generateGptSummary = async (transcript, user, caller, prevSummary = "") =>
 
 2. Comprehensive Summary Generation:
 * Create a complete and cohesive summary that integrates both the new and previous call information.
-* This summary should encompass all conversations held between ${caller.name} AI and ${user.name}, capturing the full scope of their interactions.
+* This summary should encompass all conversations held between ${model.name} AI and ${caller.name}, capturing the full scope of their interactions.
 
 3. Key Details to Include:
 * Ensure that names, personal stories, topics discussed, and any other pertinent details are thoroughly documented.
 * Highlight any significant themes, decisions, or follow-up actions that may be relevant for future conversations.
 
 4. Purpose and Usage:
-* This summary will be used to house and reference all the different calls and conversations between ${caller.name} AI and ${user.name}.
+* This summary will be used to house and reference all the different calls and conversations between ${model.name} AI and ${caller.name}.
 * It is crucial that the summary is detailed and comprehensive to support future interactions, allowing for seamless continuity in conversations.`, role: 'system'};
     
 const data = {
