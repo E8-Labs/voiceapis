@@ -207,6 +207,7 @@ export const createCard = async (user, token) => {
     const defaultPaymentMethodId =
         customer.invoice_settings.default_payment_method;
         if(defaultPaymentMethodId == null){
+          console.log("Saving default payment method", customerSource)
           const customerUpdated = await stripe.customers.update(customer.id, {
             invoice_settings: {
               default_payment_method: customerSource.id,
