@@ -55,7 +55,7 @@ async function getUserData(user, currentUser = null) {
 
   //console.log('MyCalculation', totalEarned)
 
-  totalEarned = await calculateTotalEarned(user.id)
+//   totalEarned = await calculateTotalEarned(user.id)
   //console.log('GPTCalculation', totalEarned)
   //console.log(`TotalSeconds for ${user.id}`, totalSeconds);
   let totalCalls = await db.CallModel.count({
@@ -130,7 +130,7 @@ const calculateTotalEarned = async (modelId) => {
         10
       );
       const totalDurationInMinutes = totalDurationInSeconds / 60;
-      console.log(`Diration for ${totalDurationInSeconds} sec in min ${totalDurationInMinutes}`)
+      console.log(`Duration for ${totalDurationInSeconds} sec in min ${totalDurationInMinutes}`)
       
       // Subtract 5 minutes free per user
       const billableMinutes =

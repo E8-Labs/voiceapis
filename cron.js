@@ -40,7 +40,9 @@ async function getCompletedCallsNotCharged() {
   try {
     let calls = await db.CallModel.findAll({
       where: {
-        status: "completed",
+        status: {
+          [db.Sequelize.Op.in]: ["completed", "hangup_on_voicemail"],
+        },
         paymentStatus: {
           [db.Sequelize.Op.ne]: "succeeded",
         },
