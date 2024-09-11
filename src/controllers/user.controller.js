@@ -201,6 +201,9 @@ function generateRandomCode(length) {
 export const SendPhoneVerificationCode = async (req, res) => {
     let phone = req.body.phone;
     let login = req.body.login || false
+    if(phone == null || phone == ""){
+        res.send({ status: false, data: null, message: "Invalid phone number" })
+    }
     let user = await db.User.findOne({
         where: {
             phone: phone
