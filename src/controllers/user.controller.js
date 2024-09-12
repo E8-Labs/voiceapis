@@ -15,8 +15,8 @@ import { createThumbnailAndUpload, ensureDirExists } from "../utils/generateThum
 
 // lib/firebase-admin.js
 // const admin = require('firebase-admin');
-import { admin } from "../services/firebase-admin.js";
-import ClickSend from 'clicksend';
+// import { admin } from "../services/firebase-admin.js";
+// import ClickSend from 'clicksend';
 
 const User = db.User;
 const Op = db.Sequelize.Op;
