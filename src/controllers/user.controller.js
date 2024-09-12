@@ -137,7 +137,11 @@ export const UpdateProfile = async(req, res)=>{
             let username = req.body.username || user.username;
             let name = req.body.name || user.name;
             let email = req.body.email || user.email;
+            let city = req.body.city || user.city;
+            let state = req.body.state || user.state;
 
+            user.city = city || '';
+            user.state = state || '';
             user.username = username;
             user.name = name;
             user.email = email;

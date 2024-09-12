@@ -33,7 +33,15 @@ const User = (sequelize, Sequelize) => {
         defaultValue: ''
         
       },
+      city: { // we store smaller image for fast loading here
+        type: Sequelize.STRING,
+        defaultValue: ''
+      },
       
+      state: { // we store smaller image for fast loading here
+        type: Sequelize.STRING,
+        defaultValue: ''
+      },
       seconds_available: {
         type: Sequelize.INTEGER,
         defaultValue: 300,
