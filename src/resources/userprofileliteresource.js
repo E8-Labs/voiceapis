@@ -32,8 +32,8 @@ async function getUserData(user, currentUser = null) {
         email: user.email,
         phone: user.phone,
         role: user.role,
-        city: city,
-        state: state,
+        city: user.city,
+        state: user.state,
     }
 
 
