@@ -51,7 +51,7 @@ app.use((req, res, next) => {
   }));
   
   app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', 'https://app.mycreatorx.com/tate');
+    res.header('Access-Control-Allow-Origin', 'https://app.mycreatorx.com');
     res.header('Access-Control-Allow-Methods', 'GET, POST');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.header('Access-Control-Allow-Credentials', 'true');
