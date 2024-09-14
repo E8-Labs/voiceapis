@@ -130,7 +130,8 @@ export const UpdateProfile = async(req, res)=>{
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             let userId = authData.user.id;
-            
+            console.log('City', req.body.city)
+            console.log('State', req.body.state)
 
             let user = await db.User.findByPk(userId)
 
