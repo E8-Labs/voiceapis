@@ -416,10 +416,10 @@ export const CheckEmailExists = async (req, res) => {
     })
 
     if (user) {
-        res.send({ status: false, data: null, message: "Email already taken" })
+        res.send({ status: false, data: null, message: `Email already taken${phone}` })
     }
     else {
-        res.send({ status: true, data: null, message: "email available" })
+        res.send({ status: true, data: null, message: `email available ${phone}` })
     }
 }
 
