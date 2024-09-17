@@ -46,6 +46,9 @@ models["User"] = db.User
 db.CallModel = CallModel(sequelize, Sequelize);
 models["CallModel"] = db.CallModel
 
+db.User.hasMany(db.CallModel, { foreignKey: 'userId' }); // One user (caller) can have many calls
+db.CallModel.belongsTo(db.User, { foreignKey: 'userId', as: 'caller' }); // A call belongs to a user (caller)
+
 db.Assistant = Assistant(sequelize, Sequelize);
 models["Assistant"] = db.Assistant
 
@@ -54,6 +57,15 @@ models["PhoneVerificationCodeModel"] = db.PhoneVerificationCodeModel
 
 db.UserAi = UserAi(sequelize, Sequelize);
 models["UserAi"] = db.UserAi
+
+
+
+
+db.User.hasMany(db.UserAi, { foreignKey: 'userId' });
+db.UserAi.belongsTo(db.User, { foreignKey: 'userId' });
+
+
+
 
 db.SellingProducts = SellingProducts(sequelize, Sequelize);
 models["SellingProducts"] = db.SellingProducts
