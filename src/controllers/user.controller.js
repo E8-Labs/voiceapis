@@ -435,7 +435,7 @@ export const SendEmailVerificationCode = async (req, res) => {
     })
     //console.log("User is ", user)
     if (user) {
-        res.send({ status: false, data: null, message: "Email already taken" })
+        res.send({ status: false, data: null, message: `Email already taken ${email}` })
     }
     else {
 
