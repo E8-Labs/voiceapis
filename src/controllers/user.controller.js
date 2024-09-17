@@ -416,10 +416,10 @@ export const CheckEmailExists = async (req, res) => {
     })
 
     if (user) {
-        res.send({ status: false, data: null, message: `Email already taken${phone}` })
+        res.send({ status: false, data: null, message: `Email already taken` })
     }
     else {
-        res.send({ status: true, data: null, message: `email available ${phone}` })
+        res.send({ status: true, data: null, message: `email available` })
     }
 }
 
@@ -435,7 +435,7 @@ export const SendEmailVerificationCode = async (req, res) => {
     })
     //console.log("User is ", user)
     if (user) {
-        res.send({ status: false, data: null, message: `Email already taken ${email}` })
+        res.send({ status: false, data: null, message: `Email already taken` })
     }
     else {
 
