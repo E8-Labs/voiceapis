@@ -5,7 +5,7 @@ const KnowledgeBase = (sequelize, Sequelize) => {
         defaultValue: ''
       },
       content: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         defaultValue: ''
       },
       documentUrl: {

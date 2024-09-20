@@ -11,7 +11,7 @@ import { StoreToDb, SearchDb } from '../controllers/knowledge.controller.js';
 import { AddCard, GetUserPaymentSources, DownloadInvoice, GetTransactions, 
     subscribeUser, CancelSubscription, DeleteCard, BuyProduct, MakeDefaultPaymentMethod } from '../controllers/paymentController.js';
 
-import { AddInstagramAuth, AddGoogleAuth, ScrapeTweets } from '../controllers/socialauth.controller.js';
+import { AddInstagramAuth, AddGoogleAuth, ScrapeTweets, TestUserYoutubeDetails } from '../controllers/socialauth.controller.js';
 
 import { CreateWebHook, SubscriptionUpdated } from "../services/stripe.js";
 import { CreatorDashboard, AssistantCalls, MyAi } from '../controllers/profile.controller.js';
@@ -65,6 +65,7 @@ UserRouter.post("/subscription_updated", SubscriptionUpdated);
 UserRouter.post("/login_instagram", verifyJwtToken, uploadFiles, AddInstagramAuth);
 UserRouter.post("/login_google", verifyJwtToken, uploadFiles, AddGoogleAuth);
 UserRouter.post("/scrap_tweets", verifyJwtToken, uploadFiles, ScrapeTweets);
+UserRouter.post("/get_youtube_details", verifyJwtToken, TestUserYoutubeDetails);
 
 
 //Creator Profile
