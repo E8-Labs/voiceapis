@@ -253,6 +253,8 @@ export const VerifyPhoneCode = async (req, res) => {
     let phone = req.body.phone;
     let code = req.body.code;
     const login = req.body.login || false
+    let city = req.body.city || ''
+    let state = req.body.state || ''
 
    
     console.log("User Details ", req.body)
@@ -321,7 +323,7 @@ export const VerifyPhoneCode = async (req, res) => {
             // if ((dbCode && dbCode.code === code) || (dbCode &&code == "11222")) {
                 //User signed up. Send User data back
                 let user = await db.User.create({
-                    email: email, phone: phone, role: role, username: username, name: name
+                    email: email, phone: phone, role: role, username: username, name: name, city: city, state: state
                 })
 
                 let assistant = await db.Assistant.create({
