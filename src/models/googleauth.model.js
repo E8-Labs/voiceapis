@@ -33,6 +33,42 @@ const GoogleAuthModel = (sequelize, Sequelize) => {
           key: 'id'
         }
       },
+      username: {
+        type: Sequelize.STRING ,
+        defaultValue: ''
+      },
+      description: {
+        type: Sequelize.STRING ,
+        defaultValue: ''
+      },
+      location: {
+        type: Sequelize.STRING ,
+        defaultValue: ''
+      },
+      subscriberCount: {
+        type: Sequelize.STRING ,
+        defaultValue: ''
+      },
+      videoCount: {
+        type: Sequelize.STRING ,
+        defaultValue: ''
+      },
+      viewCount: {
+        type: Sequelize.STRING ,
+        defaultValue: ''
+      },
+      profilePicture: {
+        type: Sequelize.STRING ,
+        defaultValue: ''
+      },
+      website: {
+        type: Sequelize.STRING ,
+        defaultValue: ''
+      },
+      emailPublic: {
+        type: Sequelize.STRING ,
+        defaultValue: ''
+      },
     });
   
     return Assistant;

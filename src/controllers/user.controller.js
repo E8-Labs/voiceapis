@@ -253,6 +253,8 @@ export const VerifyPhoneCode = async (req, res) => {
     let phone = req.body.phone;
     let code = req.body.code;
     const login = req.body.login || false
+    let city = req.body.city || ''
+    let state = req.body.state || ''
 
    
     console.log("User Details ", req.body)
@@ -321,7 +323,7 @@ export const VerifyPhoneCode = async (req, res) => {
             // if ((dbCode && dbCode.code === code) || (dbCode &&code == "11222")) {
                 //User signed up. Send User data back
                 let user = await db.User.create({
-                    email: email, phone: phone, role: role, username: username, name: name
+                    email: email, phone: phone, role: role, username: username, name: name, city: city, state: state
                 })
 
                 let assistant = await db.Assistant.create({
@@ -416,10 +418,10 @@ export const CheckEmailExists = async (req, res) => {
     })
 
     if (user) {
-        res.send({ status: false, data: null, message: "Email already taken" })
+        res.send({ status: false, data: null, message: `Email already taken` })
     }
     else {
-        res.send({ status: true, data: null, message: "email available" })
+        res.send({ status: true, data: null, message: `email available` })
     }
 }
 
@@ -435,7 +437,7 @@ export const SendEmailVerificationCode = async (req, res) => {
     })
     //console.log("User is ", user)
     if (user) {
-        res.send({ status: false, data: null, message: "Email already taken" })
+        res.send({ status: false, data: null, message: `Email already taken` })
     }
     else {
 
@@ -636,3 +638,5 @@ export const sendSMS = async (to, body) => {
     //   return { status: false, message: "Failed to send SMS", error: error.message };
     // }
   };
+
+

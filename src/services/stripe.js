@@ -187,42 +187,96 @@ export const checkCouponValidity = async (couponId) => {
 };
 
 //Tags: AddCard, AddPaymentSource
+
 export const createCard = async (user, token) => {
   let key =
     process.env.Environment === "Sandbox"
       ? process.env.STRIPE_SK_TEST
       : process.env.STRIPE_SK_PRODUCTION;
-  //console.log("Key is ", key)
 
   try {
     const stripe = StripeSdk(key);
     let customer = await createCustomer(user, "createcard");
 
-    const customerSource = await stripe.customers.createSource(customer.id, {
-      source: token,
-    });
-    console.log("Card create ", customerSource);
+    // Create a Payment Method using the token
+    let paymentMethod;
+    try {
+      paymentMethod = await stripe.paymentMethods.create({
+        type: 'card',
+        card: { token },
+      });
+      console.log("Added new payment method", paymentMethod)
+    } catch (createError) {
+      console.log("Error creating Payment Method, trying to retrieve existing one");
+      paymentMethod = await stripe.paymentMethods.retrieve(token); // Retrieve using the existing PaymentMethod ID
+      console.log("Retrieved existing Payment Method:", paymentMethod);
+    }
 
-    //Check if there is no default payment source then set this card as default.
-    const defaultPaymentMethodId =
-        customer.invoice_settings.default_payment_method;
-        if(defaultPaymentMethodId == null){
-          console.log("Saving default payment method", customerSource)
-          const customerUpdated = await stripe.customers.update(customer.id, {
-            invoice_settings: {
-              default_payment_method: customerSource.id,
-            },
-          });
-        }
+    if (paymentMethod.customer !== customer.id) {
+      console.log("Attaching Payment Method to customer");
+      await stripe.paymentMethods.attach(paymentMethod.id, {
+        customer: customer.id,
+      });
+    }
+
+    // Check if the Payment Method is chargeable
+    // console.log(paymentMethod)
+    // Check the CVC and address checks
+    // const { cvc_check, address_postal_code_check } = paymentMethod.card.checks;
+    // if (cvc_check !== 'pass' || address_postal_code_check !== 'pass') {
+    //   console.log("Card verification failed. CVC or postal code check did not pass.");
+    //   throw new Error("Card verification failed. Please check your card details.");
+    // }
+
+    // Authorize a small amount (like $1) to check for available funds
+    const charge = await stripe.paymentIntents.create({
+      amount: 100, // $1.00 in cents
+      currency: 'usd',
+      payment_method: paymentMethod.id,
+      customer: customer.id,
+      capture_method: 'manual', // Authorize only, do not capture
+      confirm: true,
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: 'never' // Prevents redirect for authentication
+      }
+    });
     
 
-    return customerSource;
+    // Check if the charge was successful
+    if (charge.status !== 'requires_capture') {
+      console.log("Card does not have sufficient funds or is not valid.");
+      throw new Error("The card does not have sufficient funds.");
+    }
+
+    // If the charge was successful, reverse the authorization
+    await stripe.paymentIntents.cancel(charge.id);
+    console.log("Authorization reversed successfully.");
+
+    // Attach the Payment Method to the Customer
+    const customerSource = await stripe.paymentMethods.attach(paymentMethod.id, {
+      customer: customer.id,
+    });
+
+    // Set this card as the default payment method if none exists
+    const defaultPaymentMethodId = customer.invoice_settings.default_payment_method;
+    if (defaultPaymentMethodId == null) {
+      console.log("Saving default payment method", customerSource);
+      await stripe.customers.update(customer.id, {
+        invoice_settings: {
+          default_payment_method: customerSource.id,
+        },
+      });
+    }
+
+    return customerSource.card;
   } catch (error) {
-    console.log("Card error ");
+    console.log("Card error");
     console.log(error);
-    return null;
+    return { error: error.message };
   }
 };
+
 
 export const deleteCard = async (user, cardId) => {
     let key =

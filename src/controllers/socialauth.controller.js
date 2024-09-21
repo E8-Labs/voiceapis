@@ -17,9 +17,11 @@ export const ScrapeTweets = async (req, res) => {
     const page = await browser.newPage();
 
     // Set User-Agent to avoid being blocked
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36');
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+    );
 
-    await page.goto(url, { waitUntil: 'networkidle2' });
+    await page.goto(url, { waitUntil: "networkidle2" });
 
     let tweets = [];
     let previousTweetCount = 0;
@@ -27,29 +29,31 @@ export const ScrapeTweets = async (req, res) => {
     let scrollCount = 0;
 
     while (tweets.length < 100 && scrollCount < maxScrolls) {
-        // Extract tweets from the page
-        const newTweets = await page.evaluate(() => {
-            return Array.from(document.querySelectorAll('article div[lang]')).map(tweet => tweet.innerText);
-        });
+      // Extract tweets from the page
+      const newTweets = await page.evaluate(() => {
+        return Array.from(document.querySelectorAll("article div[lang]")).map(
+          (tweet) => tweet.innerText
+        );
+      });
 
-        tweets = [...tweets, ...newTweets];
-        tweets = [...new Set(tweets)]; // Remove duplicates
-console.log("Twwets", tweets)
-        // If no new tweets were loaded, break the loop
-        if (tweets.length === previousTweetCount) {
-            console.log('No more tweets loaded, breaking out of the loop.');
-            break;
-        }
+      tweets = [...tweets, ...newTweets];
+      tweets = [...new Set(tweets)]; // Remove duplicates
+      console.log("Twwets", tweets);
+      // If no new tweets were loaded, break the loop
+      if (tweets.length === previousTweetCount) {
+        console.log("No more tweets loaded, breaking out of the loop.");
+        break;
+      }
 
-        previousTweetCount = tweets.length;
+      previousTweetCount = tweets.length;
 
-        // Scroll down
-        await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
+      // Scroll down
+      await page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
 
-        // Wait longer between scrolls to allow new content to load
-        await new Promise(resolve => setTimeout(resolve, 4000));
+      // Wait longer between scrolls to allow new content to load
+      await new Promise((resolve) => setTimeout(resolve, 4000));
 
-        scrollCount++;
+      scrollCount++;
     }
 
     await browser.close();
@@ -153,56 +157,6 @@ export const AddInstagramAuth = async (req, res) => {
   });
 };
 
-//Youtube Auth
-// export const AddGoogleAuth = async (req, res) => {
-//     console.log("Add Google login api", process.env.InstaClientId);
-
-//     let {providerAccountId, idToken, accessToken, refreshToken, expiresAt} = req.body;
-//     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
-//         if (authData) {
-//             let user = await db.User.findByPk(authData.user.id);
-//             try {
-
-//                 // const { access_token: longLivedAccessToken, expires_in } = longLivedTokenResponse.data;
-//                 // console.log("Long-lived access token:", longLivedAccessToken);
-//                 console.log("Expires in:", expiresAt, "seconds");
-
-//                 // Step 4: Store the long-lived access token in the database
-//                 let googleUser = await db.GoogleAuthModel.findOne({
-//                     where:{
-//                         userId: user.id
-//                     }
-//                 })
-//                 if(googleUser){
-//                     googleUser.accessToken = accessToken;
-//                     // instaUser.name = userResponse.data.username;
-//                     let saved = await googleUser.save();
-//                 }
-//                 else{
-//                     googleUser = await db.GoogleAuthModel.create({
-//                         accessToken: accessToken,
-//                         expiresAt: expiresAt,
-//                         providerAccountId: providerAccountId,
-//                         idToken: idToken,
-//                         userId: user.id,
-//                     });
-//                 }
-
-//                 res.send({ status: true, message: "Auth success", data: googleUser });
-//             } catch (error) {
-//                 console.error('Error exchanging code for access token:', error.response ? error.response.data : error.message);
-//                 res.send({
-//                     status: false,
-//                     message: `Error exchanging code for access token: ${error.response ? error.response.data : error.message}`,
-//                     data: null
-//                 });
-//             }
-//         } else {
-//             res.send({ status: false, message: "Unauthenticated User" });
-//         }
-//     });
-// };
-
 const fetchYouTubeVideos = async (accessToken) => {
   console.log("Fetching youtube videos ", accessToken);
   const oauth2Client = new google.auth.OAuth2();
@@ -228,12 +182,16 @@ const fetchYouTubeVideos = async (accessToken) => {
   const channelId = channelsResponse.data.items[0].id;
   console.log("Channel id ", channelId);
   // Fetch the user's videos
+  const currentDate = new Date();
+  const threeMonthsAgo = new Date(currentDate.setMonth(currentDate.getMonth() - 3)).toISOString();
+
   const videosResponse = await youtube.search.list({
     part: "snippet",
     channelId: channelId,
-    maxResults: 10,
+    maxResults: 30,
     type: "video",
     order: "date",
+    publishedAfter: threeMonthsAgo,
   });
   console.log("Videos ", videosResponse);
 
@@ -271,6 +229,7 @@ const fetchVideoCaptions = async (youtube, videoId) => {
     : JSON.stringify(captionData);
 };
 
+//################## Youtube Auth START ####################
 export const AddGoogleAuth = async (req, res) => {
   console.log("Add Google login API");
 
@@ -280,6 +239,7 @@ export const AddGoogleAuth = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let user = await db.User.findByPk(authData.user.id);
+      let youtubeDetails = await fetchYouTubeUserDetails(accessToken);
       try {
         console.log("Expires in:", expiresAt, "seconds");
 
@@ -292,6 +252,15 @@ export const AddGoogleAuth = async (req, res) => {
 
         if (googleUser) {
           googleUser.accessToken = accessToken;
+          googleUser.username = youtubeDetails.username
+          googleUser.description = youtubeDetails.description
+          googleUser.location = youtubeDetails.location
+          googleUser.subscriberCount = youtubeDetails.subscriberCount
+          googleUser.videoCount = youtubeDetails.videoCount
+          googleUser.viewCount = youtubeDetails.viewCount
+          googleUser.profilePicture = youtubeDetails.profilePicture
+          googleUser.website = youtubeDetails.website || null
+          googleUser.emailPublic = youtubeDetails.emailPublic || null
           await googleUser.save();
         } else {
           googleUser = await db.GoogleAuthModel.create({
@@ -300,6 +269,15 @@ export const AddGoogleAuth = async (req, res) => {
             providerAccountId: providerAccountId,
             idToken: idToken,
             userId: user.id,
+            username: youtubeDetails.username,
+            description: youtubeDetails.description,
+            location: youtubeDetails.location,
+            subscriberCount: youtubeDetails.subscriberCount,
+            videoCount: youtubeDetails.videoCount,
+            viewCount: youtubeDetails.viewCount,
+            profilePicture: youtubeDetails.profilePicture,
+            website: youtubeDetails.website || null,
+            emailPublic: youtubeDetails.emailPublic || null,
           });
         }
 
@@ -359,3 +337,48 @@ export const AddGoogleAuth = async (req, res) => {
     }
   });
 };
+
+export const TestUserYoutubeDetails = async (req, res) => {
+  let token = req.body.accessToken;
+  let details = fetchYouTubeUserDetails(token);
+  return res.send({ status: true, data: details });
+};
+
+const fetchYouTubeUserDetails = async (accessToken) => {
+  try {
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials({ access_token: accessToken });
+
+    const youtube = google.youtube({ version: "v3", auth: oauth2Client });
+
+    const response = await youtube.channels.list({
+      part: "snippet,statistics,brandingSettings",
+      mine: true,
+    });
+
+    const channel = response.data.items[0];
+
+    if (!channel) {
+      console.log("NO channel found for the user");
+      throw new Error("No channel found for the authenticated user.");
+    }
+
+    let data = {
+      username: channel.snippet.title,
+      description: channel.snippet.description,
+      location: channel.snippet.country,
+      subscriberCount: channel.statistics.subscriberCount,
+      videoCount: channel.statistics.videoCount,
+      viewCount: channel.statistics.viewCount,
+      profilePicture: channel.snippet.thumbnails.default.url,
+      website: channel.brandingSettings.channel.unsubscribedTrailer || null,
+      emailPublic: channel.snippet.customUrl || null, // This field might not be accessible depending on privacy settings
+    };
+    console.log("YoutubeDataFetched", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching YouTube user details:", error);
+    throw new Error("Failed to fetch YouTube user details.");
+  }
+};
+//################## Youtube Auth END ####################

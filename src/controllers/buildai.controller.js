@@ -18,6 +18,7 @@ export const BuildYourAi = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
+      let user = await db.User.findByPk(userId)
       let { name, action, tagline, fb_url, insta_url, youtube_url, discord_url, twitter_url, 
         
        } = req.body;
@@ -49,6 +50,8 @@ export const BuildYourAi = async (req, res) => {
         }
       }
 
+      user.username = name;
+      let userSaved = await user.save();
       let createdAI = await db.UserAi.create({
         name: name,
         action: action,
@@ -149,6 +152,7 @@ export const UpdateYourAi = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
+      let user = await db.User.findByPk(userId)
       let { name, action, tagline, fb_url, insta_url, youtube_url, discord_url, twitter_url, 
         greeting, possibleUserQuery, price, isFree, productToSell, goalType, webinarUrl, goalTitle, goalUrl 
        } = req.body;
@@ -209,6 +213,11 @@ export const UpdateYourAi = async (req, res) => {
           userId: authData.user.id
         }
       });
+
+      if(createdAI){
+        user.username = name;
+        let savedUser = await user.save()
+      }
 
 
       let questions = req.body.kycQuestions;

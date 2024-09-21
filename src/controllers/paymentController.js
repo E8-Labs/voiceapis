@@ -24,12 +24,37 @@ export const AddCard = async (req, res) => {
       let user = await db.User.findByPk(authData.user.id);
       let token = req.body.source;
       console.log("User provided Token is ", token);
-      let card = await stripe.createCard(user, token);
+      try {
+        let card = await stripe.createCard(user, token);
 
+        if(card && typeof card.brand != 'undefined'){
+          res.send({
+            status: true,
+            message: "Card added",
+            data: card,
+          });
+        }
+        else{
+          res.send({
+            status: false,
+            message: card.error,
+            data: card,
+          });
+        }
+        
+      } catch (error) {
+        res.send({
+          status: false,
+          message: "Card not added",
+          data: error,
+        });
+      }
+    }
+    else{
       res.send({
-        status: card !== null,
-        message: card !== null ? "Card added" : "Card not added",
-        data: card,
+        status: false,
+        message: "Unauthenticated user",
+        data: null,
       });
     }
   });
@@ -272,7 +297,7 @@ export const BuyProduct = async (req, res) => {
           where: { id: productId },
         });
 
-        let seller = await db.User.findByPk(product.userId)
+        let seller = await db.User.findByPk(product.userId);
 
         if (!product) {
           return res.send({ status: false, message: "Product not found" });
@@ -320,7 +345,8 @@ export const BuyProduct = async (req, res) => {
 
         let defaultPaymentMethodId =
           customer.invoice_settings.default_payment_method;
-        if (!defaultPaymentMethodId) { // if no default payment method
+        if (!defaultPaymentMethodId) {
+          // if no default payment method
           let cards = await stripe.loadCards(user);
 
           if (cards.length === 0) {
@@ -328,12 +354,11 @@ export const BuyProduct = async (req, res) => {
               status: false,
               message: "No payment source found",
               data: null,
-
             });
           }
-          defaultPaymentMethodId = cards[0].id
+          defaultPaymentMethodId = cards[0].id;
         }
-        let stripeInstance = await stripe.getStripe()
+        let stripeInstance = await stripe.getStripe();
         const paymentIntent = await stripeInstance.paymentIntents.create({
           amount: Math.round(product.productPrice * 100), // Amount in cents
           currency: "usd", // Adjust the currency as needed
@@ -344,8 +369,8 @@ export const BuyProduct = async (req, res) => {
           confirm: true, // Automatically confirms the payment
           description: `Purchase of ${product.name}`,
         });
-        console.log("payment intent", paymentIntent)
-        if(paymentIntent){
+        console.log("payment intent", paymentIntent);
+        if (paymentIntent) {
           let purchasedProduct = await db.PurchasedProduct.create({
             userId: user.id,
             productId: product.id,
@@ -353,19 +378,28 @@ export const BuyProduct = async (req, res) => {
             paymentIntentId: paymentIntent.id,
             data: JSON.stringify(paymentIntent),
             status: paymentIntent.status,
-            livemode: paymentIntent.livemode
-          })
-          let sent = await SendPurchaseEmailToCreator(product, purchasedProduct, seller, user)
-          let sentToBuyer = await SendPurchaseEmailToBuyer(product, purchasedProduct, seller, user)
+            livemode: paymentIntent.livemode,
+          });
+          let sent = await SendPurchaseEmailToCreator(
+            product,
+            purchasedProduct,
+            seller,
+            user
+          );
+          let sentToBuyer = await SendPurchaseEmailToBuyer(
+            product,
+            purchasedProduct,
+            seller,
+            user
+          );
         }
 
-        
         // Respond with the payment intent client secret
         return res.send({
           status: true,
           message: "Payment intent created",
           // clientSecret: paymentIntent.client_secret,
-          intent: paymentIntent
+          intent: paymentIntent,
         });
       } catch (error) {
         console.error("Error processing payment:", error);
@@ -377,46 +411,48 @@ export const BuyProduct = async (req, res) => {
   });
 };
 
-
-export const SendPurchaseEmailToCreator = async (product, purchase, seller, buyer) => {
+export const SendPurchaseEmailToCreator = async (
+  product,
+  purchase,
+  seller,
+  buyer
+) => {
   let email = seller.email;
   let productName = product.name;
   let customerName = buyer.name;
-  if(customerName == null || customerName == ""){
-    customerName = buyer.email
+  if (customerName == null || customerName == "") {
+    customerName = buyer.email;
   }
 
   let sellerName = seller.name;
-  if(sellerName == null || sellerName == ""){
-    sellerName = seller.email
+  if (sellerName == null || sellerName == "") {
+    sellerName = seller.email;
   }
 
   let purchaseDate = purchase.createdAt;
-  
-  
 
   if (!seller) {
-      // res.send({ status: false, data: null, message: "Email not found" });
-      return { status: false, data: null, message: "Email not found" };
+    // res.send({ status: false, data: null, message: "Email not found" });
+    return { status: false, data: null, message: "Email not found" };
   }
 
   let transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com", 
-      port: 587, 
-      secure: false, 
-      auth: {
-          user: "salman@e8-labs.com",
-          pass: "uzmvwsljflyqnzgu",
-      },
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "salman@e8-labs.com",
+      pass: "uzmvwsljflyqnzgu",
+    },
   });
 
   try {
-      let mailOptions = {
-          from: '"Store Notification" <Voice.ai>',
-          to: email, 
-          subject: "New Product Purchase Notification", 
-          text: `Dear ${sellerName},\n\nA product has just been purchased from your store. Please find the details below and take the necessary actions to provide the respective service.\n\nProduct Name: ${productName}\nCustomer Name: ${customerName}\nPurchase Date: ${purchaseDate}\n\nThank you for your prompt attention to this matter.\n\nBest Regards,\nYour Store Team`, 
-          html: `<!DOCTYPE html>
+    let mailOptions = {
+      from: '"Store Notification" <Voice.ai>',
+      to: email,
+      subject: "New Product Purchase Notification",
+      text: `Dear ${sellerName},\n\nA product has just been purchased from your store. Please find the details below and take the necessary actions to provide the respective service.\n\nProduct Name: ${productName}\nCustomer Name: ${customerName}\nPurchase Date: ${purchaseDate}\n\nThank you for your prompt attention to this matter.\n\nBest Regards,\nYour Store Team`,
+      html: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -501,33 +537,37 @@ export const SendPurchaseEmailToCreator = async (product, purchase, seller, buye
   </div>
 </body>
 </html>
-`, 
-      };
+`,
+    };
 
-      transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-              return{ status: false, message: "Email not sent" };
-          } else {
-              return{ status: true, message: "Purchase notification sent" };
-          }
-      });
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return { status: false, message: "Email not sent" };
+      } else {
+        return { status: true, message: "Purchase notification sent" };
+      }
+    });
   } catch (error) {
-      console.log("Exception email", error);
-      return { status: false, message: "An error occurred" };
+    console.log("Exception email", error);
+    return { status: false, message: "An error occurred" };
   }
 };
 
-
-export const SendPurchaseEmailToBuyer = async (product, purchase, seller, buyer) => {
+export const SendPurchaseEmailToBuyer = async (
+  product,
+  purchase,
+  seller,
+  buyer
+) => {
   let buyerEmail = buyer.email;
   let productName = product.name;
   let customerName = buyer.name;
-  if(customerName == null || customerName == ""){
+  if (customerName == null || customerName == "") {
     customerName = buyer.email;
   }
 
   let sellerName = seller.name;
-  if(sellerName == null || sellerName == ""){
+  if (sellerName == null || sellerName == "") {
     sellerName = seller.email;
   }
 
@@ -535,26 +575,26 @@ export const SendPurchaseEmailToBuyer = async (product, purchase, seller, buyer)
   let productPrice = product.productPrice;
 
   if (!buyer) {
-      return { status: false, data: null, message: "Buyer email not found" };
+    return { status: false, data: null, message: "Buyer email not found" };
   }
 
   let transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com", 
-      port: 587, 
-      secure: false, 
-      auth: {
-          user: "salman@e8-labs.com",
-          pass: "uzmvwsljflyqnzgu",
-      },
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "salman@e8-labs.com",
+      pass: "uzmvwsljflyqnzgu",
+    },
   });
 
   try {
-      let mailOptions = {
-          from: '"Store Notification" <Voice.ai>',
-          to: buyerEmail, 
-          subject: `Purchase Receipt for ${sellerName}`, 
-          text: `Hey ${customerName},\n\nThis is a confirmation of your recent purchase from ${sellerName}'s store. Below are the details of your purchase:\n\nProduct Name: ${productName}\nAmount: $${productPrice}\nPurchase Date: ${purchaseDate}\n\nThank you for your purchase!\n\nBest Regards,\nYour Store Team`, 
-          html: `<!DOCTYPE html>
+    let mailOptions = {
+      from: '"Store Notification" <Voice.ai>',
+      to: buyerEmail,
+      subject: `Purchase Receipt for ${sellerName}`,
+      text: `Hey ${customerName},\n\nThis is a confirmation of your recent purchase from ${sellerName}'s store. Below are the details of your purchase:\n\nProduct Name: ${productName}\nAmount: $${productPrice}\nPurchase Date: ${purchaseDate}\n\nThank you for your purchase!\n\nBest Regards,\nYour Store Team`,
+      html: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -638,18 +678,18 @@ export const SendPurchaseEmailToBuyer = async (product, purchase, seller, buyer)
   </div>
 </body>
 </html>
-`, 
-      };
+`,
+    };
 
-      transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-              return { status: false, message: "Email not sent" };
-          } else {
-              return { status: true, message: "Purchase receipt sent to buyer" };
-          }
-      });
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return { status: false, message: "Email not sent" };
+      } else {
+        return { status: true, message: "Purchase receipt sent to buyer" };
+      }
+    });
   } catch (error) {
-      console.log("Exception email", error);
-      return { status: false, message: "An error occurred" };
+    console.log("Exception email", error);
+    return { status: false, message: "An error occurred" };
   }
 };
