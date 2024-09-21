@@ -1,4 +1,4 @@
-import { loadCards } from "./services/stripe.js";
+import { loadCards } from "../services/stripe.js";
 import db from "../models/index.js";
 import AssistantLiteResource from "./assistantliteresource.js";
 import UserSubscriptionResource from "./usersubscription.resource.js";
