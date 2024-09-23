@@ -82,13 +82,13 @@ export const createCustomer = async (user, whoami = "default") => {
   try {
     const stripe = StripeSdk(key);
     let alreadyCustomer = await findCustomer(user);
-    // console.log("Customer is ", alreadyCustomer)
+    console.log("Customer is ", alreadyCustomer)
     let u = await db.User.findByPk(user.id);
     if (alreadyCustomer && alreadyCustomer.data.length >= 1) {
       console.log("Already found ");
       u.customerId = alreadyCustomer.data[0].id;
       let updated = await u.save();
-      console.log("Returning Already customer", alreadyCustomer.data[0]);
+      console.log("Returning Already customer");
       return alreadyCustomer.data[0];
     } else {
       const customer = await stripe.customers.create({
