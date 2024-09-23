@@ -87,12 +87,13 @@ export const GetUserPaymentSources = async (req, res) => {
         customer.invoice_settings.default_payment_method;
       let cards = await stripe.loadCards(user);
       const paymentMethodsWithDefault = cards.map((paymentMethod) => {
+        let card = paymentMethod.card
         return {
           id: paymentMethod.id,
-          brand: paymentMethod.brand,
-          last4: paymentMethod.last4,
-          exp_month: paymentMethod.exp_month,
-          exp_year: paymentMethod.exp_year,
+          brand: card.brand,
+          last4: card.last4,
+          exp_month: card.exp_month,
+          exp_year: card.exp_year,
           isDefault: paymentMethod.id === defaultPaymentMethodId, // Mark if this is the default
         };
       });
