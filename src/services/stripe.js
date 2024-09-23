@@ -604,7 +604,49 @@ export const GetActiveSubscriptions = async (user) => {
   }
 };
 
+export const loadCards = async (user) => {
+  // Determine the API key based on the environment
+  let key = process.env.Environment === "Sandbox"
+    ? process.env.STRIPE_SK_TEST
+    : process.env.STRIPE_SK_PRODUCTION;
+  
+  const stripe = StripeSdk(key);
 
+  try {
+    // Find the customer object associated with the user
+    let customers = await findCustomer(user);
+    let customer = null;
+    if (customers && customers.data.length > 0) {
+      customer = customers.data[0];
+    }
+
+    console.log("Customer in load card is ", customer);
+
+    if (!customer || !customer.id) {
+      console.error("No customer found for user.");
+      return null;
+    }
+
+    // Use the Stripe SDK directly to fetch the payment methods (cards)
+    const paymentMethods = await stripe.paymentMethods.list({
+      customer: customer.id,
+      type: 'card', // Filter by card type
+      limit: 10, // Optional limit parameter
+    });
+
+    // Check if the response has any data
+    if (paymentMethods && paymentMethods.data) {
+      console.log("Cards loaded successfully:", paymentMethods.data);
+      return paymentMethods.data;
+    } else {
+      console.error("No cards found for this customer.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error loading cards:", error);
+    return null;
+  }
+};
 // description: 'Charge for purchasing Product XYZ', // Reason for the charge
   // metadata: {
   //   product_id: 'prod_ABC123',
@@ -688,53 +730,53 @@ export async function ChargeCustomer(amountInCents, user, title = "", descriptio
 //     }
 // }
 
-export const loadCards = async (user) => {
-  let key =
-    process.env.Environment === "Sandbox"
-      ? process.env.STRIPE_SK_TEST
-      : process.env.STRIPE_SK_PRODUCTION;
-  //console.log("Key is ", key)
-  const stripe = StripeSdk(key);
+// export const loadCards = async (user) => {
+//   let key =
+//     process.env.Environment === "Sandbox"
+//       ? process.env.STRIPE_SK_TEST
+//       : process.env.STRIPE_SK_PRODUCTION;
+//   //console.log("Key is ", key)
+//   const stripe = StripeSdk(key);
 
-  try {
-    let customers = await findCustomer(user);
-    let customer = null;
-    if (customers && customers.data.length > 0) {
-      customer = customers.data[0];
-    }
-    console.log("Customer in load card is ", customer);
+//   try {
+//     let customers = await findCustomer(user);
+//     let customer = null;
+//     if (customers && customers.data.length > 0) {
+//       customer = customers.data[0];
+//     }
+//     console.log("Customer in load card is ", customer);
 
-    let data = qs.stringify({
-      limit: "10",
-    });
+//     let data = qs.stringify({
+//       limit: "10",
+//     });
 
-    let config = {
-      method: "get",
-      maxBodyLength: Infinity,
-      url: `https://api.stripe.com/v1/customers/${customer.id}/cards?limit=10`,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Bearer ${key}`,
-      },
-      data: data,
-    };
+//     let config = {
+//       method: "get",
+//       maxBodyLength: Infinity,
+//       url: `https://api.stripe.com/v1/customers/${customer.id}/cards?limit=10`,
+//       headers: {
+//         "Content-Type": "application/x-www-form-urlencoded",
+//         Authorization: `Bearer ${key}`,
+//       },
+//       data: data,
+//     };
 
-    let response = await axios.request(config);
-    if (response) {
-      //console.log("Load cards request");
-      //console.log(JSON.stringify(response.data.data));
-      return response.data.data;
-    } else {
-      //console.log("Load cards request errored");
-      //console.log(error);
-      return null;
-    }
-  } catch (error) {
-    //console.log("Load cards request errored out");
-    //console.log(error)
-    return null;
-  }
-};
+//     let response = await axios.request(config);
+//     if (response) {
+//       //console.log("Load cards request");
+//       //console.log(JSON.stringify(response.data.data));
+//       return response.data.data;
+//     } else {
+//       //console.log("Load cards request errored");
+//       //console.log(error);
+//       return null;
+//     }
+//   } catch (error) {
+//     //console.log("Load cards request errored out");
+//     //console.log(error)
+//     return null;
+//   }
+// };
 
 export async function setDefaultPaymentMethod(user, paymentMethodId) {
   try {
