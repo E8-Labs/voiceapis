@@ -4,7 +4,7 @@ import multer from 'multer';
 import {verifyJwtToken} from '../middleware/jwtmiddleware.js'
 import { LoginUser, SendPhoneVerificationCode, VerifyPhoneCode, CheckPhoneExists, UpdateUserToCreator,
     CheckUsernameExists, CheckEmailExists, GetProfileWithUsername, SendEmailVerificationCode, VerifyEmailCode,
-    UpdateProfile, SendCustomSms
+    UpdateProfile, SendCustomSms, GetMyProfile
  } from '../controllers/user.controller.js'
 
 import { StoreToDb, SearchDb } from '../controllers/knowledge.controller.js';
@@ -29,6 +29,7 @@ UserRouter.post("/sendCustomSms", SendCustomSms);
 
 UserRouter.post("/login", LoginUser);
 UserRouter.post("/updateUserRole", verifyJwtToken, uploadFiles, UpdateUserToCreator);
+UserRouter.get("/myProfile", verifyJwtToken, GetMyProfile);
 UserRouter.post("/updateProfile", verifyJwtToken, uploadFiles, UpdateProfile);
 UserRouter.post("/checkPhoneNumber", CheckPhoneExists);
 UserRouter.post("/checkUsernameExists", CheckUsernameExists);
