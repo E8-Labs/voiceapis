@@ -124,13 +124,13 @@ export const findCustomer = async (user) => {
 
   try {
     const stripe = StripeSdk(key);
-    // const customer = await stripe.customers.search({
-    //     query: `email: '${user.email}'`
-    // });
-
     const customer = await stripe.customers.search({
-      query: `metadata['id']:'${AppPrefix}${user.id}${AppSuffix}'`,
+        query: `email: '${AppPrefix}${user.email}'`
     });
+
+    // const customer = await stripe.customers.search({
+    //   query: `metadata['id']:'${AppPrefix}${user.id}${AppSuffix}'`,
+    // });
 
     return customer;
   } catch (error) {
