@@ -283,26 +283,27 @@ export const deleteCard = async (user, cardId) => {
     process.env.Environment === "Sandbox"
       ? process.env.STRIPE_SK_TEST
       : process.env.STRIPE_SK_PRODUCTION;
-  
+
   try {
     const stripe = StripeSdk(key);
-
-    // Ensure createCustomer returns a valid customer object
     let customer = await createCustomer(user, "deleteCard");
+    
     if (!customer || !customer.id) {
       console.error("Customer not found for user:", user);
       return null;
     }
 
-    // Delete the card source using the Stripe SDK
-    const deleted = await stripe.customers.deleteSource(customer.id, cardId);
+    console.log("Deleting card for customer:", customer.id);
+    console.log("Card ID to delete:", cardId);
 
-    // Return the deleted card object or true/false status
+    // Use paymentMethods.detach to delete a card from the PaymentMethods API
+    const deleted = await stripe.paymentMethods.detach(cardId);
+
+    console.log("Deleted card response:", deleted);
     return deleted;
 
   } catch (error) {
-    // Log the error for debugging purposes
-    console.error("Error deleting card:", error);
+    console.error("Error deleting card:", error.response ? error.response.data : error.message);
     return null;
   }
 };
