@@ -372,7 +372,7 @@ const generateGptSummary = async (transcript, model, caller, prevSummary = "") =
     
 const data = {
   model: "gpt-4o",
-  // temperature: 1.2,
+  temperature: 0.2,
   messages: [prompt],
   // max_tokens: 1000,
 }
