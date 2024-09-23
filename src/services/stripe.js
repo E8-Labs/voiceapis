@@ -279,26 +279,33 @@ export const createCard = async (user, token) => {
 
 
 export const deleteCard = async (user, cardId) => {
-    let key =
-      process.env.Environment === "Sandbox"
-        ? process.env.STRIPE_SK_TEST
-        : process.env.STRIPE_SK_PRODUCTION;
-    //console.log("Key is ", key)
+  let key =
+    process.env.Environment === "Sandbox"
+      ? process.env.STRIPE_SK_TEST
+      : process.env.STRIPE_SK_PRODUCTION;
   
-    try {
-      const stripe = StripeSdk(key);
-      let customer = await createCustomer(user, "deleteCard");
-  
-      const deleted = await stripe.customers.deleteSource(customer.id, cardId);
-      
-  
-      return deleted;
-    } catch (error) {
-      console.log("Card error ");
-      console.log(error);
+  try {
+    const stripe = StripeSdk(key);
+
+    // Ensure createCustomer returns a valid customer object
+    let customer = await createCustomer(user, "deleteCard");
+    if (!customer || !customer.id) {
+      console.error("Customer not found for user:", user);
       return null;
     }
-  };
+
+    // Delete the card source using the Stripe SDK
+    const deleted = await stripe.customers.deleteSource(customer.id, cardId);
+
+    // Return the deleted card object or true/false status
+    return deleted;
+
+  } catch (error) {
+    // Log the error for debugging purposes
+    console.error("Error deleting card:", error);
+    return null;
+  }
+};
 
 export const createPromo = async (
   code,
