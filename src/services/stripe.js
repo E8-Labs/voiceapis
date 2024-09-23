@@ -88,7 +88,7 @@ export const createCustomer = async (user, whoami = "default") => {
       console.log("Already found ");
       u.customerId = alreadyCustomer.data[0].id;
       let updated = await u.save();
-      console.log("Returning Already customer");
+      console.log("Returning Already customer", alreadyCustomer.data[0]);
       return alreadyCustomer.data[0];
     } else {
       const customer = await stripe.customers.create({
