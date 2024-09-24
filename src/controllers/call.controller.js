@@ -274,7 +274,7 @@ export const GetACall = async (callId) => {
           if (previousSummaryRow) {
             previousSummaryRow.summary = gptSummary;
             let saved = await previousSummaryRow.save();
-            console.log("Summary for call updated");
+            console.log("Summary for call updated", dbCall.callId);
           } else {
             await db.UserCallSummary.create({
               name: `Summary for Call ${callId}`,
