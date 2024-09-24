@@ -114,7 +114,7 @@ async function getCallsAndDetails() {
             "completed",
             "failed",
             "busy",
-            "hangup_on_voicemail",
+            // "hangup_on_voicemail",
             "no-answer",
           ],
         },
@@ -123,7 +123,7 @@ async function getCallsAndDetails() {
         },
       },
     });
-    //console.log("Calls found pending: ", calls.length);
+    console.log("Calls found pending: ", calls.length);
 
     if (calls && calls.length > 0) {
       //console.log("Pending calls found");

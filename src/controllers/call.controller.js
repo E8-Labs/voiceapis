@@ -232,25 +232,20 @@ export const GetACall = async (callId) => {
           callId: callId,
         },
       });
-      if (
-        dbCall &&
-        (dbCall.status === "" ||
-          dbCall.status == null ||
-          dbCall.status == "in-progress" ||
-          dbCall.status == "initiated" ||
-          dbCall.status == "pending")
-      ) {
+      if (dbCall && (dbCall.status === "" || dbCall.status == null || dbCall.status == "in-progress" || 
+          dbCall.status == "initiated" || dbCall.status == "pending")) 
+      {
         //console.log("Updating call in db");
-        // dbCall.transcript = data.transcript;
-        // dbCall.status = data.status;
-        // dbCall.duration = data.duration;
-        // let updated = await dbCall.save();
+        dbCall.transcript = data.transcript;
+        dbCall.status = data.status;
+        dbCall.duration = data.duration;
+        let updated = await dbCall.save();
         //console.log("Db call updated");
 
         let caller = await db.User.findByPk(dbCall.userId);
         let model = await db.User.findByPk(dbCall.modelId);
 
-        if (dbCall.transcript != "" || dbCall.transcript != null) {
+        if (dbCall.transcript != "" && dbCall.transcript != null) {
           let previousSummaryRow = await db.UserCallSummary.findOne({
             where: {
               userId: caller.id,
