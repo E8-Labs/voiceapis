@@ -316,7 +316,7 @@ export const VerifyPhoneCode = async (req, res) => {
       res.send({ status: false, data: null, message: "Phone already taken" });
     }
   } else {
-    console.log("Db code is ", dbCode)
+    // console.log("Db code is ", dbCode)
     console.log("User email is ", email)
 
     if (!login) {
