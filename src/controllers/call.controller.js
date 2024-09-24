@@ -241,10 +241,10 @@ export const GetACall = async (callId) => {
           dbCall.status == "pending")
       ) {
         //console.log("Updating call in db");
-        dbCall.transcript = data.transcript;
-        dbCall.status = data.status;
-        dbCall.duration = data.duration;
-        let updated = await dbCall.save();
+        // dbCall.transcript = data.transcript;
+        // dbCall.status = data.status;
+        // dbCall.duration = data.duration;
+        // let updated = await dbCall.save();
         //console.log("Db call updated");
 
         let caller = await db.User.findByPk(dbCall.userId);
