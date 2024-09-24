@@ -78,21 +78,7 @@ export const MakeACall = async (req, res) => {
   if (user) {
     // user is in the database.
 
-    //The below logic is discarded enclosed in #####
-    //###########################################################################
-    //check if he has pending previous transactions
-    // let calls = await db.CallModel.findAll({
-    //   where: {
-    //     status: 'completed',
-    //     paymentStatus: {
-    //       [db.Sequelize.Op.ne]: "succeeded"
-    //     },
-    //     phone: {
-    //       [db.Sequelize.Op.like]: `%${PhoneNumber}%`
-    //     }
-    //   }
-    // });
-    //###########################################################################
+    
 
     if (user.seconds_available <= 120) {
       let cards = await loadCards(user);
@@ -232,14 +218,9 @@ export const GetACall = async (callId) => {
           callId: callId,
         },
       });
-      if (
-        dbCall &&
-        (dbCall.status === "" ||
-          dbCall.status == null ||
-          dbCall.status == "in-progress" ||
-          dbCall.status == "initiated" ||
-          dbCall.status == "pending")
-      ) {
+      if (dbCall && (dbCall.status === "" || dbCall.status == null || dbCall.status == "in-progress" || 
+          dbCall.status == "initiated" || dbCall.status == "pending")) 
+      {
         //console.log("Updating call in db");
         dbCall.transcript = data.transcript;
         dbCall.status = data.status;
@@ -250,7 +231,7 @@ export const GetACall = async (callId) => {
         let caller = await db.User.findByPk(dbCall.userId);
         let model = await db.User.findByPk(dbCall.modelId);
 
-        if (dbCall.transcript != "" || dbCall.transcript != null) {
+        if (dbCall.transcript != "" && dbCall.transcript != null) {
           let previousSummaryRow = await db.UserCallSummary.findOne({
             where: {
               userId: caller.id,
@@ -274,7 +255,7 @@ export const GetACall = async (callId) => {
           if (previousSummaryRow) {
             previousSummaryRow.summary = gptSummary;
             let saved = await previousSummaryRow.save();
-            //console.log("Summary for call updated");
+            console.log("Summary for call updated", dbCall.callId);
           } else {
             await db.UserCallSummary.create({
               name: `Summary for Call ${callId}`,
@@ -370,6 +351,19 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
   // Send the response
   res.send({ status: true, message: "calls obtained", data: callsRes });
 };
+
+
+export const WebhookSynthflow = async(req, res)=>{
+  let data = req.body.data;
+  console.log("Webhook data is ", data)
+
+  //send the data to ghl here
+
+
+
+  //process the data here
+  return res.send({status: true, message: "Webhook received"})
+}
 
 
 export const GenSummary = async (req, res) => {

@@ -259,7 +259,7 @@ export const VerifyPhoneCode = async (req, res) => {
   let city = req.body.city || "";
   let state = req.body.state || "";
 
-  //console.log("User Details ", req.body);
+  console.log("User Details ", req.body);
   //If user Signs up
   const email = req.body.email;
 
@@ -268,7 +268,7 @@ export const VerifyPhoneCode = async (req, res) => {
 
   const role = req.body.role || "caller";
 
-  //console.log("UserWithPhone", phone);
+  console.log("UserWithPhone", phone);
   let user = await db.User.findOne({
     where: {
       phone: {
@@ -276,7 +276,7 @@ export const VerifyPhoneCode = async (req, res) => {
       },
     },
   });
-  //console.log("User is ", user);
+  console.log("User is ", user);
   // let dbCode = await db.PhoneVerificationCodeModel.findOne({
   //     where: {
   //         phone: {
@@ -316,8 +316,8 @@ export const VerifyPhoneCode = async (req, res) => {
       res.send({ status: false, data: null, message: "Phone already taken" });
     }
   } else {
-    ////console.log("Db code is ", dbCode)
-    ////console.log("User email is ", email)
+    console.log("Db code is ", dbCode)
+    console.log("User email is ", email)
 
     if (!login) {
       // if(!dbCode){

@@ -17,21 +17,144 @@ import * as stripe from "../services/stripe.js";
 const User = db.User;
 const Op = db.Sequelize.Op;
 
+
+export const MakeACall = async (userId, modelId) => {
+  console.log("Initiating call from Add Card")
+  // setLoading(true);
+  
+  // let model = model
+
+  let assistant = await db.Assistant.findOne({
+    where: {
+      userId: modelId,
+    },
+  });
+  if (!assistant) {
+    console.log("No assisant found for ", modelId)
+    return {
+      status: false,
+      message: "No such assistant",
+      data: null,
+      reason: "no_such_assistant",
+    };
+  }
+
+  let user = await db.User.findOne({
+    where: {
+      id: userId,
+    },
+  });
+  let PhoneNumber = user.phone;
+  let Name = user.name || user.username;
+  // let LastName = req.body.lastName || "";
+  let Email = user.email;
+
+  if (user) {
+    
+  } else {
+    console.log('"Here No Such User"')
+    return {
+      status: false,
+      message: "User with this phone number does not exist",
+      data: null,
+      reason: "no_such_user",
+    };
+  }
+
+  console.log("Calling assistant", assistant.name);
+  //console.log("Model ", assistant.modelId);
+  try {
+    let basePrompt = assistant.prompt;
+    
+   
+    let data = JSON.stringify({
+      name: Name,
+      phone: PhoneNumber,
+      model: assistant.modelId, //"1722652829145x214249543190325760",
+      prompt: basePrompt,
+    });
+
+    let config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: "https://fine-tuner.ai/api/1.1/wf/v2_voice_agent_call",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${assistant.apikey}`,
+      },
+      data: data,
+    };
+
+    try {
+      const response = await axios.request(config);
+      let json = response.data;
+  
+      if (json.status === "ok" || json.status === "success") {
+        let callId = json.response.call_id;
+  
+        // Push data to GHL
+        // let savedToGhl = await PushDataToGhl(Name, Email, PhoneNumber, callId);
+  
+        // Save call details to the database
+        let saved = await db.CallModel.create({
+          callId: callId,
+          phone: PhoneNumber,
+          transcript: "",
+          summary: "",
+          duration: "",
+          status: "",
+          model: assistant.name,
+          modelId: assistant.userId,
+          paymentStatus: "",
+          chargeDescription: "",
+          userId: user.id,
+        });
+  
+        // Return success response
+        return { status: true, message: "Call is initiated", data: json };
+      } else {
+        // Handle case when the call is not initiated successfully
+        return { status: false, message: "Call is not initiated", data: json };
+      }
+    } catch (error) {
+      console.log(error);
+  
+      // Return error response
+      return {
+        status: false,
+        message: "Call is not initiated",
+        data: error,
+      };
+    }
+  } catch (error) {
+    console.error("Error occured is :", error);
+    return{ status: false, message: "call is not initiated", data: null };
+  }
+};
+
 export const AddCard = async (req, res) => {
   //console.log("Add card api");
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let user = await db.User.findByPk(authData.user.id);
       let token = req.body.source;
+      let modelId = req.body.modelId || null
       console.log("Add Card Token is ", token);
       try {
         let card = await stripe.createCard(user, token);
 
         if(card && typeof card.brand != 'undefined'){
+
+          let callData = null
+          if(modelId){
+            // call the api to initiate call
+            callData = await MakeACall(user.id, modelId)
+          }
           res.send({
             status: true,
             message: "Card added",
             data: card,
+            callData: callData
           });
         }
         else{
