@@ -26,7 +26,7 @@ export const GetCallLogs = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
-      console.log("Finding call logs for ", userId);
+      //console.log("Finding call logs for ", userId);
       //Get User Products
       let calls = await db.CallModel.findAll({
         where: {
@@ -46,7 +46,7 @@ export const GetCallLogs = async (req, res) => {
 export async function ListCallerInvoices(req, res) {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
-      console.log("Calling invoices api ", authData.user.id);
+      //console.log("Calling invoices api ", authData.user.id);
       let userId = authData.user.id;
       let lastInvoiceId = req.query.lastInvoiceId || null;
       try {
@@ -237,7 +237,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
         //   latestPurchaseDate: product.get("latestPurchaseDate") // Get the alias
         // }));
 
-        // console.log("Products purchased", productInfo)
+        // //console.log("Products purchased", productInfo)
         // // Fetch selling products based on purchased product IDs
         // const products = await db.SellingProducts.findAll({
         //   where: {

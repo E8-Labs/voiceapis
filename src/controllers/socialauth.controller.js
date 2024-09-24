@@ -38,10 +38,10 @@ export const ScrapeTweets = async (req, res) => {
 
       tweets = [...tweets, ...newTweets];
       tweets = [...new Set(tweets)]; // Remove duplicates
-      console.log("Twwets", tweets);
+      //console.log("Twwets", tweets);
       // If no new tweets were loaded, break the loop
       if (tweets.length === previousTweetCount) {
-        console.log("No more tweets loaded, breaking out of the loop.");
+        //console.log("No more tweets loaded, breaking out of the loop.");
         break;
       }
 
@@ -57,7 +57,7 @@ export const ScrapeTweets = async (req, res) => {
     }
 
     await browser.close();
-    // console.log(tweets);
+    // //console.log(tweets);
     return res.send({ status: true, message: "Tweets", data: tweets });
   } catch (error) {
     console.error("Error fetching the URL:", error);
@@ -70,7 +70,7 @@ export const ScrapeTweets = async (req, res) => {
 };
 
 export const AddInstagramAuth = async (req, res) => {
-  console.log("Add instagram login api", process.env.InstaClientId);
+  //console.log("Add instagram login api", process.env.InstaClientId);
 
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
@@ -94,7 +94,7 @@ export const AddInstagramAuth = async (req, res) => {
         );
 
         const { access_token: shortLivedAccessToken } = response.data;
-        console.log("Short-lived access token:", shortLivedAccessToken);
+        //console.log("Short-lived access token:", shortLivedAccessToken);
 
         // Step 2: Exchange short-lived access token for long-lived access token
         const longLivedTokenResponse = await axios.get(
@@ -110,8 +110,8 @@ export const AddInstagramAuth = async (req, res) => {
 
         const { access_token: longLivedAccessToken, expires_in } =
           longLivedTokenResponse.data;
-        console.log("Long-lived access token:", longLivedAccessToken);
-        console.log("Expires in:", expires_in, "seconds");
+        //console.log("Long-lived access token:", longLivedAccessToken);
+        //console.log("Expires in:", expires_in, "seconds");
 
         // Step 3: Fetch user data using the long-lived access token
         const userResponse = await axios.get(
@@ -158,7 +158,7 @@ export const AddInstagramAuth = async (req, res) => {
 };
 
 const fetchYouTubeVideos = async (accessToken) => {
-  console.log("Fetching youtube videos ", accessToken);
+  //console.log("Fetching youtube videos ", accessToken);
   const oauth2Client = new google.auth.OAuth2();
   oauth2Client.setCredentials({ access_token: accessToken });
   const youtube = google.youtube({
@@ -180,7 +180,7 @@ const fetchYouTubeVideos = async (accessToken) => {
   }
 
   const channelId = channelsResponse.data.items[0].id;
-  console.log("Channel id ", channelId);
+  //console.log("Channel id ", channelId);
   // Fetch the user's videos
   const currentDate = new Date();
   const threeMonthsAgo = new Date(currentDate.setMonth(currentDate.getMonth() - 3)).toISOString();
@@ -193,7 +193,7 @@ const fetchYouTubeVideos = async (accessToken) => {
     order: "date",
     publishedAfter: threeMonthsAgo,
   });
-  console.log("Videos ", videosResponse);
+  //console.log("Videos ", videosResponse);
 
   return videosResponse.data.items;
 };
@@ -208,10 +208,10 @@ const fetchVideoCaptions = async (youtube, videoId) => {
     !captionsResponse.data.items ||
     captionsResponse.data.items.length === 0
   ) {
-    console.log("No captions found");
+    //console.log("No captions found");
     return null; // No captions found
   }
-  console.log("Captions found", captionsResponse.data.items);
+  //console.log("Captions found", captionsResponse.data.items);
   const captionId = captionsResponse.data.items[0].id;
 
   // Download the caption (in default format, usually .srt or .vtt)
@@ -231,7 +231,7 @@ const fetchVideoCaptions = async (youtube, videoId) => {
 
 //################## Youtube Auth START ####################
 export const AddGoogleAuth = async (req, res) => {
-  console.log("Add Google login API");
+  //console.log("Add Google login API");
 
   let { providerAccountId, idToken, accessToken, refreshToken, expiresAt } =
     req.body;
@@ -241,7 +241,7 @@ export const AddGoogleAuth = async (req, res) => {
       let user = await db.User.findByPk(authData.user.id);
       let youtubeDetails = await fetchYouTubeUserDetails(accessToken);
       try {
-        console.log("Expires in:", expiresAt, "seconds");
+        //console.log("Expires in:", expiresAt, "seconds");
 
         // Step 4: Store the long-lived access token in the database
         let googleUser = await db.GoogleAuthModel.findOne({
@@ -288,11 +288,11 @@ export const AddGoogleAuth = async (req, res) => {
         oauth2Client.setCredentials({ access_token: accessToken });
         const youtube = google.youtube({ version: "v3", auth: oauth2Client });
 
-        console.log("Fetching captions");
+        //console.log("Fetching captions");
         // Save videos and captions to the database
         for (const video of videos) {
           const caption = await fetchVideoCaptions(youtube, video.id.videoId);
-          console.log("Captions are ", caption);
+          //console.log("Captions are ", caption);
           let vid = await db.YouTubeVideo.findOne({
             where: {
               videoId: video.id.videoId,
@@ -359,7 +359,7 @@ const fetchYouTubeUserDetails = async (accessToken) => {
     const channel = response.data.items[0];
 
     if (!channel) {
-      console.log("NO channel found for the user");
+      //console.log("NO channel found for the user");
       throw new Error("No channel found for the authenticated user.");
     }
 
@@ -374,7 +374,7 @@ const fetchYouTubeUserDetails = async (accessToken) => {
       website: channel.brandingSettings.channel.unsubscribedTrailer || null,
       emailPublic: channel.snippet.customUrl || null, // This field might not be accessible depending on privacy settings
     };
-    console.log("YoutubeDataFetched", data);
+    //console.log("YoutubeDataFetched", data);
     return data;
   } catch (error) {
     console.error("Error fetching YouTube user details:", error);

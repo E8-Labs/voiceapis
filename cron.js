@@ -11,15 +11,15 @@ async function rechargeUsersAccounts() {
       },
     },
   });
-  console.log(`${users.length} Users have less than 2 minutes`);
+  //console.log(`${users.length} Users have less than 2 minutes`);
 
   if (users && users.length > 0) {
     for (let i = 0; i < users.length; i++) {
       let u = users[i];
       let amount = 1000;
-      console.log(`User ${u.email} has balance `, u.seconds_available);
+      //console.log(`User ${u.email} has balance `, u.seconds_available);
       let charge = await ChargeCustomer(amount, u, "Recharged 10 minutes", "Charge for 10 minutes. Balance dropped below 2 minutes.");
-      // console.log("Charged in user is ", charge);
+      // //console.log("Charged in user is ", charge);
       // call.paymentStatus = charge.reason;
       if (charge.payment) {
         // call.paymentId = charge.payment.id;
@@ -28,7 +28,7 @@ async function rechargeUsersAccounts() {
         // let saved = await call.save();
         u.seconds_available = u.seconds_available + 600;
         let userSaved = await u.save();
-        console.log("User call time updated in user", u.seconds_available);
+        //console.log("User call time updated in user", u.seconds_available);
       }
       // call.chargeDescription = charge.message;
     }
@@ -36,7 +36,7 @@ async function rechargeUsersAccounts() {
 }
 
 async function getCompletedCallsNotCharged() {
-  console.log("Running cron job Completed Calls");
+  //console.log("Running cron job Completed Calls");
   try {
     let calls = await db.CallModel.findAll({
       where: {
@@ -48,13 +48,13 @@ async function getCompletedCallsNotCharged() {
         },
       },
     });
-    console.log("Calls pending cahrge found: ", calls.length);
+    //console.log("Calls pending cahrge found: ", calls.length);
     //getCompletedCallsNotCharged
     if (calls && calls.length > 0) {
       for (let i = 0; i < calls.length; i++) {
         let call = calls[i];
         let callId = call.callId;
-        console.log("Getting call id ", callId);
+        //console.log("Getting call id ", callId);
 
         let duration = call.duration; //in seconds
         let amount = 1000; //(10 / 60) * duration * 100; //10 / 60 => amount per second & then x 100 to convert to cents
@@ -72,7 +72,7 @@ async function getCompletedCallsNotCharged() {
             //We are using hardcoded amount of $10 for now. A minite is worth $1. So we will add 10 minutes for now
             //to the user's call time
             let charge = await ChargeCustomer(amount, user, "Recharged 10 minutes", "Charge for 10 minutes. Balance dropped below 2 minutes.");
-            // console.log("Charge is ", charge);
+            // //console.log("Charge is ", charge);
             call.paymentStatus = charge.reason;
             if (charge.payment) {
               call.paymentId = charge.payment.id;
@@ -83,29 +83,29 @@ async function getCompletedCallsNotCharged() {
             let saved = await call.save();
             user.seconds_available = user.seconds_available + 600;
             let userSaved = await user.save();
-            console.log("User call time updated ", user.seconds_available);
+            //console.log("User call time updated ", user.seconds_available);
             // } else {
-            //   console.log("No user to charge");
+            //   //console.log("No user to charge");
             // }
           } else {
             user.seconds_available = user.seconds_available - duration;
             let saved = await user.save();
-            console.log("User call time updated ", user.seconds_available);
+            //console.log("User call time updated ", user.seconds_available);
           }
         } else {
-          console.log("No user to charge");
+          //console.log("No user to charge");
         }
         call.paymentStatus = "Succeeded";
         let callSaved = await call.save();
       }
     }
   } catch (error) {
-    console.log("Error ", error);
+    //console.log("Error ", error);
   }
 }
 
 async function getCallsAndDetails() {
-  console.log("Running cron job");
+  //console.log("Running cron job");
   try {
     let calls = await db.CallModel.findAll({
       where: {
@@ -123,16 +123,16 @@ async function getCallsAndDetails() {
         },
       },
     });
-    console.log("Calls found pending: ", calls.length);
+    //console.log("Calls found pending: ", calls.length);
 
     if (calls && calls.length > 0) {
-      console.log("Pending calls found");
+      //console.log("Pending calls found");
       for (let i = 0; i < calls.length; i++) {
         let callId = calls[i].callId;
-        console.log("Getting call id ", calls[i].id);
+        //console.log("Getting call id ", calls[i].id);
         try {
           let data = await GetACall(callId);
-          // console.log("Call fetched and updated: ", data);
+          // //console.log("Call fetched and updated: ", data);
         } catch (error) {
           console.error(`Error fetching call with id ${callId}:`, error);
         }

@@ -36,12 +36,12 @@ async function PushDataToGhl(firstName, lastName, email, phone, callId) {
 
   try {
     const response = await axios.request(config);
-    console.log("Data from ghl");
-    console.log(JSON.stringify(response.data));
+    //console.log("Data from ghl");
+    //console.log(JSON.stringify(response.data));
     return true;
   } catch (error) {
-    console.log("Error from ghl");
-    console.log(error);
+    //console.log("Error from ghl");
+    //console.log(error);
     return false;
   }
 }
@@ -117,8 +117,8 @@ export const MakeACall = async (req, res) => {
     });
   }
 
-  console.log("Calling assistant", assistant.name);
-  console.log("Model ", assistant.modelId);
+  //console.log("Calling assistant", assistant.name);
+  //console.log("Model ", assistant.modelId);
   try {
     let basePrompt = assistant.prompt;
     //find if any previous calls exist
@@ -127,14 +127,14 @@ export const MakeACall = async (req, res) => {
         phone: PhoneNumber,
       },
     });
-    console.log(`Calls for phone ${PhoneNumber} `, calls.length);
+    //console.log(`Calls for phone ${PhoneNumber} `, calls.length);
     for (let i = 0; i < calls.length; i++) {
       let call = calls[i];
       basePrompt = `${basePrompt}\n${call.transcript}`;
     }
 
     //   const axios = require('axios');
-    // console.log("Base Prompt is  ", basePrompt)
+    // //console.log("Base Prompt is  ", basePrompt)
     let data = JSON.stringify({
       name: Name,
       phone: PhoneNumber,
@@ -157,7 +157,7 @@ export const MakeACall = async (req, res) => {
       .request(config)
       .then(async (response) => {
         let json = response.data;
-        console.log(json);
+        //console.log(json);
         if (json.status === "ok" || json.status === "success") {
           let callId = json.response.call_id;
           let savedToGhl = await PushDataToGhl(
@@ -180,7 +180,7 @@ export const MakeACall = async (req, res) => {
             chargeDescription: "",
             userId: user.id,
           });
-          console.log("Saved ", saved);
+          //console.log("Saved ", saved);
           res.send({ status: true, message: "call is initiated ", data: json });
         } else {
           res.send({
@@ -191,7 +191,7 @@ export const MakeACall = async (req, res) => {
         }
       })
       .catch((error) => {
-        console.log(error);
+        //console.log(error);
         res.send({
           status: false,
           message: "call is not initiated",
@@ -221,12 +221,12 @@ export const GetACall = async (callId) => {
     let response = await axios.request(config);
     // .then(async (response) => {
 
-    // console.log(response);
+    // //console.log(response);
     if (response.status == 200) {
       let json = response.data;
-      console.log("Call data success");
+      //console.log("Call data success");
       let data = json[0];
-      // console.log("Call data is ", data);
+      // //console.log("Call data is ", data);
       let dbCall = await db.CallModel.findOne({
         where: {
           callId: callId,
@@ -240,12 +240,12 @@ export const GetACall = async (callId) => {
           dbCall.status == "initiated" ||
           dbCall.status == "pending")
       ) {
-        console.log("Updating call in db");
+        //console.log("Updating call in db");
         dbCall.transcript = data.transcript;
         dbCall.status = data.status;
         dbCall.duration = data.duration;
         let updated = await dbCall.save();
-        console.log("Db call updated");
+        //console.log("Db call updated");
 
         let caller = await db.User.findByPk(dbCall.userId);
         let model = await db.User.findByPk(dbCall.modelId);
@@ -274,7 +274,7 @@ export const GetACall = async (callId) => {
           if (previousSummaryRow) {
             previousSummaryRow.summary = gptSummary;
             let saved = await previousSummaryRow.save();
-            console.log("Summary for call updated");
+            //console.log("Summary for call updated");
           } else {
             await db.UserCallSummary.create({
               name: `Summary for Call ${callId}`,
@@ -284,20 +284,20 @@ export const GetACall = async (callId) => {
             });
           }
 
-          console.log("Summary saved in UserCallSummary");
+          //console.log("Summary saved in UserCallSummary");
         }
       }
       return { status: true, message: "call obtained", data: dbCall };
       res.send({ status: true, message: "call obtained", data: dbCall });
     } else {
-      console.log("Call not obtained ", response);
+      //console.log("Call not obtained ", response);
       return { status: false, message: "call not obtained", data: response };
       res.send({ status: false, message: "call not obtained", data: response });
     }
 
     // })
     // .catch((error) => {
-    //   console.log(error);
+    //   //console.log(error);
     //   return {status: false, message: "call not obtained", data: null}
     //   res.send({status: false, message: "call not obtained", data: null})
     // });
@@ -350,7 +350,7 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
     order: [["createdAt", "DESC"]],
     limit: 20,
   });
-  console.log('Actual Calls ', callsActual )
+  //console.log('Actual Calls ', callsActual )
 
   // Combine the calls and filter for unique calls based on callerId and callId
   let uniqueCallers = new Set();
@@ -479,7 +479,7 @@ bot: What's the main value proposition you offer to clients?"`;
     );
 
     const summary = result.data.choices[0].message.content.trim();
-    console.log("GPT summary generated:", summary);
+    //console.log("GPT summary generated:", summary);
     return res.send({ status: true, data: summary });
   } catch (error) {
     console.error("Error generating GPT summary:", error);
@@ -538,7 +538,7 @@ const generateGptSummary = async (
     );
 
     const summary = result.data.choices[0].message.content.trim();
-    console.log("GPT summary generated:", summary);
+    //console.log("GPT summary generated:", summary);
     return summary;
   } catch (error) {
     console.error("Error generating GPT summary:", error);

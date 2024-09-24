@@ -57,15 +57,15 @@ export const getStripe = async(whoami = "Create Stripe instance")=>{
     process.env.Environment === "Sandbox"
       ? process.env.STRIPE_SK_TEST
       : process.env.STRIPE_SK_PRODUCTION;
-  // console.log("Key is create customer ", key)
-  console.log("whoami", whoami);
+  // //console.log("Key is create customer ", key)
+  //console.log("whoami", whoami);
 
   try {
     const stripe = StripeSdk(key);
     return stripe
   }
   catch(error){
-    console.log("Error createing stripe")
+    //console.log("Error createing stripe")
     return null
   }
 }
@@ -76,19 +76,19 @@ export const createCustomer = async (user, whoami = "default") => {
     process.env.Environment === "Sandbox"
       ? process.env.STRIPE_SK_TEST
       : process.env.STRIPE_SK_PRODUCTION;
-  // console.log("Key is create customer ", key)
-  console.log("whoami", whoami);
+  // //console.log("Key is create customer ", key)
+  //console.log("whoami", whoami);
 
   try {
     const stripe = StripeSdk(key);
     let alreadyCustomer = await findCustomer(user);
-    console.log("Customer is ", alreadyCustomer)
+    //console.log("Customer is ", alreadyCustomer)
     let u = await db.User.findByPk(user.id);
     if (alreadyCustomer && alreadyCustomer.data.length >= 1) {
-      console.log("Already found ");
+      //console.log("Already found ");
       u.customerId = alreadyCustomer.data[0].id;
       let updated = await u.save();
-      console.log("Returning Already customer");
+      //console.log("Returning Already customer");
       return alreadyCustomer.data[0];
     } else {
       const customer = await stripe.customers.create({
@@ -102,7 +102,7 @@ export const createCustomer = async (user, whoami = "default") => {
         },
       });
 
-      console.log("Customer New ");
+      //console.log("Customer New ");
       u.customerId = customer.id;
       await u.save();
       return customer;
@@ -110,7 +110,7 @@ export const createCustomer = async (user, whoami = "default") => {
 
     // return customer
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     return null;
   }
 };
@@ -120,7 +120,7 @@ export const findCustomer = async (user) => {
     process.env.Environment === "Sandbox"
       ? process.env.STRIPE_SK_TEST
       : process.env.STRIPE_SK_PRODUCTION;
-  console.log("Key is find cust", key);
+  //console.log("Key is find cust", key);
 
   try {
     const stripe = StripeSdk(key);
@@ -134,7 +134,7 @@ export const findCustomer = async (user) => {
 
     return customer;
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     return null;
   }
 };
@@ -145,15 +145,15 @@ export const checkCouponValidity = async (couponId) => {
       process.env.Environment === "Sandbox"
         ? process.env.STRIPE_SK_TEST
         : process.env.STRIPE_SK_PRODUCTION;
-    console.log("Key is check coupon", key);
+    //console.log("Key is check coupon", key);
     const stripe = StripeSdk(key);
     // Retrieve the coupon from Stripe
-    console.log("Checking coupon with id ", couponId);
+    //console.log("Checking coupon with id ", couponId);
     const coupon = await stripe.coupons.retrieve(couponId);
-    console.log("Coupon is ", coupon);
+    //console.log("Coupon is ", coupon);
     // Check if the coupon is still valid
     if (!coupon.valid) {
-      console.log("Coupon is not valid.");
+      //console.log("Coupon is not valid.");
       return false;
       return "Coupon is not valid.";
     }
@@ -164,24 +164,24 @@ export const checkCouponValidity = async (couponId) => {
       coupon.times_redeemed >= coupon.max_redemptions
     ) {
       return false;
-      console.log("Coupon has reached its maximum number of redemptions.");
+      //console.log("Coupon has reached its maximum number of redemptions.");
     }
 
     // Check if the coupon has an expiration date and if it has expired
     const currentTime = Math.floor(Date.now() / 1000);
     if (coupon.redeem_by && currentTime > coupon.redeem_by) {
       return false;
-      console.log("Coupon has expired.");
+      //console.log("Coupon has expired.");
     }
 
     // If all checks pass
 
-    console.log("Coupon is valid and available for use.");
+    //console.log("Coupon is valid and available for use.");
     return true;
   } catch (error) {
     // Handle errors (e.g., coupon does not exist)
     console.error("Error retrieving coupon:", error.message);
-    console.log(`Failed to retrieve coupon: ${error.message}`);
+    //console.log(`Failed to retrieve coupon: ${error.message}`);
     return false;
   }
 };
@@ -205,26 +205,26 @@ export const createCard = async (user, token) => {
         type: 'card',
         card: { token },
       });
-      console.log("Added new payment method", paymentMethod)
+      //console.log("Added new payment method", paymentMethod)
     } catch (createError) {
-      console.log("Error creating Payment Method, trying to retrieve existing one");
+      //console.log("Error creating Payment Method, trying to retrieve existing one");
       paymentMethod = await stripe.paymentMethods.retrieve(token); // Retrieve using the existing PaymentMethod ID
-      console.log("Retrieved existing Payment Method:", paymentMethod);
+      //console.log("Retrieved existing Payment Method:", paymentMethod);
     }
 
     if (paymentMethod.customer !== customer.id) {
-      console.log("Attaching Payment Method to customer");
+      //console.log("Attaching Payment Method to customer");
       await stripe.paymentMethods.attach(paymentMethod.id, {
         customer: customer.id,
       });
     }
 
     // Check if the Payment Method is chargeable
-    // console.log(paymentMethod)
+    // //console.log(paymentMethod)
     // Check the CVC and address checks
     // const { cvc_check, address_postal_code_check } = paymentMethod.card.checks;
     // if (cvc_check !== 'pass' || address_postal_code_check !== 'pass') {
-    //   console.log("Card verification failed. CVC or postal code check did not pass.");
+    //   //console.log("Card verification failed. CVC or postal code check did not pass.");
     //   throw new Error("Card verification failed. Please check your card details.");
     // }
 
@@ -245,13 +245,13 @@ export const createCard = async (user, token) => {
 
     // Check if the charge was successful
     if (charge.status !== 'requires_capture') {
-      console.log("Card does not have sufficient funds or is not valid.");
+      //console.log("Card does not have sufficient funds or is not valid.");
       throw new Error("The card does not have sufficient funds.");
     }
 
     // If the charge was successful, reverse the authorization
     await stripe.paymentIntents.cancel(charge.id);
-    console.log("Authorization reversed successfully.");
+    //console.log("Authorization reversed successfully.");
 
     // Attach the Payment Method to the Customer
     const customerSource = await stripe.paymentMethods.attach(paymentMethod.id, {
@@ -261,7 +261,7 @@ export const createCard = async (user, token) => {
     // Set this card as the default payment method if none exists
     const defaultPaymentMethodId = customer.invoice_settings.default_payment_method;
     if (defaultPaymentMethodId == null) {
-      console.log("Saving default payment method", customerSource);
+      //console.log("Saving default payment method", customerSource);
       await stripe.customers.update(customer.id, {
         invoice_settings: {
           default_payment_method: customerSource.id,
@@ -271,8 +271,8 @@ export const createCard = async (user, token) => {
 
     return customerSource.card;
   } catch (error) {
-    console.log("Card error");
-    console.log(error);
+    //console.log("Card error");
+    //console.log(error);
     return { error: error.message };
   }
 };
@@ -293,13 +293,13 @@ export const deleteCard = async (user, cardId) => {
       return null;
     }
 
-    console.log("Deleting card for customer:", customer.id);
-    console.log("Card ID to delete:", cardId);
+    //console.log("Deleting card for customer:", customer.id);
+    //console.log("Card ID to delete:", cardId);
 
     // Use paymentMethods.detach to delete a card from the PaymentMethods API
     const deleted = await stripe.paymentMethods.detach(cardId);
 
-    console.log("Deleted card response:", deleted);
+    //console.log("Deleted card response:", deleted);
     return deleted;
 
   } catch (error) {
@@ -334,7 +334,7 @@ export const createPromo = async (
       ? "prod_Q1i1ab5JC4J7Ql"
       : "prod_PzUrqNVq181qHi";
   let products = [MonthPID, HalfYearPID, YearPID];
-  //console.log("Using products for ", process.env.Environment)
+  ////console.log("Using products for ", process.env.Environment)
   if (applies_to === "Monthly") {
     products = [MonthPID];
   } else if (applies_to === "HalfYearly") {
@@ -389,7 +389,7 @@ export const createSubscription = async (user, subscription, code = null) => {
   const stripe = StripeSdk(key);
   try {
     let customer = await createCustomer(user, "createsub");
-    console.log("Customer in subs is ", customer);
+    //console.log("Customer in subs is ", customer);
     let data = {
       customer: customer.id,
       items: [
@@ -401,11 +401,11 @@ export const createSubscription = async (user, subscription, code = null) => {
     };
 
     if (code !== null) {
-      //console.log("Code is not null");
+      ////console.log("Code is not null");
       try {
         let coupon = await GetCoupon(code);
         if (coupon) {
-          //console.log("Coupon exists:", coupon);
+          ////console.log("Coupon exists:", coupon);
           data.discounts = [{ coupon: code }];
         } else {
           return { status: false, message: "No such coupon" };
@@ -416,9 +416,9 @@ export const createSubscription = async (user, subscription, code = null) => {
       }
     }
 
-    //console.log("Data applying for subscription is", data);
+    ////console.log("Data applying for subscription is", data);
     const sub = await stripe.subscriptions.create(data);
-    //console.log("Subscribed successfully:", sub);
+    ////console.log("Subscribed successfully:", sub);
     return { data: sub, status: true, message: "User subscribed" };
   } catch (error) {
     console.error("Error creating subscription:", error);
@@ -431,7 +431,7 @@ export const cancelSubscription = async (user, subscription) => {
     process.env.Environment === "Sandbox"
       ? process.env.STRIPE_SK_TEST
       : process.env.STRIPE_SK_PRODUCTION;
-  //console.log("Subscription in stripe.js ", subscription)
+  ////console.log("Subscription in stripe.js ", subscription)
 
   try {
     const stripe = StripeSdk(key);
@@ -452,7 +452,7 @@ export const cancelSubscription = async (user, subscription) => {
       message: "Subscription will cancel at period end",
     };
   } catch (error) {
-    //console.log(error)
+    ////console.log(error)
     return { data: error, status: false, message: error };
   }
 };
@@ -460,7 +460,7 @@ export const cancelSubscription = async (user, subscription) => {
 // export const resumeSubscription = async (user, subscription) => {
 
 //     let key = process.env.Environment === "Sandbox" ? process.env.STRIPE_SK_TEST : process.env.STRIPE_SK_PRODUCTION;
-//     //console.log("Subscription in stripe.js ", subscription)
+//     ////console.log("Subscription in stripe.js ", subscription)
 
 //     try {
 //         const stripe = StripeSdk(key);
@@ -475,7 +475,7 @@ export const cancelSubscription = async (user, subscription) => {
 //         return { data: sub, status: true, message: "Subscription cancelled" };
 //     }
 //     catch (error) {
-//         //console.log(error)
+//         ////console.log(error)
 //         return { data: error, status: false, message: error };
 //     }
 // }
@@ -503,15 +503,15 @@ export const CreateWebHook = async (req, res) => {
 };
 
 export const SubscriptionUpdated = async (req, res) => {
-  console.log("Subscription updated");
+  //console.log("Subscription updated");
   let data = req.body;
-  //console.log("Subscription updated", data)
+  ////console.log("Subscription updated", data)
   let type = data.type;
-  console.log("EVent is ", type);
+  //console.log("EVent is ", type);
 
   switch (type) {
     case "customer.subscription.created":
-      console.log("Subscription created");
+      //console.log("Subscription created");
       await handleSubscriptionCreated(data.data.object);
       break;
     case "customer.subscription.updated":
@@ -545,7 +545,7 @@ export const SubscriptionUpdated = async (req, res) => {
       let status =
         type === "invoice.payment_succeeded" ? "succeeded" : "failed";
 
-      // console.log()
+      // //console.log()
       await db.TransactionModel.create({
         customerId: invoice.customer,
         subscriptionId: subId, //invoice.subscription,
@@ -555,25 +555,25 @@ export const SubscriptionUpdated = async (req, res) => {
         invoiceId: invoice.id,
       });
     default:
-      console.log(`Unhandled event type ${type}`);
+      //console.log(`Unhandled event type ${type}`);
   }
 
   res.send({ status: true, message: "Subscription updated", event: type });
 };
 export const RetrieveASubscriptions = async (subid) => {
-  //console.log("Retrieving ", subid)
+  ////console.log("Retrieving ", subid)
   let key =
     process.env.Environment === "Sandbox"
       ? process.env.STRIPE_SK_TEST
       : process.env.STRIPE_SK_PRODUCTION;
-  // //console.log("Subscription in stripe.js ", subscription)
+  // ////console.log("Subscription in stripe.js ", subscription)
 
   try {
     const stripe = StripeSdk(key);
     const sub = await stripe.subscriptions.retrieve(subid);
     return sub;
   } catch (error) {
-    //console.log(error)
+    ////console.log(error)
     return null;
   }
 };
@@ -583,7 +583,7 @@ export const GetActiveSubscriptions = async (user) => {
     process.env.Environment === "Sandbox"
       ? process.env.STRIPE_SK_TEST
       : process.env.STRIPE_SK_PRODUCTION;
-  // //console.log("Subscription in stripe.js ", subscription)
+  // ////console.log("Subscription in stripe.js ", subscription)
 
   try {
     const stripe = StripeSdk(key);
@@ -601,13 +601,13 @@ export const GetActiveSubscriptions = async (user) => {
     //     customer: customer.id,
     //     status: 'active'
     // });
-    //console.log("##############")
-    //console.log("Subscriptions for user  ", user.email)
-    //console.log("Customer id", customer.id)
-    //console.log("##############")
+    ////console.log("##############")
+    ////console.log("Subscriptions for user  ", user.email)
+    ////console.log("Customer id", customer.id)
+    ////console.log("##############")
     // return sub
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     return null;
   }
 };
@@ -628,7 +628,7 @@ export const loadCards = async (user) => {
       customer = customers.data[0];
     }
 
-    console.log("Customer in load card is ", customer);
+    //console.log("Customer in load card is ", customer);
 
     if (!customer || !customer.id) {
       console.error("No customer found for user.");
@@ -644,7 +644,7 @@ export const loadCards = async (user) => {
 
     // Check if the response has any data
     if (paymentMethods && paymentMethods.data) {
-      console.log("Cards loaded successfully:", paymentMethods.data);
+      //console.log("Cards loaded successfully:", paymentMethods.data);
       return paymentMethods.data;
     } else {
       console.error("No cards found for this customer.");
@@ -685,7 +685,7 @@ export async function ChargeCustomer(amountInCents, user, title = "", descriptio
       off_session: true,
     });
 
-    // console.log("Payment intent ", paymentIntent);
+    // //console.log("Payment intent ", paymentIntent);
 
     if (paymentIntent.status === "succeeded") {
       return {
@@ -704,7 +704,7 @@ export async function ChargeCustomer(amountInCents, user, title = "", descriptio
     }
   } catch (error) {
     // Handle errors
-    console.log("Error Charging ", error);
+    //console.log("Error Charging ", error);
     return {
       status: false,
       message: `Charge failed: ${error.message}`,
@@ -717,7 +717,7 @@ export async function ChargeCustomer(amountInCents, user, title = "", descriptio
 // export const deleteCard = async (user, token) => {
 
 //     let key = process.env.Environment === "Sandbox" ? process.env.STRIPE_SK_TEST : process.env.STRIPE_SK_PRODUCTION;
-//     //console.log("Key is ", key)
+//     ////console.log("Key is ", key)
 //     const stripe = StripeSdk(key);
 
 //     try {
@@ -733,7 +733,7 @@ export async function ChargeCustomer(amountInCents, user, title = "", descriptio
 //         return customerSource
 //     }
 //     catch (error) {
-//         //console.log(error)
+//         ////console.log(error)
 //         return null
 //     }
 // }
@@ -743,7 +743,7 @@ export async function ChargeCustomer(amountInCents, user, title = "", descriptio
 //     process.env.Environment === "Sandbox"
 //       ? process.env.STRIPE_SK_TEST
 //       : process.env.STRIPE_SK_PRODUCTION;
-//   //console.log("Key is ", key)
+//   ////console.log("Key is ", key)
 //   const stripe = StripeSdk(key);
 
 //   try {
@@ -752,7 +752,7 @@ export async function ChargeCustomer(amountInCents, user, title = "", descriptio
 //     if (customers && customers.data.length > 0) {
 //       customer = customers.data[0];
 //     }
-//     console.log("Customer in load card is ", customer);
+//     //console.log("Customer in load card is ", customer);
 
 //     let data = qs.stringify({
 //       limit: "10",
@@ -771,17 +771,17 @@ export async function ChargeCustomer(amountInCents, user, title = "", descriptio
 
 //     let response = await axios.request(config);
 //     if (response) {
-//       //console.log("Load cards request");
-//       //console.log(JSON.stringify(response.data.data));
+//       ////console.log("Load cards request");
+//       ////console.log(JSON.stringify(response.data.data));
 //       return response.data.data;
 //     } else {
-//       //console.log("Load cards request errored");
-//       //console.log(error);
+//       ////console.log("Load cards request errored");
+//       ////console.log(error);
 //       return null;
 //     }
 //   } catch (error) {
-//     //console.log("Load cards request errored out");
-//     //console.log(error)
+//     ////console.log("Load cards request errored out");
+//     ////console.log(error)
 //     return null;
 //   }
 // };
@@ -792,7 +792,7 @@ export async function setDefaultPaymentMethod(user, paymentMethodId) {
     process.env.Environment === "Sandbox"
       ? process.env.STRIPE_SK_TEST
       : process.env.STRIPE_SK_PRODUCTION;
-  //console.log("Key is ", key)
+  ////console.log("Key is ", key)
   const stripe = StripeSdk(key);
     // Fetch the user profile to get the customerId
     // const user = await db.User.findOne({ where: { id: user.id } });
@@ -803,14 +803,14 @@ export async function setDefaultPaymentMethod(user, paymentMethodId) {
     // await stripe.paymentMethods.attach(paymentMethodId, { customer: user.customerId });
 
     // Set the default payment method
-    console.log("Setting default ", paymentMethodId)
+    //console.log("Setting default ", paymentMethodId)
     const customerUpdated = await stripe.customers.update(customer.id, {
       invoice_settings: {
         default_payment_method: paymentMethodId,
       },
     });
 
-    console.log('Default payment method set successfully:', customerUpdated);
+    //console.log('Default payment method set successfully:', customerUpdated);
     return customerUpdated
     // return { status: true, message: 'Default payment method set successfully', customer };
   } catch (error) {
@@ -916,7 +916,7 @@ const handleSubscriptionCreated = async (subscription) => {
   if (dbSub) {
     dbSub.customerId = subscription.customer;
     await dbSub.save();
-    console.log(`Subscription updated with customer: ${subscription.id}`);
+    //console.log(`Subscription updated with customer: ${subscription.id}`);
   } else {
     await db.SubscriptionModel.create({
       subid: subscription.id,
@@ -925,7 +925,7 @@ const handleSubscriptionCreated = async (subscription) => {
       status: subscription.status,
       data: JSON.stringify(subscription),
     });
-    console.log(`Subscription created New: ${subscription.id}`);
+    //console.log(`Subscription created New: ${subscription.id}`);
   }
 };
 
@@ -934,7 +934,7 @@ const handleSubscriptionUpdated = async (subscription) => {
     { status: subscription.status, data: JSON.stringify(subscription) },
     { where: { subid: subscription.id } }
   );
-  console.log(`Subscription updated: ${subscription.id}`);
+  //console.log(`Subscription updated: ${subscription.id}`);
 };
 
 const handleSubscriptionDeleted = async (subscription) => {
@@ -942,7 +942,7 @@ const handleSubscriptionDeleted = async (subscription) => {
     { status: "deleted", data: JSON.stringify(subscription) },
     { where: { subid: subscription.id } }
   );
-  console.log(`Subscription deleted: ${subscription.id}`);
+  //console.log(`Subscription deleted: ${subscription.id}`);
 };
 
 const handleSubscriptionPaused = async (subscription) => {
@@ -950,7 +950,7 @@ const handleSubscriptionPaused = async (subscription) => {
     { status: "paused", data: JSON.stringify(subscription) },
     { where: { subid: subscription.id } }
   );
-  console.log(`Subscription paused: ${subscription.id}`);
+  //console.log(`Subscription paused: ${subscription.id}`);
 };
 
 const handleSubscriptionResumed = async (subscription) => {
@@ -958,7 +958,7 @@ const handleSubscriptionResumed = async (subscription) => {
     { status: "resumed", data: JSON.stringify(subscription) },
     { where: { subid: subscription.id } }
   );
-  console.log(`Subscription resumed: ${subscription.id}`);
+  //console.log(`Subscription resumed: ${subscription.id}`);
 };
 
 const handleSubscriptionPendingUpdateApplied = async (subscription) => {
@@ -966,7 +966,7 @@ const handleSubscriptionPendingUpdateApplied = async (subscription) => {
     { status: "pending_update_applied", data: JSON.stringify(subscription) },
     { where: { subid: subscription.id } }
   );
-  console.log(`Pending update applied to subscription: ${subscription.id}`);
+  //console.log(`Pending update applied to subscription: ${subscription.id}`);
 };
 
 const handleSubscriptionPendingUpdateExpired = async (subscription) => {
@@ -974,7 +974,7 @@ const handleSubscriptionPendingUpdateExpired = async (subscription) => {
     { status: "pending_update_expired", data: JSON.stringify(subscription) },
     { where: { subid: subscription.id } }
   );
-  console.log(`Pending update expired for subscription: ${subscription.id}`);
+  //console.log(`Pending update expired for subscription: ${subscription.id}`);
 };
 
 export const createInvoicePdf = async (invoiceId) => {
@@ -982,7 +982,7 @@ export const createInvoicePdf = async (invoiceId) => {
     process.env.Environment === "Sandbox"
       ? process.env.STRIPE_SK_TEST
       : process.env.STRIPE_SK_PRODUCTION;
-  //console.log("Key is ", key)
+  ////console.log("Key is ", key)
   const stripe = StripeSdk(key);
   // Retrieve the invoice from Stripe
   const invoice = await stripe.invoices.retrieve(invoiceId);
@@ -1097,7 +1097,7 @@ export async function listCustomerInvoices(user, lastInvoiceId = null) {
       process.env.Environment === "Sandbox"
         ? process.env.STRIPE_SK_TEST
         : process.env.STRIPE_SK_PRODUCTION;
-    //console.log("Key is ", key)
+    ////console.log("Key is ", key)
     const stripe = StripeSdk(key);
 
     let customers = await findCustomer(user);
@@ -1126,7 +1126,7 @@ export async function listCustomerInvoices(user, lastInvoiceId = null) {
         });
         
         let invoices = response.data;
-        console.log('All invoices:', invoices);
+        //console.log('All invoices:', invoices);
         return invoices;
 
   } catch (error) {
@@ -1142,7 +1142,7 @@ export async function listCustomerPaymentInvoices(user, lastInvoiceId = null) {
       process.env.Environment === "Sandbox"
         ? process.env.STRIPE_SK_TEST
         : process.env.STRIPE_SK_PRODUCTION;
-    //console.log("Key is ", key)
+    ////console.log("Key is ", key)
     const stripe = StripeSdk(key);
 
     let customers = await findCustomer(user);
@@ -1171,7 +1171,7 @@ export async function listCustomerPaymentInvoices(user, lastInvoiceId = null) {
       });
       paymentIntents = paymentIntentResponse.data;
     }
-        console.log('All invoices:', paymentIntents);
+        //console.log('All invoices:', paymentIntents);
         return paymentIntents;
 
   } catch (error) {
@@ -1194,7 +1194,7 @@ export async function createProductAndPaymentLink(
       process.env.Environment === "Sandbox"
         ? process.env.STRIPE_SK_TEST
         : process.env.STRIPE_SK_PRODUCTION;
-    //console.log("Key is ", key)
+    ////console.log("Key is ", key)
     const stripe = StripeSdk(key);
 
     // Step 2: Create a Product with the unique ID in metadata
@@ -1205,7 +1205,7 @@ export async function createProductAndPaymentLink(
       metadata: { userId: userId }, // Store the unique ID in metadata
     });
 
-    console.log("Product created with User ID:", userId);
+    //console.log("Product created with User ID:", userId);
 
     // Step 3: Create a Price for the Product
     const price = await stripe.prices.create({
@@ -1214,7 +1214,7 @@ export async function createProductAndPaymentLink(
       currency: "usd",
     });
 
-    console.log("Price created:", price.id);
+    //console.log("Price created:", price.id);
 
     // Step 4: Create a Payment Link
     const paymentLink = await stripe.paymentLinks.create({
@@ -1226,7 +1226,7 @@ export async function createProductAndPaymentLink(
       ],
     });
 
-    console.log("Payment Link created:", paymentLink.url);
+    //console.log("Payment Link created:", paymentLink.url);
 
     return {
       paymentLink: paymentLink.url,

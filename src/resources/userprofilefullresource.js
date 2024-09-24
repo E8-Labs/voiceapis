@@ -7,14 +7,14 @@ const Op = db.Sequelize.Op;
 
 const UserProfileFullResource = async (user, currentUser = null) => {
   if (!Array.isArray(user)) {
-    ////////console.log("Not array")
+    //////////console.log("Not array")
     return await getUserData(user, currentUser);
   } else {
-    ////////console.log("Is array")
+    //////////console.log("Is array")
     const data = [];
     for (let i = 0; i < user.length; i++) {
       const p = await getUserData(user[i], currentUser);
-      ////////console.log("Adding to index " + i)
+      //////////console.log("Adding to index " + i)
       data.push(p);
     }
 
@@ -46,22 +46,22 @@ async function getUserData(user, currentUser = null) {
     },
   });
   if (ai) {
-    //console.log("An AI Found for user ", ai);
+    ////console.log("An AI Found for user ", ai);
     amountToChargePerMin = ai.price;
   } else {
     amountToChargePerMin = 10; // by default 10
   }
-  //console.log(`User ${user.id} charges ${amountToChargePerMin}/min`);
+  ////console.log(`User ${user.id} charges ${amountToChargePerMin}/min`);
   totalEarned = ((totalSeconds - 300) * amountToChargePerMin) / 60;
 
-  //console.log('MyCalculation', totalEarned)
+  ////console.log('MyCalculation', totalEarned)
 
   // totalEarned = await calculateTotalEarned(user.id)
   let earningData = await calculateEarningsForCreator(user.id)
-  console.log("Total earned ", earningData)
+  //console.log("Total earned ", earningData)
   totalEarned = earningData.totalEarned;
-  //console.log('GPTCalculation', totalEarned)
-  //console.log(`TotalSeconds for ${user.id}`, totalSeconds);
+  ////console.log('GPTCalculation', totalEarned)
+  ////console.log(`TotalSeconds for ${user.id}`, totalSeconds);
   let totalCalls = await db.CallModel.count({
     where: {
       modelId: user.id,
@@ -69,7 +69,7 @@ async function getUserData(user, currentUser = null) {
       // paymentStatus: "succeeded"
     },
   });
-  //console.log(`TotalCalls for ${user.id}`, totalCalls);
+  ////console.log(`TotalCalls for ${user.id}`, totalCalls);
 
   let sub = await db.SubscriptionModel.findOne({
     where: {
@@ -143,7 +143,7 @@ const calculateEarningsForCreator = async (modelId) => {
 
       // Ensure that duration is a valid number
       if (isNaN(minutes) || minutes <= 0) {
-        console.log(`Invalid duration for call with id ${call.id}: ${duration}`);
+        //console.log(`Invalid duration for call with id ${call.id}: ${duration}`);
         continue; // Skip invalid or zero-duration calls
       }
 

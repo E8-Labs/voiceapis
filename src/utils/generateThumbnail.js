@@ -44,7 +44,7 @@ export const uploadMedia = (
       const docPath = path.join(docsDir, fieldname);
       fs.writeFileSync(docPath, fileContent);
       let image = `https://www.blindcircle.com:444/voiceapp/uploads/${folder}/${fieldname}`;
-      console.log("Pdf uploaded is ", image);
+      //console.log("Pdf uploaded is ", image);
 
       resolve(image);
     } catch (error) {

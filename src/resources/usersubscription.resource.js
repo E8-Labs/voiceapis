@@ -9,10 +9,10 @@ const UserSubscriptionResource = async (plan) => {
 }
 
 async function getUserData(p) {
-//console.log("Finding subs for " , p)
+////console.log("Finding subs for " , p)
 let sub = await RetrieveASubscriptions(p.subid || p.id);
 if(!sub){
-    //console.log("No subs for ", p.subid || p.id)
+    ////console.log("No subs for ", p.subid || p.id)
 return null;
 }
     

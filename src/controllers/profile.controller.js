@@ -75,25 +75,25 @@ async function getUserCallStats(userId) {
       },
     });
     if (ai) {
-      console.log("An AI Found for user ", ai);
+      //console.log("An AI Found for user ", ai);
       amountToChargePerMin = ai.price;
     } else {
       amountToChargePerMin = 10; // by default 10
     }
 
     const totalCalls = calls.length;
-    console.log(`Calls between ${startDate} - ${now}`, totalCalls);
+    //console.log(`Calls between ${startDate} - ${now}`, totalCalls);
     let totalDurationSeconds = 0;
     let totalEarnings = 0;
 
     calls.forEach((call) => {
-      console.log("Adding duration ", call.duration);
+      //console.log("Adding duration ", call.duration);
       totalDurationSeconds += Number(call.duration);
-      console.log("TotalDurationAfterAdded", totalDurationSeconds);
+      //console.log("TotalDurationAfterAdded", totalDurationSeconds);
       // const durationMinutes = Math.floor(call.duration / 60);
     });
     const totalDurationMinutes = Math.floor(totalDurationSeconds / 60);
-    console.log("DurationInMinutes", totalDurationMinutes);
+    //console.log("DurationInMinutes", totalDurationMinutes);
     if (totalDurationMinutes > 5) {
       totalEarnings += (totalDurationMinutes - 5) * amountToChargePerMin; // Only charge after the first 5 minutes
     }
@@ -105,9 +105,9 @@ async function getUserCallStats(userId) {
 
     for (const call of calls) {
       const callerId = call.userId;
-      console.log("CallFrom", call.userId);
-      console.log("CallId", call.id);
-      console.log("CallTo", call.modelId);
+      //console.log("CallFrom", call.userId);
+      //console.log("CallId", call.id);
+      //console.log("CallTo", call.modelId);
       if (!topCallers[callerId]) {
         const user = await db.User.findOne({
           where: {
@@ -135,7 +135,7 @@ async function getUserCallStats(userId) {
 
       topCallers[callerId].callTimeMinutes += durationMinutes;
       topCallers[callerId].callTimeSeconds += Number(call.duration);
-      console.log(`Duration in minuites for ${callerId}`, durationMinutes);
+      //console.log(`Duration in minuites for ${callerId}`, durationMinutes);
       let min = Math.floor(topCallers[callerId].callTimeSeconds / 60) || 0;
       if (min < 1) {
         min = 0;
@@ -148,7 +148,7 @@ async function getUserCallStats(userId) {
         (Math.max(0, call.duration) * amountToChargePerMin) / 60;
       topCallers[callerId].callCount += 1;
     }
-    //   console.log("Top callers", topCallers)
+    //   //console.log("Top callers", topCallers)
     const topTenCallers = Object.values(topCallers)
       .sort((a, b) => b.callCount - a.callCount)
       .slice(0, 10);
