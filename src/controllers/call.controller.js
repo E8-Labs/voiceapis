@@ -344,7 +344,7 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
         ],
       },
       createdAt: {
-        [db.Sequelize.Op.gte]: new Date(new Date() - 60 * 60 * 1000), // Last 60 minutes
+        [db.Sequelize.Op.gte]: new Date(new Date() - 60 * 60 * 1000 * 48), // Last 48 hours
       },
     },
     order: [["createdAt", "DESC"]],
