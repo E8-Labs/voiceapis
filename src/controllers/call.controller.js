@@ -78,21 +78,7 @@ export const MakeACall = async (req, res) => {
   if (user) {
     // user is in the database.
 
-    //The below logic is discarded enclosed in #####
-    //###########################################################################
-    //check if he has pending previous transactions
-    // let calls = await db.CallModel.findAll({
-    //   where: {
-    //     status: 'completed',
-    //     paymentStatus: {
-    //       [db.Sequelize.Op.ne]: "succeeded"
-    //     },
-    //     phone: {
-    //       [db.Sequelize.Op.like]: `%${PhoneNumber}%`
-    //     }
-    //   }
-    // });
-    //###########################################################################
+    
 
     if (user.seconds_available <= 120) {
       let cards = await loadCards(user);
