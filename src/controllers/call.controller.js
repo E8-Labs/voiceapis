@@ -368,8 +368,12 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
 
 
 export const WebhookSynthflow = async(req, res)=>{
+  console.log("Request headers:", req.headers);
+  console.log("Request body:", req.body);
+  console.log("Request raw data:", req);
+
   let data = req.body;
-  console.log("Webhook data is ", data)
+  console.log("Webhook data is ", data);
 
   //send the data to ghl here
 
