@@ -78,7 +78,21 @@ export const MakeACall = async (req, res) => {
   if (user) {
     // user is in the database.
 
-    
+    //The below logic is discarded enclosed in #####
+    //###########################################################################
+    //check if he has pending previous transactions
+    // let calls = await db.CallModel.findAll({
+    //   where: {
+    //     status: 'completed',
+    //     paymentStatus: {
+    //       [db.Sequelize.Op.ne]: "succeeded"
+    //     },
+    //     phone: {
+    //       [db.Sequelize.Op.like]: `%${PhoneNumber}%`
+    //     }
+    //   }
+    // });
+    //###########################################################################
 
     if (user.seconds_available <= 120) {
       let cards = await loadCards(user);
@@ -103,8 +117,8 @@ export const MakeACall = async (req, res) => {
     });
   }
 
-  //console.log("Calling assistant", assistant.name);
-  //console.log("Model ", assistant.modelId);
+  console.log("Calling assistant", assistant.name);
+  console.log("Model ", assistant.modelId);
   try {
     let basePrompt = assistant.prompt;
     //find if any previous calls exist
@@ -113,14 +127,14 @@ export const MakeACall = async (req, res) => {
         phone: PhoneNumber,
       },
     });
-    //console.log(`Calls for phone ${PhoneNumber} `, calls.length);
+    console.log(`Calls for phone ${PhoneNumber} `, calls.length);
     for (let i = 0; i < calls.length; i++) {
       let call = calls[i];
       basePrompt = `${basePrompt}\n${call.transcript}`;
     }
 
     //   const axios = require('axios');
-    // //console.log("Base Prompt is  ", basePrompt)
+    // console.log("Base Prompt is  ", basePrompt)
     let data = JSON.stringify({
       name: Name,
       phone: PhoneNumber,
@@ -143,7 +157,7 @@ export const MakeACall = async (req, res) => {
       .request(config)
       .then(async (response) => {
         let json = response.data;
-        //console.log(json);
+        console.log(json);
         if (json.status === "ok" || json.status === "success") {
           let callId = json.response.call_id;
           let savedToGhl = await PushDataToGhl(
@@ -166,7 +180,7 @@ export const MakeACall = async (req, res) => {
             chargeDescription: "",
             userId: user.id,
           });
-          //console.log("Saved ", saved);
+          console.log("Saved ", saved);
           res.send({ status: true, message: "call is initiated ", data: json });
         } else {
           res.send({
@@ -177,7 +191,7 @@ export const MakeACall = async (req, res) => {
         }
       })
       .catch((error) => {
-        //console.log(error);
+        console.log(error);
         res.send({
           status: false,
           message: "call is not initiated",
