@@ -20,7 +20,7 @@ app.use(express.json())
 
 
 app.use((req, res, next) => {
-  console.log(`${req.method} request for '${req.url}'`);
+  //console.log(`${req.method} request for '${req.url}'`);
   next();
 });
 
@@ -568,16 +568,16 @@ import { GetACall } from './src/controllers/call.controller.js';
 //     try {
 //         let ass = await db.Assistant.findOne({where: {name: data.name}})
 //         if(!ass){
-//             console.log("Assistant not found")
+//             //console.log("Assistant not found")
 //             await db.Assistant.create(data);
-//             console.log(`Data for ${data.name} inserted/updated successfully!`);
+//             //console.log(`Data for ${data.name} inserted/updated successfully!`);
 //         }
 //         else{
 //             ass.prompt = data.prompt
 //             ass.modelId = data.modelId
 //             ass.apikey = data.apikey
 //             await ass.save()
-//             console.log(`${data.name} already existed so updated`)
+//             //console.log(`${data.name} already existed so updated`)
 //         }
       
 //     } catch (error) {
@@ -587,5 +587,5 @@ import { GetACall } from './src/controllers/call.controller.js';
 
 
 const server = app.listen(process.env.Port, () => {
-    console.log("Started listening on " + process.env.Port);
+    //console.log("Started listening on " + process.env.Port);
 })

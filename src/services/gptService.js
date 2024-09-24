@@ -4,7 +4,7 @@ import OpenAI from "openai";
 import { Pinecone }  from '@pinecone-database/pinecone';
 import { split } from 'sentence-splitter';
 
-// console.log("Key is ", process.env.AIKey)
+// //console.log("Key is ", process.env.AIKey)
 const openai = new OpenAI({ apiKey: process.env.AIKey });
 
 const pineconeClient = new Pinecone({
@@ -18,7 +18,7 @@ const indexName = 'voice-context';
 
   const existingIndexes = await pineconeClient.listIndexes();
   const indexNames = existingIndexes.indexes.map(index => index.name);
-  console.log("Existing", indexNames)
+  //console.log("Existing", indexNames)
   if (indexNames.length > 0 && indexNames.includes(indexName)) {
     
   }
@@ -40,8 +40,8 @@ const indexName = 'voice-context';
 export const sendMessageToGPT = async (message, agent) => {
   // Implement the logic to send the message to GPT and get a response
   // This is a placeholder, replace with actual GPT API integration
-  console.log("Using key ", process.env.AIKey)
-//   console.log("Using chatid ", chatId)
+  //console.log("Using key ", process.env.AIKey)
+//   //console.log("Using chatid ", chatId)
 
   try {
 
@@ -54,11 +54,11 @@ export const sendMessageToGPT = async (message, agent) => {
       history = contexts.join('\n');
     }
     return history
-    // console.log("Context is ", history)
+    // //console.log("Context is ", history)
     // return 
     let messages = [{role: "system", content: history, type: "history", command: "Answer according to this context."}, { role: "user", content: message , command: "Answer according to the previous context. Be short and specific. Not too much details. Do not answer if the answer doesn't fall under the given context. Just say that you don't know the answer to that."}]
     
-    // console.log("Messages sent to gpt ", messages)
+    // //console.log("Messages sent to gpt ", messages)
     const completion = await openai.chat.completions.create({
       messages: messages,//[...previousMessages, {role: "user", content: message}],
       model: "gpt-4o",
@@ -72,11 +72,11 @@ export const sendMessageToGPT = async (message, agent) => {
 
     // let saved = await ConvertAndStoreEmbeddings(newContext, chatId)
 
-    console.log(completion);
+    //console.log(completion);
     return completion.choices[0].message.content
   }
   catch (error) {
-    console.log("Error sending to gpt", error)
+    //console.log("Error sending to gpt", error)
   }
 };
 
@@ -85,13 +85,13 @@ export const sendMessageToGPT = async (message, agent) => {
 
 export const ConvertAndStoreEmbeddings = async (text, agent = 'Tai-Lopez') => {
   // Create Pinecone index
-//   console.log("Storing context embeddings", chatId)
+//   //console.log("Storing context embeddings", chatId)
   try{
     
     const index = pineconeClient.Index(indexName);
     // const embedding = await getEmbedding(text);
     let chunks = chunkText(text, 100)
-    console.log("size chunks", chunks.length)
+    //console.log("size chunks", chunks.length)
     // return null
     let embeddings = await getChunkEmbeddings(chunks)
     await Promise.all(embeddings.map(async (embedding) => {
@@ -110,7 +110,7 @@ export const ConvertAndStoreEmbeddings = async (text, agent = 'Tai-Lopez') => {
       return true
   }
   catch(error){
-    console.log("Embeddings store error ", error)
+    //console.log("Embeddings store error ", error)
     return null
   }
 }
@@ -120,7 +120,7 @@ export const ConvertAndStoreEmbeddings = async (text, agent = 'Tai-Lopez') => {
     // const { chatId, query } = req.body;
     let topVectors = 5
     if(query == null){
-      console.log("Find Context  query null", query)
+      //console.log("Find Context  query null", query)
       topVectors = 5
       query = "Tai Lopez"
     }
@@ -135,15 +135,15 @@ export const ConvertAndStoreEmbeddings = async (text, agent = 'Tai-Lopez') => {
           agent: agent,
         },
     });
-    console.log("QUERY IS ", query)
-console.log('Comtext Result', searchResults)
+    //console.log("QUERY IS ", query)
+//console.log('Comtext Result', searchResults)
 if(!searchResults){
   return null
 }
     const contextTexts = searchResults.matches.map((match) => match.metadata.text);
     return contextTexts
   } catch (error) {
-    console.log("Error finding context ", error)
+    //console.log("Error finding context ", error)
     return null
   }
 }
@@ -151,7 +151,7 @@ if(!searchResults){
 
 async function getChunkEmbeddings(textChunks) {
     const embeddings = await Promise.all(textChunks.map(async (chunk) => {
-      console.log("Chunk size is ", chunk.length)
+      //console.log("Chunk size is ", chunk.length)
       const response = await openai.embeddings.create({
         model: 'text-embedding-ada-002',
         input: chunk,
@@ -169,7 +169,7 @@ const getEmbedding = async (text) => {
     input: text,
     encoding_format: "float",
   });
-  console.log("Embeddings response ", response)
+  //console.log("Embeddings response ", response)
   return response.data[0].embedding;
 };
 

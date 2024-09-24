@@ -5,10 +5,10 @@ import axios from 'axios';
 
 export const StoreToDb = async (req, res) => {
     try {
-        console.log("Storing context")
+        //console.log("Storing context")
       const { text, agent } = req.body;
       
-      console.log("Splitting ", text)
+      //console.log("Splitting ", text)
       let saved = await ConvertAndStoreEmbeddings(text, agent);
 
       
@@ -27,15 +27,15 @@ export const StoreToDb = async (req, res) => {
       if(text == null){
         text = req.query.question;
       }
-      console.log("Agent is ", agent)
-      console.log("Calling api from custom action", text)
+      //console.log("Agent is ", agent)
+      //console.log("Calling api from custom action", text)
       if (typeof text == "undefined"){
         text = null;
       }
       let search = await sendMessageToGPT(text, agent);
       
       if(search){
-        console.log("Answer is ", search)
+        //console.log("Answer is ", search)
         res.send({ message: 'Search results', data: search });
       }
       else{

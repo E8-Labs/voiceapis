@@ -23,7 +23,7 @@ export const BuildYourAi = async (req, res) => {
         
        } = req.body;
 
-       console.log("URLS in request", {fb_url, insta_url, youtube_url, discord_url, twitter_url})
+       //console.log("URLS in request", {fb_url, insta_url, youtube_url, discord_url, twitter_url})
       let audio = null;
       if (req.files.media) {
         let file = req.files.media[0];
@@ -32,7 +32,7 @@ export const BuildYourAi = async (req, res) => {
         const mediaType = file.mimetype;
         const mediaExt = path.extname(file.originalname);
         const mediaFilename = `${Date.now()}${mediaExt}`;
-        console.log("There is a file uploaded");
+        //console.log("There is a file uploaded");
         if (mediaType.includes("audio")) {
           // Ensure directories exist
           let dir = process.env.DocsDir; ///var/www/neo/neoapis/uploads
@@ -107,7 +107,7 @@ export const BuildAiScript = async (req, res) => {
               userId: userId,
             });
             if (questionCreated) {
-              console.log(`Question ${p.question} created`);
+              //console.log(`Question ${p.question} created`);
             }
           }
         }
@@ -157,7 +157,7 @@ export const UpdateYourAi = async (req, res) => {
         greeting, possibleUserQuery, price, isFree, productToSell, goalType, webinarUrl, goalTitle, goalUrl 
        } = req.body;
 
-       console.log("URLS in request", {fb_url, insta_url, youtube_url, discord_url, twitter_url})
+       //console.log("URLS in request", {fb_url, insta_url, youtube_url, discord_url, twitter_url})
       let audio = null;
       if (req.files.media) {
         let file = req.files.media[0];
@@ -166,7 +166,7 @@ export const UpdateYourAi = async (req, res) => {
         const mediaType = file.mimetype;
         const mediaExt = path.extname(file.originalname);
         const mediaFilename = `${Date.now()}${mediaExt}`;
-        console.log("There is a file uploaded");
+        //console.log("There is a file uploaded");
         if (mediaType.includes("audio")) {
           // Ensure directories exist
           let dir = process.env.DocsDir; ///var/www/neo/neoapis/uploads
@@ -205,7 +205,7 @@ export const UpdateYourAi = async (req, res) => {
         if (goalTitle !== null && goalTitle !== undefined) updateData.goalTitle = goalTitle;
         if (goalUrl !== null && goalUrl !== undefined) updateData.goalUrl = goalUrl;
 
-        console.log("Data to update ", updateData)
+        //console.log("Data to update ", updateData)
         // Update the table in the database using Sequelize
 
       let createdAI = await db.UserAi.update(updateData, {
@@ -232,7 +232,7 @@ export const UpdateYourAi = async (req, res) => {
               }
             })
             if (question) {
-              console.log(`Question ${p.question} updated`);
+              //console.log(`Question ${p.question} updated`);
             }
           }
           else{
@@ -241,7 +241,7 @@ export const UpdateYourAi = async (req, res) => {
               userId: userId,
             });
             if (questionCreated) {
-              console.log(`Question ${p.question} created`);
+              //console.log(`Question ${p.question} created`);
             }
           }
         }
@@ -318,7 +318,7 @@ export async function AddKnowledgebase(req, res) {
         const mediaType = file.mimetype;
         const mediaExt = path.extname(file.originalname);
         const mediaFilename = `${Date.now()}${mediaExt}`;
-        console.log("There is a file uploaded");
+        //console.log("There is a file uploaded");
 
         // Ensure directories exist
         let dir = process.env.DocsDir; // e.g., /var/www/neo/neoapis/uploads
@@ -329,14 +329,14 @@ export async function AddKnowledgebase(req, res) {
         const docPath = path.join(docsDir, mediaFilename);
         fs.writeFileSync(docPath, mediaBuffer);
         pdf = `https://www.blindcircle.com:444/voiceapp/uploads/documents/${mediaFilename}`;
-        console.log("Pdf uploaded is ", pdf);
+        //console.log("Pdf uploaded is ", pdf);
 
         // If the file is a PDF, extract text from it using pdf-extraction
         if (mediaType.includes("pdf")) {
           try {
             const extracted = await pdfExtract(mediaBuffer);
             content = extracted.text.trim(); // Extract text and trim whitespace
-            console.log("Extracted text from PDF:", content);
+            //console.log("Extracted text from PDF:", content);
           } catch (err) {
             console.error("Error extracting text from PDF:", err);
             return res.status(500).send({ status: false, message: "Error processing PDF file." });

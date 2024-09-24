@@ -48,7 +48,7 @@ const SignUser = async (user) => {
 };
 export const LoginUser = async (req, res) => {
   // res.send("Hello Login")
-  //////console.log("Login " + req.body.email);
+  ////////console.log("Login " + req.body.email);
   const email = req.body.email;
   const password = req.body.password;
   const name = req.body.name;
@@ -66,7 +66,7 @@ export const LoginUser = async (req, res) => {
   });
 
   const count = await User.count();
-  //////console.log("Count " + count);
+  ////////console.log("Count " + count);
   if (!user) {
     if (login) {
       //user is trying to login
@@ -137,8 +137,8 @@ export const UpdateProfile = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
-      console.log("City", req.body.city);
-      console.log("State", req.body.state);
+      //console.log("City", req.body.city);
+      //console.log("State", req.body.state);
 
       let user = await db.User.findByPk(userId);
 
@@ -164,7 +164,7 @@ export const UpdateProfile = async (req, res) => {
         const mediaType = file.mimetype;
         const mediaExt = path.extname(file.originalname);
         const mediaFilename = `${Date.now()}${mediaExt}`;
-        console.log("There is a file uploaded");
+        //console.log("There is a file uploaded");
 
         // Ensure directories exist
         let dir = process.env.DocsDir; // e.g., /var/www/neo/neoapis/uploads
@@ -175,7 +175,7 @@ export const UpdateProfile = async (req, res) => {
         const docPath = path.join(docsDir, mediaFilename);
         fs.writeFileSync(docPath, mediaBuffer);
         image = `https://www.blindcircle.com:444/voiceapp/uploads/images/${mediaFilename}`;
-        console.log("Pdf uploaded is ", image);
+        //console.log("Pdf uploaded is ", image);
 
         thumbnail = await createThumbnailAndUpload(
           mediaBuffer,
@@ -226,7 +226,7 @@ export const SendPhoneVerificationCode = async (req, res) => {
     },
   });
 
-  //console.log("User is ", user)
+  ////console.log("User is ", user)
   if (user && !login) {
     res.send({ status: false, data: null, message: "Phone already taken" });
   } else {
@@ -247,7 +247,7 @@ export const SendPhoneVerificationCode = async (req, res) => {
       );
       res.send({ status: true, message: "Code sent", code: sent });
     } catch (error) {
-      //console.log("Exception email", error)
+      ////console.log("Exception email", error)
     }
   }
 };
@@ -259,7 +259,7 @@ export const VerifyPhoneCode = async (req, res) => {
   let city = req.body.city || "";
   let state = req.body.state || "";
 
-  console.log("User Details ", req.body);
+  //console.log("User Details ", req.body);
   //If user Signs up
   const email = req.body.email;
 
@@ -268,7 +268,7 @@ export const VerifyPhoneCode = async (req, res) => {
 
   const role = req.body.role || "caller";
 
-  console.log("UserWithPhone", phone);
+  //console.log("UserWithPhone", phone);
   let user = await db.User.findOne({
     where: {
       phone: {
@@ -276,7 +276,7 @@ export const VerifyPhoneCode = async (req, res) => {
       },
     },
   });
-  console.log("User is ", user);
+  //console.log("User is ", user);
   // let dbCode = await db.PhoneVerificationCodeModel.findOne({
   //     where: {
   //         phone: {
@@ -286,7 +286,7 @@ export const VerifyPhoneCode = async (req, res) => {
   //     order: [["createdAt", "DESC"]]
   // })
 
-  // console.log("Db Code is ", dbCode)
+  // //console.log("Db Code is ", dbCode)
 
   if (user) {
     if (login) {
@@ -316,8 +316,8 @@ export const VerifyPhoneCode = async (req, res) => {
       res.send({ status: false, data: null, message: "Phone already taken" });
     }
   } else {
-    //console.log("Db code is ", dbCode)
-    //console.log("User email is ", email)
+    ////console.log("Db code is ", dbCode)
+    ////console.log("User email is ", email)
 
     if (!login) {
       // if(!dbCode){
@@ -472,7 +472,7 @@ export const SendEmailVerificationCode = async (req, res) => {
       email: email,
     },
   });
-  //console.log("User is ", user)
+  ////console.log("User is ", user)
   if (user) {
     res.send({ status: false, data: null, message: `Email already taken` });
   } else {
@@ -588,13 +588,13 @@ export const SendEmailVerificationCode = async (req, res) => {
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           res.send({ status: false, message: "Code not sent" });
-          ////console.log(error);
+          //////console.log(error);
         } else {
           res.send({ status: true, message: "Code sent" });
         }
       });
     } catch (error) {
-      //console.log("Exception email", error)
+      ////console.log("Exception email", error)
     }
   }
 };
@@ -617,8 +617,8 @@ export const VerifyEmailCode = async (req, res) => {
         email: email,
       },
     });
-    //console.log("Db code is ", dbCode)
-    //console.log("User email is ", email)
+    ////console.log("Db code is ", dbCode)
+    ////console.log("User email is ", email)
 
     if ((dbCode && dbCode.code === code) || code == "11222") {
       res.send({ status: true, data: null, message: "Email verified" });
@@ -650,7 +650,7 @@ export const sendSMS = async (to, body) => {
 
   try {
     const response = await smsApi.smsSend(smsMessages);
-    console.log("SMS sent:", response.body);
+    //console.log("SMS sent:", response.body);
   } catch (error) {
     console.error("Error sending SMS:", error);
   }
@@ -663,7 +663,7 @@ export const sendSMS = async (to, body) => {
   //     from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio phone number (also in E.164 format)
   //   });
 
-  //   console.log('SMS sent successfully:', message.sid);
+  //   //console.log('SMS sent successfully:', message.sid);
   //   return { status: true, message: "SMS sent successfully", sid: message.sid };
   // } catch (error) {
   //   console.error('Failed to send SMS:', error);

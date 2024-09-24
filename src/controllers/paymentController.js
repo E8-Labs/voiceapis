@@ -18,12 +18,12 @@ const User = db.User;
 const Op = db.Sequelize.Op;
 
 export const AddCard = async (req, res) => {
-  console.log("Add card api");
+  //console.log("Add card api");
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let user = await db.User.findByPk(authData.user.id);
       let token = req.body.source;
-      console.log("User provided Token is ", token);
+      console.log("Add Card Token is ", token);
       try {
         let card = await stripe.createCard(user, token);
 
@@ -61,12 +61,12 @@ export const AddCard = async (req, res) => {
 };
 
 export const DeleteCard = async (req, res) => {
-  console.log("Delete card api");
+  //console.log("Delete card api");
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let user = await db.User.findByPk(authData.user.id);
       let cardId = req.body.cardId;
-      console.log("User deleting card ", cardId);
+      //console.log("User deleting card ", cardId);
       let cardDeleted = await stripe.deleteCard(user, cardId);
 
       res.send({
@@ -97,7 +97,7 @@ export const GetUserPaymentSources = async (req, res) => {
           isDefault: paymentMethod.id === defaultPaymentMethodId, // Mark if this is the default
         };
       });
-      //console.log("cards loaded ", cards)
+      ////console.log("cards loaded ", cards)
       res.send({
         status: true,
         message: "Card loaded",
@@ -116,7 +116,7 @@ export const MakeDefaultPaymentMethod = async (req, res) => {
       let cardId = req.body.cardId;
       // const defaultPaymentMethodId = customer.invoice_settings.default_payment_method;
       let customer = await stripe.setDefaultPaymentMethod(user, cardId);
-      //console.log("cards loaded ", cards)
+      ////console.log("cards loaded ", cards)
       res.send({ status: true, message: "Card set default", data: customer });
     } else {
       res.send({
@@ -167,11 +167,11 @@ export const subscribeUser = async (req, res) => {
     if (authData) {
       let user = await db.User.findByPk(authData.user.id);
 
-      //console.log("Getting subs for user ", user)
+      ////console.log("Getting subs for user ", user)
       let subs = await stripe.GetActiveSubscriptions(user);
       // subs = subs.data
       if (subs && subs.data.length !== 0) {
-        //console.log("User is already subscribed", subs)
+        ////console.log("User is already subscribed", subs)
         let s = await UserSubscriptionResource(subs.data[0]);
 
         res.send({ status: false, message: "Already subscribed", data: s });
@@ -190,13 +190,13 @@ export const subscribeUser = async (req, res) => {
           let sandbox = process.env.Environment === "Sandbox";
           let code = req.body.code || null;
 
-          //console.log("Subscription in Sandbox ", sandbox)
+          ////console.log("Subscription in Sandbox ", sandbox)
           if (sandbox) {
             subscription = stripe.SubscriptionTypesSandbox[subtype];
           } else {
             subscription = stripe.SubscriptionTypesProduction[subtype];
           }
-          //console.log("Subscription is ", subscription)
+          ////console.log("Subscription is ", subscription)
 
           let sub = await stripe.createSubscription(user, subscription, code);
           if (sub && sub.status) {
@@ -370,7 +370,7 @@ export const BuyProduct = async (req, res) => {
           confirm: true, // Automatically confirms the payment
           description: `Purchase of ${product.name}`,
         });
-        console.log("payment intent", paymentIntent);
+        //console.log("payment intent", paymentIntent);
         if (paymentIntent) {
           let purchasedProduct = await db.PurchasedProduct.create({
             userId: user.id,
@@ -549,7 +549,7 @@ export const SendPurchaseEmailToCreator = async (
       }
     });
   } catch (error) {
-    console.log("Exception email", error);
+    //console.log("Exception email", error);
     return { status: false, message: "An error occurred" };
   }
 };
@@ -690,7 +690,7 @@ export const SendPurchaseEmailToBuyer = async (
       }
     });
   } catch (error) {
-    console.log("Exception email", error);
+    //console.log("Exception email", error);
     return { status: false, message: "An error occurred" };
   }
 };
