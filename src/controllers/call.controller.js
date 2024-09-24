@@ -309,8 +309,10 @@ export const GetACall = async (callId) => {
 };
 
 export const GetRecentAndOngoingCalls = async (req, res) => {
-  let model = req.query.model || 6; // by default  tate
-  let calls = await db.CallModel.findAll({ // Dummy calls we added
+  let model = req.query.model || 6; // by default tate
+
+  // Fetch dummy calls
+  let calls = await db.CallModel.findAll({
     where: {
       status: {
         [db.Sequelize.Op.in]: [
@@ -326,14 +328,12 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
           },
         },
       ],
-      // createdAt: {
-      //   [db.Sequelize.Op.gte]: new Date(new Date() - 60000 * 60 * 1000), // Fetch calls created in the last 60 minutes
-      // },
     },
     order: [["createdAt", "DESC"]],
     limit: 20,
   });
 
+  // Fetch actual calls created in the last 60 minutes
   let callsActual = await db.CallModel.findAll({
     where: {
       status: {
@@ -344,17 +344,32 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
         ],
       },
       createdAt: {
-        [db.Sequelize.Op.gte]: new Date(new Date() - 60 * 60 * 1000), // Fetch calls created in the last 60 minutes
+        [db.Sequelize.Op.gte]: new Date(new Date() - 60 * 60 * 1000), // Last 60 minutes
       },
     },
     order: [["createdAt", "DESC"]],
     limit: 20,
   });
 
-  let allCalls = [...calls, ...callsActual]
+  // Combine the calls and filter for unique calls based on callerId and callId
+  let uniqueCallers = new Set();
+  let uniqueCalls = new Set();
+  let allCalls = [...calls, ...callsActual].filter(call => {
+    if (!uniqueCallers.has(call.userId) && !uniqueCalls.has(call.id)) {
+      uniqueCallers.add(call.userId);
+      uniqueCalls.add(call.id);
+      return true;
+    }
+    return false;
+  });
+
+  // Get the call resource data
   let callsRes = await CallLiteResource(allCalls);
+
+  // Send the response
   res.send({ status: true, message: "calls obtained", data: callsRes });
 };
+
 
 export const GenSummary = async (req, res) => {
   let transcript = `"bot: .
