@@ -350,6 +350,7 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
     order: [["createdAt", "DESC"]],
     limit: 20,
   });
+  console.log('Actual Calls ', callsActual )
 
   // Combine the calls and filter for unique calls based on callerId and callId
   let uniqueCallers = new Set();
