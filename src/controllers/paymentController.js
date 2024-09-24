@@ -93,7 +93,7 @@ export const MakeACall = async (userId, modelId) => {
         let callId = json.response.call_id;
   
         // Push data to GHL
-        let savedToGhl = await PushDataToGhl(Name, Email, PhoneNumber, callId);
+        // let savedToGhl = await PushDataToGhl(Name, Email, PhoneNumber, callId);
   
         // Save call details to the database
         let saved = await db.CallModel.create({
