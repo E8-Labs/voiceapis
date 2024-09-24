@@ -367,6 +367,19 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
 };
 
 
+export const WebhookSynthflow = async(req, res)=>{
+  let data = req.body.data;
+  console.log("Webhook data is ", data)
+
+  //send the data to ghl here
+
+
+
+  //process the data here
+  return res.send({status: true, message: "Webhook received"})
+}
+
+
 export const GenSummary = async (req, res) => {
   let transcript = `"bot: .
 human:  Hello?
