@@ -263,6 +263,7 @@ export const SendPhoneVerificationCode = async (req, res) => {
 //Old Name = VerifyPhoneCode
 export const RegisterOrLogin = async (req, res) => {
   let phone = req.body.phone;
+  phone = phone.replace(/+/g, '');
   let code = req.body.code;
   const login = req.body.login || false;
   let city = req.body.city || "";
@@ -378,6 +379,7 @@ export const RegisterOrLogin = async (req, res) => {
 
 export const CheckPhoneExists = async (req, res) => {
   let phone = req.body.phone;
+  phone = phone.replace(/+/g, '');
   // let code = req.body.code;
 
   let user = await db.User.findOne({
