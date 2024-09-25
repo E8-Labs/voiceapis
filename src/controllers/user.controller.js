@@ -740,7 +740,8 @@ export const UpdateCreatorAI = async(req, res)=>{
           console.log("Here is assistant")
           assistant.prompt = prompt;
           let saved = await assistant.save();
-          
+          let resource = await UserProfileFullResource(creator)
+          res.send({ status: true, data: resource, message: "Prompt updated" });
         }
         else{
           console.log("Here is new assistant")
