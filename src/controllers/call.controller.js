@@ -438,7 +438,7 @@ export const WebhookSynthflow = async(req, res)=>{
 
           //console.log("Summary saved in UserCallSummary");
         }
-  //send the data to ghl here
+  //send the data to ghl here only once
   try {
     const ghlResponse = await axios.post('https://services.leadconnectorhq.com/hooks/ZzSCCR0w9ExkwP1fHpqh/webhook-trigger/88c7822d-7de9-434e-bad5-eaa65c394e1b', data, {
       headers: {

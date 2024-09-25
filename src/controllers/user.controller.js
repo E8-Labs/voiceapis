@@ -381,12 +381,15 @@ export const CheckPhoneExists = async (req, res) => {
   let phone = req.body.phone;
   phone = phone.replace(/\+/g, "");
   // let code = req.body.code;
-
+console.log('Phone Number', phone)
   let user = await db.User.findOne({
     where: {
-      phone: phone,
+      phone: {
+        [db.Sequelize.Op.like]: `%${phone}%`,
+      },
     },
   });
+  console.log('User With Phone Number', user)
 
   if (user) {
     res.send({ status: false, data: null, message: "Phone already taken" });
@@ -718,6 +721,7 @@ export const UpdateCreatorAI = async(req, res)=>{
       let user = await db.User.findByPk(userId);
       let creatorId = req.body.creatorId;
       let prompt = req.body.prompt;
+      console.log("Got the data update Creator X", {creatorId, prompt})
 
       let creator = await db.User.findByPk(creatorId);
       if(creator){
