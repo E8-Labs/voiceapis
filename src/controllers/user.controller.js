@@ -381,7 +381,7 @@ export const CheckPhoneExists = async (req, res) => {
   let phone = req.body.phone;
   phone = phone.replace(/\+/g, "");
   // let code = req.body.code;
-
+console.log('Phone Number', phone)
   let user = await db.User.findOne({
     where: {
       phone: phone,
