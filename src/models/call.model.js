@@ -70,6 +70,15 @@ const CallModel = (sequelize, Sequelize) => {
       type: Sequelize.DOUBLE,
       allowNull: true,
     },
+    callData: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+    },
+    recordingUrl: {
+      type: Sequelize.STRING,
+      defaultValue: "",
+      allowNull: true,
+    },
   });
   return Model;
 };

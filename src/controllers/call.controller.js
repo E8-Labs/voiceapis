@@ -367,16 +367,90 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
 };
 
 
+
+
 export const WebhookSynthflow = async(req, res)=>{
-  console.log("Request headers:", req.headers);
-  console.log("Request body:", req.body);
-  console.log("Request raw data:", req);
+  // console.log("Request headers:", req.headers);
+  // console.log("Request body:", req.body);
+  // console.log("Request raw data:", req);
 
   let data = req.body;
   console.log("Webhook data is ", data);
 
-  //send the data to ghl here
+  let dataString = JSON.stringify(data)
 
+  let callId = data.call.call_id;
+  let stasus = data.call.status;
+  let duration = data.call.duration;
+  let transcript = data.call.transcript;
+  let recordingUrl = data.call.recording_url;
+
+  let dbCall = await db.CallModel.findOne({
+    where:{
+      callId: callId
+    }
+  })
+  dbCall.status = status;
+  dbCall.duration = duration;
+  dbCall.transcript = transcript;
+  dbCall.recordingUrl = recordingUrl;
+  dbCall.callData = dataString;
+  let saved = await dbCall.save();
+
+  //Get Transcript and save
+  let caller = await db.User.findByPk(dbCall.userId);
+        let model = await db.User.findByPk(dbCall.modelId);
+
+        if (dbCall.transcript != "" && dbCall.transcript != null) {
+          let previousSummaryRow = await db.UserCallSummary.findOne({
+            where: {
+              userId: caller.id,
+              modelId: model.id,
+            },
+          });
+
+          let prevSummary = "";
+          if (previousSummaryRow) {
+            prevSummary = previousSummaryRow.summary;
+          }
+          const gptSummary = await generateGptSummary(
+            dbCall.transcript,
+            model,
+            caller,
+            prevSummary
+          );
+          dbCall.summary = gptSummary;
+          data.summary = gptSummary;
+          let updatedSummaryForCall = await dbCall.save();
+          // Save the summary in the UserCallSummary table
+          if (previousSummaryRow) {
+            previousSummaryRow.summary = gptSummary;
+            let saved = await previousSummaryRow.save();
+            console.log("Summary for call updated", dbCall.callId);
+          } else {
+            await db.UserCallSummary.create({
+              name: `Summary for Call ${callId}`,
+              userId: dbCall.userId, // Assuming userId is part of dbCall
+              modelId: dbCall.modelId, // Assuming modelId is part of dbCall
+              summary: gptSummary, // Assuming you've added this column to the model
+            });
+          }
+
+          //console.log("Summary saved in UserCallSummary");
+        }
+  //send the data to ghl here
+  try {
+    const ghlResponse = await axios.post('https://services.leadconnectorhq.com/hooks/ZzSCCR0w9ExkwP1fHpqh/webhook-trigger/88c7822d-7de9-434e-bad5-eaa65c394e1b', data, {
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': `Bearer GHL_API_KEY`, // Add any necessary headers
+      }
+    });
+    console.log("Data sent to GHL:", ghlResponse.data);
+  } catch (error) {
+    console.error("Error sending data to GHL:", error);
+    return res.status(500).send({status: false, message: "Failed to send data to GHL"});
+  }
 
 
   //process the data here
@@ -557,3 +631,254 @@ const generateGptSummary = async (
     return "Summary not available";
   }
 };
+let data =   {
+      status: 'completed',
+      error_message: ' ',
+      lead: {
+       name: 'Hamza',
+       phone_number: '+923058191079',
+       prompt_variables: { '': '' }
+     },
+     call: {
+       status: 'completed',
+       end_call_reason: 'human_pick_up_cut_off',
+       model_id: '1724112988533x540535790230815900',
+       timezone: 'Europe/Berlin',
+       call_id: '1727203579924x117129689956534380',
+       duration: 14,
+       start_time: '2024-09-24T20:46:22.345258+02:00',
+       transcript: '\n' +
+         'bot: .\n' +
+         'human:  Hey, man.\n' +
+         'bot: Hey! \n' +
+         'human:  Kia Kano.\n' +
+         "bot: What's up, Kia? \n" +
+         'human:  From v',
+       recording_sid: 'RE2cdcc32fa330f0cc5ca8e19281285916',
+       recording_url: 'https://api.twilio.com/2010-04-01/Accounts/AC648cf235cef2f88e925b2cd9a68c3e64/Recordings/RE2cdcc32fa330f0cc5ca8e19281285916',
+       call_sid: 'CA5853fb02459e7ce39ee6daa55e69a47f'
+     },
+     executed_actions: {
+       info_extractor_meetingscheduled: {
+         name: 'info_extractor_meetingscheduled',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: [Object],
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203608.0214438,
+         timestamp_datetime: '2024-09-24T18:46:48.021444',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_callmeback: {
+         name: 'info_extractor_callmeback',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: [Object],
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203608.60318,
+         timestamp_datetime: '2024-09-24T18:46:48.603180',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_notinterested: {
+         name: 'info_extractor_notinterested',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: [Object],
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203609.2869134,
+         timestamp_datetime: '2024-09-24T18:46:49.286913',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_humancalldrop: {
+         name: 'info_extractor_humancalldrop',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: [Object],
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203610.0334992,
+         timestamp_datetime: '2024-09-24T18:46:50.033499',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_dnd: {
+         name: 'info_extractor_dnd',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: [Object],
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203610.6333356,
+         timestamp_datetime: '2024-09-24T18:46:50.633336',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_voicemail: {
+         name: 'info_extractor_voicemail',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: [Object],
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203611.1959903,
+         timestamp_datetime: '2024-09-24T18:46:51.195990',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_livecalltransfer: {
+         name: 'info_extractor_livecalltransfer',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: [Object],
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203611.9076798,
+         timestamp_datetime: '2024-09-24T18:46:51.907680',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_Career: {
+         name: 'info_extractor_Career',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: {},
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203612.4167595,
+         timestamp_datetime: '2024-09-24T18:46:52.416759',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_Country: {
+         name: 'info_extractor_Country',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: {},
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203613.284457,
+         timestamp_datetime: '2024-09-24T18:46:53.284457',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_Age: {
+         name: 'info_extractor_Age',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: {},
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203613.9095964,
+         timestamp_datetime: '2024-09-24T18:46:53.909596',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_hotlead: {
+         name: 'info_extractor_hotlead',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: [Object],
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203614.434813,
+         timestamp_datetime: '2024-09-24T18:46:54.434813',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_notfit: {
+         name: 'info_extractor_notfit',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: [Object],
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203615.5341444,
+         timestamp_datetime: '2024-09-24T18:46:55.534144',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       },
+       info_extractor_wrongnumber: {
+         name: 'info_extractor_wrongnumber',
+         action_type: 'extract_info_action_type',
+         description: '',
+         parameters_hard_coded: [Object],
+         parameters_from_llm: {},
+         error_message: null,
+         return_value: [Object],
+         is_relevant_action: false,
+         run_action_before_call_start: false,
+         timestamp: 1727203616.15036,
+         timestamp_datetime: '2024-09-24T18:46:56.150360',
+         parameters_schema: {},
+         message_before_action: null,
+         real_time_action: false,
+         is_interruptible: true
+       }
+     }
+   }
