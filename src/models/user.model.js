@@ -42,6 +42,10 @@ const User = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         defaultValue: ''
       },
+      phoneVerified: { // we store smaller image for fast loading here
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       seconds_available: {
         type: Sequelize.INTEGER,
         defaultValue: 300,

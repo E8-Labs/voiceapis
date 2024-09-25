@@ -2,7 +2,7 @@ import express from 'express'
 import multer from 'multer';
 
 import {verifyJwtToken} from '../middleware/jwtmiddleware.js'
-import { LoginUser, SendPhoneVerificationCode, VerifyPhoneCode, CheckPhoneExists, UpdateUserToCreator,
+import { LoginUser, SendPhoneVerificationCode, RegisterOrLogin, CheckPhoneExists, UpdateUserToCreator,
     CheckUsernameExists, CheckEmailExists, GetProfileWithUsername, SendEmailVerificationCode, VerifyEmailCode,
     UpdateProfile, SendCustomSms, GetMyProfile
  } from '../controllers/user.controller.js'
@@ -36,7 +36,7 @@ UserRouter.post("/checkUsernameExists", CheckUsernameExists);
 UserRouter.get("/getProfileFromUsername", GetProfileWithUsername);
 UserRouter.post("/checkEmailExists", CheckEmailExists);
 UserRouter.post("/sendVerificationCode", SendPhoneVerificationCode);
-UserRouter.post("/verifyCode", VerifyPhoneCode);
+UserRouter.post("/registerOrLogin", RegisterOrLogin);
 
 UserRouter.post("/sendVerificationEmail", SendEmailVerificationCode);
 UserRouter.post("/verifyEmail", VerifyEmailCode);
