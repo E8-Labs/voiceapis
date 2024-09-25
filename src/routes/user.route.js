@@ -48,7 +48,7 @@ UserRouter.get("/search", SearchDb);
 
 
 //Admin
-UserRouter.get("/updateCreatorAI", verifyJwtToken, UpdateCreatorAI);
+UserRouter.post("/updateCreatorAI", verifyJwtToken, UpdateCreatorAI);
 UserRouter.get("/getCreatorsx", verifyJwtToken, GetCreatorsX);
 
 
