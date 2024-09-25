@@ -34,7 +34,8 @@ async function getUserData(user, currentUser = null) {
         modelId: user.modelId,
         apikey: user.apikey,
         createdAt: user.createdAt,
-        updatedAt: user.updatedAt
+        updatedAt: user.updatedAt,
+        prompt: user.prompt,
     }
 
 
