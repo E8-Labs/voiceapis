@@ -723,19 +723,27 @@ export const UpdateCreatorAI = async(req, res)=>{
       let prompt = req.body.prompt;
       console.log("Got the data update Creator X", {creatorId, prompt})
 
-      let creator = await db.User.findByPk(creatorId);
+      let creator = await db.User.findOne({
+        where: {
+          id: creatorId
+        }
+      });
       if(creator){
+        console.log("Here is creator")
         let assistant = await db.Assistant.findOne({
           where:{
             userId: creatorId
           }
         })
+
         if(assistant){
+          console.log("Here is assistant")
           assistant.prompt = prompt;
           let saved = await assistant.save();
           
         }
         else{
+          console.log("Here is new assistant")
           let assistant = await db.Assistant.create({
             name: creator.name,
             phone: creator.phone,
