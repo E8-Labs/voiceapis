@@ -384,7 +384,9 @@ export const CheckPhoneExists = async (req, res) => {
 console.log('Phone Number', phone)
   let user = await db.User.findOne({
     where: {
-      phone: phone,
+      phone: {
+        [db.Sequelize.Op.like]: `%${phone}%`,
+      },
     },
   });
   console.log('User With Phone Number', user)
