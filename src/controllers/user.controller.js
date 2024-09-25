@@ -135,6 +135,9 @@ export const UpdateUserToCreator = async (req, res) => {
   });
 };
 
+
+
+
 export const UpdateProfile = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
@@ -680,3 +683,68 @@ export const sendSMS = async (to, body) => {
   //   return { status: false, message: "Failed to send SMS", error: error.message };
   // }
 };
+
+
+
+
+//Admin related
+
+export const GetCreatorsX = async(req, res)=>{
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (authData) {
+      let creators = await db.User.findAll({
+        where: {
+          role: 'creatorx'
+        }
+      })
+
+
+      let resource = await UserProfileFullResource(creators)
+
+      res.send({ status: true, data: resource, message: "User profile" });
+    }
+    else{
+      res.send({ status: false, data: null, message: "Unauthenticated user" });
+    }
+
+  })
+}
+export const UpdateCreatorAI = async(req, res)=>{
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (authData) {
+      let userId = authData.user.id;
+      let user = await db.User.findByPk(userId);
+      let creatorId = req.body.creatorId;
+      let prompt = req.body.prompt;
+
+      let creator = await db.User.findByPk(creatorId);
+      if(creator){
+        let assistant = await db.Assistant.findOne({
+          where:{
+            userId: creatorId
+          }
+        })
+        if(assistant){
+          assistant.prompt = prompt;
+          let saved = await assistant.save();
+          
+        }
+        else{
+          let assistant = await db.Assistant.create({
+            name: creator.name,
+            phone: creator.phone,
+            prompt: prompt
+          })
+          let resource = await UserProfileFullResource(creator)
+          res.send({ status: true, data: resource, message: "Prompt updated" });
+        }
+      }
+      else{
+        res.send({ status: false, data: null, message: "No such creator" });
+      }
+    }
+    else{
+      res.send({ status: false, data: null, message: "Unauthenticated user" });
+    }
+  })
+}
