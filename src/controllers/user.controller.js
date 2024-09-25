@@ -721,6 +721,7 @@ export const UpdateCreatorAI = async(req, res)=>{
       let user = await db.User.findByPk(userId);
       let creatorId = req.body.creatorId;
       let prompt = req.body.prompt;
+      console.log("Got the data update Creator X", {creatorId, prompt})
 
       let creator = await db.User.findByPk(creatorId);
       if(creator){
