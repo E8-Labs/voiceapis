@@ -46,6 +46,7 @@ const SignUser = async (user) => {
     );
   });
 };
+//Not being used
 export const LoginUser = async (req, res) => {
   // res.send("Hello Login")
   ////////console.log("Login " + req.body.email);
@@ -148,11 +149,14 @@ export const UpdateProfile = async (req, res) => {
       let city = req.body.city || user.city;
       let state = req.body.state || user.state;
 
+      let verified = req.body.phoneVerified || user.phoneVerified;
+
       user.city = city || "";
       user.state = state || "";
       user.username = username;
       user.name = name;
       user.email = email;
+      user.phoneVerified = verified;
 
       let image = null; //user.full_profile_image;
       let thumbnail = null; //user.profile_image;
@@ -252,7 +256,8 @@ export const SendPhoneVerificationCode = async (req, res) => {
   }
 };
 
-export const VerifyPhoneCode = async (req, res) => {
+//Old Name = VerifyPhoneCode
+export const RegisterOrLogin = async (req, res) => {
   let phone = req.body.phone;
   let code = req.body.code;
   const login = req.body.login || false;
