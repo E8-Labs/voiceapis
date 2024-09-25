@@ -387,6 +387,7 @@ console.log('Phone Number', phone)
       phone: phone,
     },
   });
+  console.log('User With Phone Number', user)
 
   if (user) {
     res.send({ status: false, data: null, message: "Phone already taken" });
