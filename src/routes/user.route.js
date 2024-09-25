@@ -4,7 +4,8 @@ import multer from 'multer';
 import {verifyJwtToken} from '../middleware/jwtmiddleware.js'
 import { LoginUser, SendPhoneVerificationCode, RegisterOrLogin, CheckPhoneExists, UpdateUserToCreator,
     CheckUsernameExists, CheckEmailExists, GetProfileWithUsername, SendEmailVerificationCode, VerifyEmailCode,
-    UpdateProfile, SendCustomSms, GetMyProfile
+    UpdateProfile, SendCustomSms, GetMyProfile, 
+    UpdateCreatorAI, GetCreatorsX // admin related
  } from '../controllers/user.controller.js'
 
 import { StoreToDb, SearchDb } from '../controllers/knowledge.controller.js';
@@ -46,6 +47,9 @@ UserRouter.post("/store", StoreToDb);
 UserRouter.get("/search", SearchDb);
 
 
+//Admin
+UserRouter.get("/updateCreatorAI", verifyJwtToken, UpdateCreatorAI);
+UserRouter.get("/getCreatorsx", verifyJwtToken, GetCreatorsX);
 
 
 //Payment
