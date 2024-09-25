@@ -143,8 +143,8 @@ async function getCallsAndDetails() {
   }
 }
 //*/15 * * * * * every 15th second
-const job = nodeCron.schedule("*/1 * * * *", getCallsAndDetails);
-job.start();
+// const job = nodeCron.schedule("*/1 * * * *", getCallsAndDetails);
+// job.start();
 
 const jobCharges = nodeCron.schedule(
   "*/1 * * * *",
