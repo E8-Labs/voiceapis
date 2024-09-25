@@ -307,6 +307,10 @@ export const RegisterOrLogin = async (req, res) => {
       //         }
       //     },
       // })
+      
+      user.phoneVerified = true;
+      let saed = await user.save();
+
       let signedData = await SignUser(user);
       res.send({
         status: true,
