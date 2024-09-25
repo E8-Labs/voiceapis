@@ -15,6 +15,7 @@ import {
   createThumbnailAndUpload,
   ensureDirExists,
 } from "../utils/generateThumbnail.js";
+import * as stripe from "../services/stripe.js";
 
 // lib/firebase-admin.js
 // const admin = require('firebase-admin');
@@ -343,7 +344,7 @@ export const RegisterOrLogin = async (req, res) => {
         city: city,
         state: state,
       });
-
+      let customer = await stripe.createCustomer(user);
       let assistant = await db.Assistant.create({
         name: username,
         phone: phone,
