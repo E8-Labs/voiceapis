@@ -392,6 +392,9 @@ export const WebhookSynthflow = async (req, res) => {
       callId: callId,
     },
   });
+  if(!dbCall){
+    return res.send({ status: true, message: "Webhook received. No such call exists" });
+  }
   dbCall.status = status;
   dbCall.duration = duration;
   dbCall.transcript = transcript;
