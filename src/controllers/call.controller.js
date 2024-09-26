@@ -324,7 +324,7 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
       [db.Sequelize.Op.or]: [
         {
           userId: {
-            [db.Sequelize.Op.between]: [17, 36],
+            [db.Sequelize.Op.between]: [16, 37],
           },
         },
       ],
@@ -333,6 +333,7 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
     limit: 20,
   });
 
+  console.log('UsersDummy', calls.length)
   // Fetch actual calls created in the last 60 minutes
   let callsActual = await db.CallModel.findAll({
     where: {
@@ -350,6 +351,7 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
     order: [["createdAt", "DESC"]],
     limit: 20,
   });
+  console.log('UserACTUAL', callsActual.length)
   //console.log('Actual Calls ', callsActual )
 
   // Combine the calls and filter for unique calls based on callerId and callId
