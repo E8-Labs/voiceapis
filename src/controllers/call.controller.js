@@ -357,14 +357,15 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
   // Combine the calls and filter for unique calls based on callerId and callId
   let uniqueCallers = new Set();
   let uniqueCalls = new Set();
-  let allCalls = [...calls, ...callsActual].filter((call) => {
-    if (!uniqueCallers.has(call.userId) && !uniqueCalls.has(call.id)) {
-      uniqueCallers.add(call.userId);
-      uniqueCalls.add(call.id);
-      return true;
-    }
-    return false;
-  });
+  let allCalls = [...calls, ...callsActual]
+  // .filter((call) => {
+  //   if (!uniqueCallers.has(call.userId) && !uniqueCalls.has(call.id)) {
+  //     uniqueCallers.add(call.userId);
+  //     uniqueCalls.add(call.id);
+  //     return true;
+  //   }
+  //   return false;
+  // });
 
   // Get the call resource data
   let callsRes = await CallLiteResource(allCalls);
