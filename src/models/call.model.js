@@ -74,6 +74,22 @@ const CallModel = (sequelize, Sequelize) => {
       type: Sequelize.TEXT,
       allowNull: true,
     },
+    promptTokens: {
+      type: Sequelize.DOUBLE,
+      allowNull: false,
+      defaultValue: 0
+    },
+    completionTokens: {
+      type: Sequelize.DOUBLE,
+      allowNull: false,
+      defaultValue: 0
+    },
+    totalCost: {
+      type: Sequelize.DOUBLE,
+      allowNull: false,
+      defaultValue: 0
+    },
+
     recordingUrl: {
       type: Sequelize.STRING,
       defaultValue: "",

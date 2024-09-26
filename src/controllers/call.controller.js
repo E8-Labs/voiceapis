@@ -232,9 +232,14 @@ export const GetACall = async (callId) => {
           callId: callId,
         },
       });
-      if (dbCall && (dbCall.status === "" || dbCall.status == null || dbCall.status == "in-progress" || 
-          dbCall.status == "initiated" || dbCall.status == "pending")) 
-      {
+      if (
+        dbCall &&
+        (dbCall.status === "" ||
+          dbCall.status == null ||
+          dbCall.status == "in-progress" ||
+          dbCall.status == "initiated" ||
+          dbCall.status == "pending")
+      ) {
         //console.log("Updating call in db");
         dbCall.transcript = data.transcript;
         dbCall.status = data.status;
@@ -350,7 +355,7 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
   // Combine the calls and filter for unique calls based on callerId and callId
   let uniqueCallers = new Set();
   let uniqueCalls = new Set();
-  let allCalls = [...calls, ...callsActual].filter(call => {
+  let allCalls = [...calls, ...callsActual].filter((call) => {
     if (!uniqueCallers.has(call.userId) && !uniqueCalls.has(call.id)) {
       uniqueCallers.add(call.userId);
       uniqueCalls.add(call.id);
@@ -366,10 +371,7 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
   res.send({ status: true, message: "calls obtained", data: callsRes });
 };
 
-
-
-
-export const WebhookSynthflow = async(req, res)=>{
+export const WebhookSynthflow = async (req, res) => {
   // console.log("Request headers:", req.headers);
   // console.log("Request body:", req.body);
   // console.log("Request raw data:", req);
@@ -377,7 +379,7 @@ export const WebhookSynthflow = async(req, res)=>{
   let data = req.body;
   console.log("Webhook data is ", data);
 
-  let dataString = JSON.stringify(data)
+  let dataString = JSON.stringify(data);
 
   let callId = data.call.call_id;
   let status = data.call.status;
@@ -386,10 +388,13 @@ export const WebhookSynthflow = async(req, res)=>{
   let recordingUrl = data.call.recording_url;
 
   let dbCall = await db.CallModel.findOne({
-    where:{
-      callId: callId
-    }
-  })
+    where: {
+      callId: callId,
+    },
+  });
+  if(!dbCall){
+    return res.send({ status: true, message: "Webhook received. No such call exists" });
+  }
   dbCall.status = status;
   dbCall.duration = duration;
   dbCall.transcript = transcript;
@@ -399,64 +404,74 @@ export const WebhookSynthflow = async(req, res)=>{
 
   //Get Transcript and save
   let caller = await db.User.findByPk(dbCall.userId);
-        let model = await db.User.findByPk(dbCall.modelId);
+  let model = await db.User.findByPk(dbCall.modelId);
 
-        if (dbCall.transcript != "" && dbCall.transcript != null) {
-          let previousSummaryRow = await db.UserCallSummary.findOne({
-            where: {
-              userId: caller.id,
-              modelId: model.id,
-            },
-          });
-
-          let prevSummary = "";
-          if (previousSummaryRow) {
-            prevSummary = previousSummaryRow.summary;
-          }
-          const gptSummary = await generateGptSummary(
-            dbCall.transcript,
-            model,
-            caller,
-            prevSummary
-          );
-          dbCall.summary = gptSummary;
-          data.summary = gptSummary;
-          let updatedSummaryForCall = await dbCall.save();
-          // Save the summary in the UserCallSummary table
-          if (previousSummaryRow) {
-            previousSummaryRow.summary = gptSummary;
-            let saved = await previousSummaryRow.save();
-            console.log("Summary for call updated", dbCall.callId);
-          } else {
-            await db.UserCallSummary.create({
-              name: `Summary for Call ${callId}`,
-              userId: dbCall.userId, // Assuming userId is part of dbCall
-              modelId: dbCall.modelId, // Assuming modelId is part of dbCall
-              summary: gptSummary, // Assuming you've added this column to the model
-            });
-          }
-
-          //console.log("Summary saved in UserCallSummary");
-        }
-  //send the data to ghl here only once
-  try {
-    const ghlResponse = await axios.post('https://services.leadconnectorhq.com/hooks/ZzSCCR0w9ExkwP1fHpqh/webhook-trigger/88c7822d-7de9-434e-bad5-eaa65c394e1b', data, {
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Authorization': `Bearer GHL_API_KEY`, // Add any necessary headers
-      }
+  //only generate summary if the call status is empty or null otherwise don't
+  if (dbCall.status == "" || dbCall.status == null) {
+    //(dbCall.transcript != "" && dbCall.transcript != null) {
+    let previousSummaryRow = await db.UserCallSummary.findOne({
+      where: {
+        userId: caller.id,
+        modelId: model.id,
+      },
     });
-    console.log("Data sent to GHL:", ghlResponse.data);
-  } catch (error) {
-    console.error("Error sending data to GHL:", error);
-    return res.status(500).send({status: false, message: "Failed to send data to GHL"});
+
+    let prevSummary = "";
+    if (previousSummaryRow) {
+      prevSummary = previousSummaryRow.summary;
+    }
+    const gptSummary = await generateGptSummary(
+      dbCall.transcript,
+      model,
+      caller,
+      prevSummary
+    );
+    dbCall.summary = gptSummary.summary;
+    data.summary = gptSummary.summary;
+    dbCall.promptTokens = gptSummary.prompt_tokens;
+    dbCall.completionTokens = gptSummary.completion_tokens;
+    dbCall.totalCost = gptSummary.total_cost;
+    let updatedSummaryForCall = await dbCall.save();
+    // Save the summary in the UserCallSummary table
+    if (previousSummaryRow) {
+      previousSummaryRow.summary = gptSummary.summary;
+      let saved = await previousSummaryRow.save();
+      console.log("Summary for call updated", dbCall.callId);
+    } else {
+      await db.UserCallSummary.create({
+        name: `Summary for Call ${callId}`,
+        userId: dbCall.userId, // Assuming userId is part of dbCall
+        modelId: dbCall.modelId, // Assuming modelId is part of dbCall
+        summary: gptSummary.summary, // Assuming you've added this column to the model
+      });
+    }
+
+    //console.log("Summary saved in UserCallSummary");
+    //send the data to ghl here only once
+    try {
+      const ghlResponse = await axios.post(
+        "https://services.leadconnectorhq.com/hooks/ZzSCCR0w9ExkwP1fHpqh/webhook-trigger/88c7822d-7de9-434e-bad5-eaa65c394e1b",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            // 'Authorization': `Bearer GHL_API_KEY`, // Add any necessary headers
+          },
+        }
+      );
+      console.log("Data sent to GHL:", dbCall.callId);
+    } catch (error) {
+      console.error("Error sending data to GHL:", error);
+      return res
+        .status(500)
+        .send({ status: false, message: "Failed to send data to GHL" });
+    }
   }
 
 
   //process the data here
-  return res.send({status: true, message: "Webhook received"})
-}
-
+  return res.send({ status: true, message: "Webhook received" });
+};
 
 export const GenSummary = async (req, res) => {
   let transcript = `"bot: .
@@ -624,8 +639,25 @@ const generateGptSummary = async (
     );
 
     const summary = result.data.choices[0].message.content.trim();
+
+    let tokens = result.data.usage.total_tokens;
+        let prompt_tokens = result.data.usage.prompt_tokens;
+        let completion_tokens = result.data.usage.completion_tokens;
+
+        let inputCostPerToken = 10 / 1000000;
+        let outoutCostPerToken = 30 / 1000000;
+
+        let inputCost = inputCostPerToken * prompt_tokens;
+        let outputCost = outoutCostPerToken * completion_tokens;
+
+        let totalCost = inputCost + outputCost;
+        //console.log("Total cost this request", totalCost);
+        return {
+            tokens: tokens, completion_tokens: completion_tokens,
+            prompt_tokens: prompt_tokens, total_cost: totalCost, summary: summary
+        };
     //console.log("GPT summary generated:", summary);
-    return summary;
+    // return summary;
   } catch (error) {
     console.error("Error generating GPT summary:", error);
     return "Summary not available";
