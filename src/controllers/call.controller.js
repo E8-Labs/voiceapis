@@ -128,6 +128,7 @@ export const MakeACall = async (req, res) => {
     let calls = await db.CallModel.findAll({
       where: {
         phone: PhoneNumber,
+        modelId: modelId
       },
     });
     console.log(`Calls for phone ${PhoneNumber} `, calls.length);
