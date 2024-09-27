@@ -3,6 +3,7 @@ import db from "../models/index.js";
 import { loadCards } from "../services/stripe.js";
 import CallLiteResource from "../resources/callliteresource.js";
 import OpenAI from "openai";
+import { ChargeCustomer } from "../services/stripe.js";
 
 // export const MakeACall = async(req, res) => {
 
@@ -410,9 +411,15 @@ export const WebhookSynthflow = async (req, res) => {
   //Get Transcript and save
   let caller = await db.User.findByPk(dbCall.userId);
   let model = await db.User.findByPk(dbCall.modelId);
+  let assistant = await db.Assistant.findOne({
+    where: {
+      userId: dbCall.userId
+    }
+  })
 
   //only generate summary if the call status is empty or null otherwise don't
   if (dbCall.status == "" || dbCall.status == null) {
+    let charged = await chargeUser(caller, dbCall, assistant);
     //(dbCall.transcript != "" && dbCall.transcript != null) {
     let previousSummaryRow = await db.UserCallSummary.findOne({
       where: {
@@ -474,9 +481,58 @@ export const WebhookSynthflow = async (req, res) => {
   }
 
 
+
+  
   //process the data here
   return res.send({ status: true, message: "Webhook received" });
 };
+
+async function chargeUser(caller, dbCall, assistant){
+  //update the user minutes available and charge if needed
+console.log("Charging user start")
+  let amount = 1000; // update this to user's amount he charges (10 / 60) * duration * 100; //10 / 60 => amount per second & then x 100 to convert to cents
+
+  // let user = caller
+  if (caller && !assistant.allowTrial) { // if caller exists and the assistant/model does not allow trial then charge the user
+    console.log("Assistant No Trial Allowed")
+    if (caller.seconds_available - duration < 120) {
+      console.log("Minutes below 2")
+      //charge user
+
+      // if (user) {
+      //We are using hardcoded amount of $1 for now. A minute is worth $1. So we will add 10 minutes for now
+      //to the user's call time
+      
+      let charge = await ChargeCustomer(amount, caller, "Recharged 10 minutes", "Charge for 10 minutes. Balance dropped below 2 minutes.");
+      // //console.log("Charge is ", charge);
+      dbCall.paymentStatus = charge.reason;
+      if (charge.payment) {
+        dbCall.paymentId = charge.payment.id;
+        dbCall.paymentAmount = charge.payment.amount;
+      }
+      dbCall.chargeDescription = charge.message;
+
+      let saved = await dbCall.save();
+      caller.seconds_available = caller.seconds_available + 600;
+      let userSaved = await caller.save();
+      //console.log("User call time updated ", user.seconds_available);
+      // } else {
+      //   //console.log("No user to charge");
+      // }
+    } else {
+      caller.seconds_available = caller.seconds_available - duration;
+      let saved = await caller.save();
+      //console.log("User call time updated ", user.seconds_available);
+    }
+  } else {
+    //console.log("No user to charge");
+  }
+  dbCall.paymentStatus = "Succeeded";
+  let callSaved = await dbCall.save();
+  console.log("Charging user Complete")
+  return true
+}
+
 
 export const GenSummary = async (req, res) => {
   let transcript = `"bot: .
