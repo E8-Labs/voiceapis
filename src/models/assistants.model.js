@@ -19,6 +19,14 @@ const Assistant = (sequelize, Sequelize) => {
       prompt: {
         type: Sequelize.TEXT
       },
+      webook: {
+        type: Sequelize.TEXT,
+        defaultValue: ''
+      },
+      allowTrial: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: true,

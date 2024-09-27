@@ -95,8 +95,10 @@ export const MakeACall = async (req, res) => {
     //###########################################################################
 
     if (user.seconds_available <= 120) {
+      //
       let cards = await loadCards(user);
-      if (cards && cards.length > 0) {
+      //if the assistant allows trial then no need to block user from calling
+      if ((cards && cards.length > 0) || assistant.allowTrial ) {
         // we will think of the logic here.
       } else {
         return res.send({

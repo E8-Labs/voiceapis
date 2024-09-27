@@ -17,6 +17,8 @@ import {
 } from "../utils/generateThumbnail.js";
 import * as stripe from "../services/stripe.js";
 
+import { MakeACall } from "./paymentController.js";
+
 // lib/firebase-admin.js
 // const admin = require('firebase-admin');
 // import { admin } from "../services/firebase-admin.js";
@@ -268,6 +270,7 @@ export const RegisterOrLogin = async (req, res) => {
   const login = req.body.login || false;
   let city = req.body.city || "";
   let state = req.body.state || "";
+  let modelId = req.body.modelId || null;
 
   console.log("User Details ", req.body);
   //If user Signs up
@@ -347,6 +350,7 @@ export const RegisterOrLogin = async (req, res) => {
         name: name,
         city: city,
         state: state,
+        model_id: modelId,
       });
       let customer = await stripe.createCustomer(user);
       let assistant = await db.Assistant.create({
@@ -354,6 +358,22 @@ export const RegisterOrLogin = async (req, res) => {
         phone: phone,
         userId: user.id,
       });
+      if(modelId){
+        //initiate call
+        let assistant = await db.Assistant.findOne({
+          where:{
+            userId: modelId
+          }
+        })
+        if(assistant && assistant.allowTrial){
+          let call = await MakeACall(user.id, modelId)
+        }
+        else{
+          console.log('"Found Assistant. Doesnt Allow Trial"')
+        }
+        
+        
+      }
       let signedData = await SignUser(user);
       // await db.PhoneVerificationCodeModel.destroy({
       //     where: {
