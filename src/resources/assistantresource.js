@@ -42,12 +42,11 @@ async function getUserData(user, currentUser = null) {
     const UserFullResource = {
         id: user.id,
         name: user.name,
+        owner: ownerRes,
+        prompt: user.prompt,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        owner: ownerRes,
-        // assistant: model,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt
+        allowTrial: user.allowTrial
     }
 
 

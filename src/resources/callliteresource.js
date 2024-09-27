@@ -1,6 +1,7 @@
 import db from "../models/index.js";
 import AssistantResource from "./assistantresource.js";
 import UserProfileFullResource from "./userprofilefullresource.js";
+import UserProfileLiteResource from "./userprofileliteresource.js";
 
 const Op = db.Sequelize.Op;
 
@@ -41,6 +42,8 @@ async function getUserData(call, currentUser = null) {
             userId: call.modelId
         }
     })
+
+    let modelUser = await db.User.findByPk(call.modelId)
     let chargeAmountForModel = 1;
     let ai = await db.UserAi.findOne({
         where:{
@@ -66,8 +69,9 @@ async function getUserData(call, currentUser = null) {
 
     let modelRes = null
     let message = ""
-    if(model){
-        modelRes = await AssistantResource(model)
+    if(modelUser){
+        // modelRes = await AssistantResource(model)
+        modelRes = await UserProfileLiteResource(modelUser)
         message = `with ${caller.name.split(" ")[0]}`
         if(model.userId){
             let modelOwner = await db.User.findByPk(model.userId)

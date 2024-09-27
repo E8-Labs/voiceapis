@@ -50,6 +50,10 @@ const User = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         defaultValue: 300,
         
+      },
+      model_id: {
+        type: Sequelize.INTEGER,
+        defaultValue: NULL,
       }
     });
   
