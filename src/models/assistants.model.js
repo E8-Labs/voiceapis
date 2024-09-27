@@ -27,6 +27,10 @@ const Assistant = (sequelize, Sequelize) => {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
+      webhook: {
+        type: Sequelize.STRING,
+        defaultValue: '',
+      },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: true,

@@ -62,6 +62,10 @@ const UserAi = (sequelize, Sequelize) => {
         type: Sequelize.STRING, 
         defaultValue: ''
       },
+      webUrl: {
+        type: Sequelize.STRING, 
+        defaultValue: ''
+      },
       goalType: { // product, webinar, other
         type: Sequelize.STRING, 
         defaultValue: ''
