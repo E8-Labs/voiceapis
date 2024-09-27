@@ -479,6 +479,9 @@ export const WebhookSynthflow = async (req, res) => {
     //     .send({ status: false, message: "Failed to send data to GHL" });
     // }
   }
+  else{
+    console.log("Alread obtained all data")
+  }
 
 
 
