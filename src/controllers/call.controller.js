@@ -383,7 +383,7 @@ export const WebhookSynthflow = async (req, res) => {
   // console.log("Request raw data:", req);
 
   let data = req.body;
-  console.log("Webhook data is ");
+  console.log("Webhook data is ", data);
 
   let dataString = JSON.stringify(data);
 
@@ -462,10 +462,12 @@ export const WebhookSynthflow = async (req, res) => {
       });
     }
 
-    //console.log("Summary saved in UserCallSummary");
+    console.log("Assistant is ", assistant);
     //send the data to ghl here only once
+
     let webhook = "https://services.leadconnectorhq.com/hooks/ZzSCCR0w9ExkwP1fHpqh/webhook-trigger/88c7822d-7de9-434e-bad5-eaa65c394e1b"
     if(assistant.webhook != '' && assistant.webhook != null){
+      console.log("Assistant has a webhook")
       webhook = assistant.webhook;
     }
 
