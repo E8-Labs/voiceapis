@@ -472,24 +472,25 @@ export const WebhookSynthflow = async (req, res) => {
     }
 
     console.log('Sending TO GHL', webhook)
-    try {
-      const ghlResponse = await axios.post(
-        webhook,
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            // 'Authorization': `Bearer GHL_API_KEY`, // Add any necessary headers
-          },
-        }
-      );
-      console.log("Data sent to GHL:", dbCall.callId);
-    } catch (error) {
-      console.error("Error sending data to GHL:", error);
-      return res
-        .status(500)
-        .send({ status: false, message: "Failed to send data to GHL" });
-    }
+    
+    // try {
+    //   const ghlResponse = await axios.post(
+    //     webhook,
+    //     data,
+    //     {
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         // 'Authorization': `Bearer GHL_API_KEY`, // Add any necessary headers
+    //       },
+    //     }
+    //   );
+    //   console.log("Data sent to GHL:", dbCall.callId);
+    // } catch (error) {
+    //   console.error("Error sending data to GHL:", error);
+    //   return res
+    //     .status(500)
+    //     .send({ status: false, message: "Failed to send data to GHL" });
+    // }
   } else {
     console.log("Alread obtained all data");
     dbCall.status = status;
