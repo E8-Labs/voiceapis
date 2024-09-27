@@ -466,31 +466,31 @@ export const WebhookSynthflow = async (req, res) => {
     //send the data to ghl here only once
 
     let webhook = "https://services.leadconnectorhq.com/hooks/ZzSCCR0w9ExkwP1fHpqh/webhook-trigger/88c7822d-7de9-434e-bad5-eaa65c394e1b"
-    if(assistant.webhook != '' && assistant.webhook != null){
+    if(assistant.webook != '' && assistant.webook != null){
       console.log("Assistant has a webhook")
-      webhook = assistant.webhook;
+      webhook = assistant.webook;
     }
 
     console.log('Sending TO GHL', webhook)
     
-    // try {
-    //   const ghlResponse = await axios.post(
-    //     webhook,
-    //     data,
-    //     {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         // 'Authorization': `Bearer GHL_API_KEY`, // Add any necessary headers
-    //       },
-    //     }
-    //   );
-    //   console.log("Data sent to GHL:", dbCall.callId);
-    // } catch (error) {
-    //   console.error("Error sending data to GHL:", error);
-    //   return res
-    //     .status(500)
-    //     .send({ status: false, message: "Failed to send data to GHL" });
-    // }
+    try {
+      const ghlResponse = await axios.post(
+        webhook,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            // 'Authorization': `Bearer GHL_API_KEY`, // Add any necessary headers
+          },
+        }
+      );
+      console.log("Data sent to GHL:", dbCall.callId);
+    } catch (error) {
+      console.error("Error sending data to GHL:", error);
+      return res
+        .status(500)
+        .send({ status: false, message: "Failed to send data to GHL" });
+    }
   } else {
     console.log("Alread obtained all data");
     dbCall.status = status;
