@@ -519,7 +519,7 @@ let duration = dbCall.duration;
         "Recharged 10 minutes",
         "Charge for 10 minutes. Balance dropped below 2 minutes."
       );
-      // //console.log("Charge is ", charge);
+      console.log("Charge is ", charge);
       dbCall.paymentStatus = charge.reason;
       if (charge.payment) {
         dbCall.paymentId = charge.payment.id;
