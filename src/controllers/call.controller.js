@@ -99,7 +99,7 @@ export const MakeACall = async (req, res) => {
       //
       let cards = await loadCards(user);
       //if the assistant allows trial then no need to block user from calling
-      if ((cards && cards.length > 0) || assistant.allowTrial ) {
+      if ((cards && cards.length > 0) || assistant.allowTrial) {
         // we will think of the logic here.
       } else {
         return res.send({
@@ -336,7 +336,7 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
     limit: 20,
   });
 
-  console.log('UsersDummy', calls.length)
+  console.log("UsersDummy", calls.length);
   // Fetch actual calls created in the last 60 minutes
   let callsActual = await db.CallModel.findAll({
     where: {
@@ -354,13 +354,13 @@ export const GetRecentAndOngoingCalls = async (req, res) => {
     order: [["createdAt", "DESC"]],
     limit: 20,
   });
-  console.log('UserACTUAL', callsActual.length)
+  console.log("UserACTUAL", callsActual.length);
   //console.log('Actual Calls ', callsActual )
 
   // Combine the calls and filter for unique calls based on callerId and callId
   let uniqueCallers = new Set();
   let uniqueCalls = new Set();
-  let allCalls = [...calls, ...callsActual]
+  let allCalls = [...calls, ...callsActual];
   // .filter((call) => {
   //   if (!uniqueCallers.has(call.userId) && !uniqueCalls.has(call.id)) {
   //     uniqueCallers.add(call.userId);
@@ -398,28 +398,31 @@ export const WebhookSynthflow = async (req, res) => {
       callId: callId,
     },
   });
-  if(!dbCall){
-    return res.send({ status: true, message: "Webhook received. No such call exists" });
+  if (!dbCall) {
+    return res.send({
+      status: true,
+      message: "Webhook received. No such call exists",
+    });
   }
-  dbCall.status = status;
-  dbCall.duration = duration;
-  dbCall.transcript = transcript;
-  dbCall.recordingUrl = recordingUrl;
-  dbCall.callData = dataString;
-  let saved = await dbCall.save();
 
   //Get Transcript and save
   let caller = await db.User.findByPk(dbCall.userId);
   let model = await db.User.findByPk(dbCall.modelId);
   let assistant = await db.Assistant.findOne({
     where: {
-      userId: dbCall.userId
-    }
-  })
+      userId: dbCall.userId,
+    },
+  });
 
   //only generate summary if the call status is empty or null otherwise don't
   console.log(`DB Call status${dbCall.status}`);
   if (dbCall.status == "" || dbCall.status == null) {
+    dbCall.status = status;
+    dbCall.duration = duration;
+    dbCall.transcript = transcript;
+    dbCall.recordingUrl = recordingUrl;
+    dbCall.callData = dataString;
+    let saved = await dbCall.save();
     let charged = await chargeUser(caller, dbCall, assistant);
     //(dbCall.transcript != "" && dbCall.transcript != null) {
     let previousSummaryRow = await db.UserCallSummary.findOne({
@@ -479,35 +482,43 @@ export const WebhookSynthflow = async (req, res) => {
     //     .status(500)
     //     .send({ status: false, message: "Failed to send data to GHL" });
     // }
+  } else {
+    console.log("Alread obtained all data");
+    dbCall.status = status;
+    dbCall.duration = duration;
+    dbCall.transcript = transcript;
+    dbCall.recordingUrl = recordingUrl;
+    dbCall.callData = dataString;
+    let saved = await dbCall.save();
   }
-  else{
-    console.log("Alread obtained all data")
-  }
 
-
-
-  
   //process the data here
   return res.send({ status: true, message: "Webhook received" });
 };
 
-async function chargeUser(caller, dbCall, assistant){
+async function chargeUser(caller, dbCall, assistant) {
   //update the user minutes available and charge if needed
-console.log("Charging user start")
+  console.log("Charging user start");
   let amount = 1000; // update this to user's amount he charges (10 / 60) * duration * 100; //10 / 60 => amount per second & then x 100 to convert to cents
 
   // let user = caller
-  if (caller && !assistant.allowTrial) { // if caller exists and the assistant/model does not allow trial then charge the user
-    console.log("Assistant No Trial Allowed")
+  if (caller && !assistant.allowTrial) {
+    // if caller exists and the assistant/model does not allow trial then charge the user
+    console.log("Assistant No Trial Allowed");
     if (caller.seconds_available - duration < 120) {
-      console.log("Minutes below 2")
+      console.log("Minutes below 2");
       //charge user
 
       // if (user) {
       //We are using hardcoded amount of $1 for now. A minute is worth $1. So we will add 10 minutes for now
       //to the user's call time
-      
-      let charge = await ChargeCustomer(amount, caller, "Recharged 10 minutes", "Charge for 10 minutes. Balance dropped below 2 minutes.");
+
+      let charge = await ChargeCustomer(
+        amount,
+        caller,
+        "Recharged 10 minutes",
+        "Charge for 10 minutes. Balance dropped below 2 minutes."
+      );
       // //console.log("Charge is ", charge);
       dbCall.paymentStatus = charge.reason;
       if (charge.payment) {
@@ -533,10 +544,9 @@ console.log("Charging user start")
   }
   dbCall.paymentStatus = "Succeeded";
   let callSaved = await dbCall.save();
-  console.log("Charging user Complete")
-  return true
+  console.log("Charging user Complete");
+  return true;
 }
-
 
 export const GenSummary = async (req, res) => {
   let transcript = `"bot: .
@@ -706,21 +716,24 @@ const generateGptSummary = async (
     const summary = result.data.choices[0].message.content.trim();
 
     let tokens = result.data.usage.total_tokens;
-        let prompt_tokens = result.data.usage.prompt_tokens;
-        let completion_tokens = result.data.usage.completion_tokens;
+    let prompt_tokens = result.data.usage.prompt_tokens;
+    let completion_tokens = result.data.usage.completion_tokens;
 
-        let inputCostPerToken = 10 / 1000000;
-        let outoutCostPerToken = 30 / 1000000;
+    let inputCostPerToken = 10 / 1000000;
+    let outoutCostPerToken = 30 / 1000000;
 
-        let inputCost = inputCostPerToken * prompt_tokens;
-        let outputCost = outoutCostPerToken * completion_tokens;
+    let inputCost = inputCostPerToken * prompt_tokens;
+    let outputCost = outoutCostPerToken * completion_tokens;
 
-        let totalCost = inputCost + outputCost;
-        //console.log("Total cost this request", totalCost);
-        return {
-            tokens: tokens, completion_tokens: completion_tokens,
-            prompt_tokens: prompt_tokens, total_cost: totalCost, summary: summary
-        };
+    let totalCost = inputCost + outputCost;
+    //console.log("Total cost this request", totalCost);
+    return {
+      tokens: tokens,
+      completion_tokens: completion_tokens,
+      prompt_tokens: prompt_tokens,
+      total_cost: totalCost,
+      summary: summary,
+    };
     //console.log("GPT summary generated:", summary);
     // return summary;
   } catch (error) {
