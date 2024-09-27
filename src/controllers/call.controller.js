@@ -500,7 +500,7 @@ async function chargeUser(caller, dbCall, assistant) {
   //update the user minutes available and charge if needed
   console.log("Charging user start");
   let amount = 1000; // update this to user's amount he charges (10 / 60) * duration * 100; //10 / 60 => amount per second & then x 100 to convert to cents
-
+let duration = dbCall.duration;
   // let user = caller
   if (caller && !assistant.allowTrial) {
     // if caller exists and the assistant/model does not allow trial then charge the user
