@@ -410,7 +410,7 @@ export const WebhookSynthflow = async (req, res) => {
   let model = await db.User.findByPk(dbCall.modelId);
   let assistant = await db.Assistant.findOne({
     where: {
-      userId: dbCall.userId,
+      userId: dbCall.modelId,
     },
   });
 
