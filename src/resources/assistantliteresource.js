@@ -36,7 +36,8 @@ async function getUserData(user, currentUser = null) {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         prompt: user.prompt,
-        allowTrial: user.allowTrial
+        allowTrial: user.allowTrial,
+        claimed: user.claimed
     }
 
 
