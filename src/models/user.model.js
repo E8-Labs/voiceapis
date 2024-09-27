@@ -53,7 +53,7 @@ const User = (sequelize, Sequelize) => {
       },
       model_id: {
         type: Sequelize.INTEGER,
-        defaultValue: NULL,
+        allowNull: true
       }
     });
   
