@@ -156,6 +156,24 @@ export const UpdateProfile = async (req, res) => {
       let state = req.body.state || user.state;
 
       let verified = req.body.phoneVerified || user.phoneVerified;
+      if(typeof req.body.phoneVerified != 'undefined' && user.phoneVerified == false && req.body.phoneVerified == true){
+        if(user.model_id){
+          //initiate call
+          let assistant = await db.Assistant.findOne({
+            where:{
+              userId: user.model_id
+            }
+          })
+          if(assistant && assistant.allowTrial){
+            let call = await MakeACall(user.id, user.model_id)
+          }
+          else{
+            console.log('"Found Assistant. Doesnt Allow Trial"')
+          }
+          
+          
+        }
+      }
 
       user.city = city || "";
       user.state = state || "";
@@ -358,22 +376,22 @@ export const RegisterOrLogin = async (req, res) => {
         phone: phone,
         userId: user.id,
       });
-      if(modelId){
-        //initiate call
-        let assistant = await db.Assistant.findOne({
-          where:{
-            userId: modelId
-          }
-        })
-        if(assistant && assistant.allowTrial){
-          let call = await MakeACall(user.id, modelId)
-        }
-        else{
-          console.log('"Found Assistant. Doesnt Allow Trial"')
-        }
+      // if(modelId){
+      //   //initiate call
+      //   let assistant = await db.Assistant.findOne({
+      //     where:{
+      //       userId: modelId
+      //     }
+      //   })
+      //   if(assistant && assistant.allowTrial){
+      //     let call = await MakeACall(user.id, modelId)
+      //   }
+      //   else{
+      //     console.log('"Found Assistant. Doesnt Allow Trial"')
+      //   }
         
         
-      }
+      // }
       let signedData = await SignUser(user);
       // await db.PhoneVerificationCodeModel.destroy({
       //     where: {
