@@ -524,11 +524,12 @@ let duration = dbCall.duration;
       if (charge.payment) {
         dbCall.paymentId = charge.payment.id;
         dbCall.paymentAmount = charge.payment.amount;
+        caller.seconds_available = caller.seconds_available + 600;
       }
       dbCall.chargeDescription = charge.message;
 
       let saved = await dbCall.save();
-      caller.seconds_available = caller.seconds_available + 600;
+      
       let userSaved = await caller.save();
       //console.log("User call time updated ", user.seconds_available);
       // } else {
