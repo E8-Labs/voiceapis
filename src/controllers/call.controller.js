@@ -542,9 +542,9 @@ let duration = dbCall.duration;
   } else {
     //console.log("No user to charge");
   }
-  dbCall.paymentStatus = "Succeeded";
+  // dbCall.paymentStatus = "Succeeded";
   let callSaved = await dbCall.save();
-  console.log("Charging user Complete");
+  console.log("Charging user Complete with status = ", dbCall.paymentStatus);
   return true;
 }
 
