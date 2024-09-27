@@ -383,7 +383,7 @@ export const WebhookSynthflow = async (req, res) => {
   // console.log("Request raw data:", req);
 
   let data = req.body;
-  console.log("Webhook data is ", data);
+  console.log("Webhook data is ");
 
   let dataString = JSON.stringify(data);
 
@@ -418,6 +418,7 @@ export const WebhookSynthflow = async (req, res) => {
   })
 
   //only generate summary if the call status is empty or null otherwise don't
+  console.log(`DB Call status${dbCall.status}`);
   if (dbCall.status == "" || dbCall.status == null) {
     let charged = await chargeUser(caller, dbCall, assistant);
     //(dbCall.transcript != "" && dbCall.transcript != null) {
