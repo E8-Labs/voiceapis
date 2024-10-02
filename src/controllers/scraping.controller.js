@@ -189,7 +189,7 @@ const scrapUrl = async (url) => {
     // Return the scraped data
     return data;
   } catch (error) {
-    console.error(`Error scraping URL ${url} for user ${user}:`, error);
+    console.error(`Error scraping URL ${url} for user `, error);
     return {
       url,
       error: error.message,

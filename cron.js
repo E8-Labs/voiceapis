@@ -196,7 +196,7 @@ const YoutubeSummaryCronJob = nodeCron.schedule(
 );
 // YoutubeSummaryCronJob.start();
 
-const WebScrapperCronJob = nodeCron.schedule("*/2 * * * *", async function () {
+const WebScrapperCronJob = nodeCron.schedule("*/1 * * * *", async function () {
   console.log("Cron Fetch Web Summary");
   let ai = await db.UserAi.findAll({
     where: {
