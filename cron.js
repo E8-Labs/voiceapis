@@ -2,6 +2,9 @@ import nodeCron from "node-cron";
 import db from "./src/models/index.js";
 import { GetACall } from "./src/controllers/call.controller.js";
 import { ChargeCustomer } from "./src/services/stripe.js";
+import { fetchVideoCaptionsAndSummary } from "./src/controllers/socialauth.controller.js";
+
+import { ScrapWebUrl } from "./src/controllers/scraping.controller.js";
 
 async function rechargeUsersAccounts() {
   let users = await db.User.findAll({
@@ -18,7 +21,12 @@ async function rechargeUsersAccounts() {
       let u = users[i];
       let amount = 1000;
       //console.log(`User ${u.email} has balance `, u.seconds_available);
-      let charge = await ChargeCustomer(amount, u, "Recharged 10 minutes", "Charge for 10 minutes. Balance dropped below 2 minutes.");
+      let charge = await ChargeCustomer(
+        amount,
+        u,
+        "Recharged 10 minutes",
+        "Charge for 10 minutes. Balance dropped below 2 minutes."
+      );
       // //console.log("Charged in user is ", charge);
       // call.paymentStatus = charge.reason;
       if (charge.payment) {
@@ -71,7 +79,12 @@ async function getCompletedCallsNotCharged() {
             // if (user) {
             //We are using hardcoded amount of $10 for now. A minite is worth $1. So we will add 10 minutes for now
             //to the user's call time
-            let charge = await ChargeCustomer(amount, user, "Recharged 10 minutes", "Charge for 10 minutes. Balance dropped below 2 minutes.");
+            let charge = await ChargeCustomer(
+              amount,
+              user,
+              "Recharged 10 minutes",
+              "Charge for 10 minutes. Balance dropped below 2 minutes."
+            );
             // //console.log("Charge is ", charge);
             call.paymentStatus = charge.reason;
             if (charge.payment) {
@@ -152,5 +165,70 @@ async function getCallsAndDetails() {
 // );
 // jobCharges.start();
 
-const jobUserTopup = nodeCron.schedule("*/1 * * * *", rechargeUsersAccounts);
-jobUserTopup.start();
+const jobUserTopup = nodeCron.schedule("*/2 * * * *", rechargeUsersAccounts);
+// jobUserTopup.start();
+
+// const webScrapperJob = nodeCron.schedule("*/15 * * * * *", ScrapWebUrl);
+// webScrapperJob.start();
+
+//Youtube Video Summary Generation Cron
+const YoutubeSummaryCronJob = nodeCron.schedule(
+  "*/1 * * * *",
+  async function () {
+    console.log("Cron Fetch Youtube Summary");
+    let videos = await db.YouTubeVideo.findAll({
+      where: {
+        summary: {
+          [db.Sequelize.Op.is]: null,
+        },
+      },
+    });
+
+    if (videos) {
+      console.log("Videos Found :", videos.length);
+      for (let i = 0; i < videos.length; i++) {
+        let v = videos[i];
+        let user = await db.User.findByPk(v.userId);
+        fetchVideoCaptionsAndSummary(v.videoId, user, v);
+      }
+    }
+  }
+);
+// YoutubeSummaryCronJob.start();
+
+const WebScrapperCronJob = nodeCron.schedule("*/2 * * * *", async function () {
+  console.log("Cron Fetch Web Summary");
+  let ai = await db.UserAi.findAll({
+    where: {
+      [db.Sequelize.Op.and]: [
+        {
+          webUrl: {
+            [db.Sequelize.Op.ne]: null,
+          },
+        },
+        {
+          webUrl: {
+            [db.Sequelize.Op.ne]: "",
+          },
+        },
+        {
+          webUrlScrapedData: {
+            [db.Sequelize.Op.eq]: "",
+          },
+        },
+      ],
+    },
+  });
+
+  if (ai) {
+    console.log("Websites Found :", ai.length);
+    for (let i = 0; i < ai.length; i++) {
+      let v = ai[i];
+      let user = await db.User.findByPk(v.userId);
+      let data = await ScrapWebUrl(user, v.webUrl);
+    }
+  } else {
+    console.log("No sites");
+  }
+});
+WebScrapperCronJob.start();

@@ -26,7 +26,11 @@ export const CreatorDashboard = async (req, res) => {
         },
       });
       let data = await getUserCallStats(userId);
-      res.send({ status: true, data: {...data, products}, message: "Dashboard" });
+      res.send({
+        status: true,
+        data: { ...data, products },
+        message: "Dashboard",
+      });
     } else {
       res.send({ status: false, data: null, message: "Unauthenticated user" });
     }
@@ -204,12 +208,13 @@ export const MyAi = async (req, res) => {
 };
 
 export const AssistantCalls = async (req, res) => {
-  let offset = req.body.offset || 0;
+  let offset = req.query.offset || 0;
+  let search = req.query.search || "";
   let limit = 20;
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
-      let calls = await getPaginatedCalls(userId, offset, limit);
+      let calls = await getPaginatedCalls(userId, offset, limit, search);
 
       res.send({ status: true, data: calls, message: "My AI" });
     } else {
@@ -218,13 +223,33 @@ export const AssistantCalls = async (req, res) => {
   });
 };
 
-async function getPaginatedCalls(userId, offset, limit = 10) {
-  // Fetch paginated calls
-  const calls = await db.CallModel.findAll({
+async function getPaginatedCalls(userId, offset, limit = 10, search = "") {
+  // Define the search condition
+  const searchCondition = search
+    ? {
+        [db.Sequelize.Op.or]: [
+          { "$caller.name$": { [db.Sequelize.Op.like]: `%${search}%` } },
+          { "$caller.username$": { [db.Sequelize.Op.like]: `%${search}%` } },
+        ],
+      }
+    : {};
+
+  // Fetch paginated calls with search condition
+  let calls = await db.CallModel.findAll({
     where: {
       modelId: userId,
-      status: "completed",
+      status: {
+        [db.Sequelize.Op.in]: ["completed", "hangup_on_voicemail"],
+      },
+      ...searchCondition,
     },
+    include: [
+      {
+        model: db.User,
+        as: "caller", // Use the correct alias as defined in your association
+        attributes: ["name", "username"], // Fetch only required fields
+      },
+    ],
     offset: offset,
     limit: limit,
   });
@@ -233,7 +258,16 @@ async function getPaginatedCalls(userId, offset, limit = 10) {
   const allCalls = await db.CallModel.findAll({
     where: {
       modelId: userId,
+      status: {
+        [db.Sequelize.Op.in]: ["completed", "hangup_on_voicemail"],
+      },
     },
+    include: [
+      {
+        model: db.User,
+        as: "caller", // Use the correct alias as defined in your association
+      },
+    ],
   });
 
   const totalCalls = allCalls.length;
@@ -244,9 +278,13 @@ async function getPaginatedCalls(userId, offset, limit = 10) {
   );
   const totalMinutes = Math.floor(totalDurationSeconds / 60);
 
+  const creatorAiData = await db.UserAi.findOne({
+    where: { userId: userId },
+  });
+  const ratePerMinute = creatorAiData ? creatorAiData.price : 0;
   const revenue = allCalls.reduce((sum, call) => {
     const durationMinutes = Math.floor(Number(call.duration) / 60);
-    return sum + Math.max(0, durationMinutes) * 10;
+    return sum + Math.max(0, durationMinutes) * ratePerMinute;
   }, 0);
 
   return {
