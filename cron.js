@@ -213,7 +213,7 @@ const WebScrapperCronJob = nodeCron.schedule("*/2 * * * *", async function () {
         },
         {
           webUrlScrapedData: {
-            [db.Sequelize.Op.eq]: "",
+            [db.Sequelize.Op.is]: null,
           },
         },
       ],
