@@ -196,39 +196,42 @@ const YoutubeSummaryCronJob = nodeCron.schedule(
 );
 // YoutubeSummaryCronJob.start();
 
-const WebScrapperCronJob = nodeCron.schedule("*/1 * * * *", async function () {
-  console.log("Cron Fetch Web Summary");
-  let ai = await db.UserAi.findAll({
-    where: {
-      [db.Sequelize.Op.and]: [
-        {
-          webUrl: {
-            [db.Sequelize.Op.ne]: null,
+const WebScrapperCronJob = nodeCron.schedule(
+  "*/30 * * * * *",
+  async function () {
+    console.log("Cron Fetch Web Summary");
+    let ai = await db.UserAi.findAll({
+      where: {
+        [db.Sequelize.Op.and]: [
+          {
+            webUrl: {
+              [db.Sequelize.Op.ne]: null,
+            },
           },
-        },
-        {
-          webUrl: {
-            [db.Sequelize.Op.ne]: "",
+          {
+            webUrl: {
+              [db.Sequelize.Op.ne]: "",
+            },
           },
-        },
-        {
-          webUrlScrapedData: {
-            [db.Sequelize.Op.is]: null,
+          {
+            webUrlScrapedData: {
+              [db.Sequelize.Op.is]: null,
+            },
           },
-        },
-      ],
-    },
-  });
+        ],
+      },
+    });
 
-  if (ai) {
-    console.log("Websites Found :", ai.length);
-    for (let i = 0; i < ai.length; i++) {
-      let v = ai[i];
-      let user = await db.User.findByPk(v.userId);
-      let data = await ScrapWebUrl(user, v.webUrl);
+    if (ai) {
+      console.log("Websites Found :", ai.length);
+      for (let i = 0; i < ai.length; i++) {
+        let v = ai[i];
+        let user = await db.User.findByPk(v.userId);
+        let data = await ScrapWebUrl(user, v.webUrl);
+      }
+    } else {
+      console.log("No sites");
     }
-  } else {
-    console.log("No sites");
   }
-});
+);
 WebScrapperCronJob.start();

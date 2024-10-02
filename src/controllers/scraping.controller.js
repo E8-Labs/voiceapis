@@ -76,6 +76,7 @@ export const ScrapWebUrl = async (
   //Use GPT to scrape the data
 
   let scrapedData = await scrapUrl(url);
+  console.log("Data scraped ", scrapedData);
   let prompt = `Website URL: ${url}
 
 Part 1: Chunk and Extract Key Information
