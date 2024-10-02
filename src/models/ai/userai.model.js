@@ -69,7 +69,7 @@ const UserAi = (sequelize, Sequelize) => {
     },
     webUrlScrapedData: {
       type: Sequelize.TEXT("medium"),
-      defaultValue: "",
+      // defaultValue: "",
     },
     goalType: {
       // product, webinar, other
