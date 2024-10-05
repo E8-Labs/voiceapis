@@ -100,6 +100,8 @@ fastify.all("/incoming-call", async (request, reply) => {
   const callSid = request.query.CallSid || ""; // Get the CallSid from the incoming call
   console.log(`Call started with Call SID: ${callSid}`);
 
+  console.log(`Call started at hose: ${request.headers.host}`);
+
   const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
                           <Response>
                               <Say>Please wait</Say>
