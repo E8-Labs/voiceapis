@@ -197,6 +197,7 @@ export const BuildAiScript = async (req, res) => {
 };
 
 export const UpdateYourAi = async (req, res) => {
+  console.log("updating AI");
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
@@ -224,6 +225,7 @@ export const UpdateYourAi = async (req, res) => {
       //console.log("URLS in request", {fb_url, insta_url, youtube_url, discord_url, twitter_url})
       let audio = null;
       if (req.files.media) {
+        console.log("Audio in update AI");
         let file = req.files.media[0];
 
         const mediaBuffer = file.buffer;
