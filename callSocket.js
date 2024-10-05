@@ -221,6 +221,17 @@ fastify.post("/call-status", async (request, reply) => {
   reply.sendStatus(200);
 });
 
+// Define the GET route for call-status
+fastify.get("/call-status", async (request, reply) => {
+  const { CallSid, CallStatus, From, To, Duration } = request.query;
+  console.log(
+    `GET Call SID: ${CallSid}, Status: ${CallStatus}, From: ${From}, To: ${To}, Duration: ${Duration}`
+  );
+
+  // Handle the status update
+  reply.status(200).send("Status received");
+});
+
 // Start the server
 fastify.listen({ port: PORT }, (err) => {
   if (err) {
