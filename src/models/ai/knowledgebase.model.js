@@ -7,10 +7,12 @@ const KnowledgeBase = (sequelize, Sequelize) => {
     content: {
       type: Sequelize.TEXT("medium"),
       defaultValue: "",
+      // allowNull: true,
     },
     processedData: {
       type: Sequelize.TEXT("medium"),
-      defaultValue: "",
+      allowNull: true,
+      // defaultValue: "",
     },
     documentUrl: {
       type: Sequelize.STRING,
