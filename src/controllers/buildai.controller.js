@@ -222,6 +222,8 @@ export const UpdateYourAi = async (req, res) => {
         goalUrl,
       } = req.body;
 
+      const updateData = {};
+
       //console.log("URLS in request", {fb_url, insta_url, youtube_url, discord_url, twitter_url})
       let audio = null;
       if (req.files.media) {
@@ -249,8 +251,6 @@ export const UpdateYourAi = async (req, res) => {
           updateData.audio = audio;
         }
       }
-
-      const updateData = {};
 
       if (name !== null && name !== undefined) updateData.name = name;
       if (action !== null && action !== undefined) updateData.action = action;
