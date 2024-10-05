@@ -247,7 +247,7 @@ export const UpdateYourAi = async (req, res) => {
           const audioPath = path.join(audioDir, mediaFilename);
           fs.writeFileSync(audioPath, mediaBuffer);
           // image = `/uploads/images/${mediaFilename}`;
-          audio = `https://www.blindcircle.com:444/neo/uploads/audios/${mediaFilename}`;
+          audio = `https://www.blindcircle.com:444/voiceapp/uploads/audios/${mediaFilename}`;
           updateData.audio = audio;
         }
       }
