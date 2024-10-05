@@ -6,103 +6,96 @@ import UserProfileLiteResource from "./userprofileliteresource.js";
 const Op = db.Sequelize.Op;
 
 const CallLiteResource = async (user, currentUser = null) => {
-    if (!Array.isArray(user)) {
-        ////////console.log("Not array")
-        return await getUserData(user, currentUser);
+  if (!Array.isArray(user)) {
+    ////////console.log("Not array")
+    return await getUserData(user, currentUser);
+  } else {
+    ////////console.log("Is array")
+    const data = [];
+    for (let i = 0; i < user.length; i++) {
+      const p = await getUserData(user[i], currentUser);
+      ////////console.log("Adding to index " + i)
+      data.push(p);
     }
-    else {
-        ////////console.log("Is array")
-        const data = []
-        for (let i = 0; i < user.length; i++) {
-            const p = await getUserData(user[i], currentUser)
-            ////////console.log("Adding to index " + i)
-            data.push(p);
-        }
 
-        return data;
-    }
-}
+    return data;
+  }
+};
 
 async function getUserData(call, currentUser = null) {
+  //caller can be identified with the phone number in the call object
+  let caller = await db.User.findOne({
+    where: {
+      id: call.userId,
+    },
+  });
+  let callRes = null;
+  if (caller) {
+    callRes = await UserProfileLiteResource(caller);
+  }
 
-    //caller can be identified with the phone number in the call object
-    let caller = await db.User.findOne({
-        where:{
-            id: call.userId
-        }
-    })
-    let callRes = null
-    if(caller){
-        callRes = await UserProfileFullResource(caller)
-    }
+  //userId in the call object is of the assistant owner with whom we are calling
+  let model = await db.Assistant.findOne({
+    where: {
+      userId: call.modelId,
+    },
+  });
 
-    //userId in the call object is of the assistant owner with whom we are calling 
-    let model = await db.Assistant.findOne({
-        where: {
-            userId: call.modelId
-        }
-    })
+  let modelUser = await db.User.findByPk(call.modelId);
+  let chargeAmountForModel = 1;
+  let ai = await db.UserAi.findOne({
+    where: {
+      userId: call.modelId,
+    },
+  });
+  if (ai) {
+    chargeAmountForModel = Number(ai.price) || 1;
+  }
 
-    let modelUser = await db.User.findByPk(call.modelId)
-    let chargeAmountForModel = 1;
-    let ai = await db.UserAi.findOne({
-        where:{
-            userId: call.modelId
-        }
-    })
-    if(ai){
-        chargeAmountForModel = Number(ai.price) || 1;
-    }
+  let totalChargeForCall = (chargeAmountForModel * call.duration) / 60;
 
-    let totalChargeForCall = chargeAmountForModel * call.duration / 60;
+  let min = Math.floor(call.duration / 60) || 0;
+  if (min < 1) {
+    min = 0;
+  }
+  let secs = call.duration % 60 || 0;
+  let durationString = `${min < 10 ? `0${min}` : min}:${
+    secs < 10 ? `0${secs}` : secs
+  }`;
 
-    let min = Math.floor(call.duration / 60) || 0;
-      if (min < 1) {
-        min = 0;
+  let modelRes = null;
+  let message = "";
+  if (modelUser) {
+    // modelRes = await AssistantResource(model)
+    modelRes = await UserProfileLiteResource(modelUser);
+    message = `with ${caller.name.split(" ")[0]}`;
+    if (model.userId) {
+      let modelOwner = await db.User.findByPk(model.userId);
+      if (modelOwner.name) {
+        message = `with ${caller.name.split(" ")[0]}`;
+      } else if (modelOwner.username) {
+        message = `with ${caller.username.split(" ")[0]}`;
       }
-      let secs = call.duration % 60 || 0;
-      let durationString = `${min < 10 ? `0${min}` : min}:${
-        secs < 10 ? `0${secs}` : secs
-      }`;
-
-
-
-    let modelRes = null
-    let message = ""
-    if(modelUser){
-        // modelRes = await AssistantResource(model)
-        modelRes = await UserProfileLiteResource(modelUser)
-        message = `with ${caller.name.split(" ")[0]}`
-        if(model.userId){
-            let modelOwner = await db.User.findByPk(model.userId)
-            if(modelOwner.name){
-                message = `with ${caller.name.split(" ")[0]}`
-            }
-            else if(modelOwner.username){
-                message = `with ${caller.username.split(" ")[0]}`
-            }
-        }
     }
+  }
 
-    
-    const UserFullResource = {
-        id: call.id,
-        callId: call.callId,
-        status: call.status,
-        createdAt: call.createdAt,
-        updatedAt: call.updatedAt,
-        caller: callRes,
-        model: modelRes,
-        message: message,
-        amount: totalChargeForCall,
-        summary: call.summary,
-        transcript: call.transcript,
-        durationString: durationString,
-        durationInSec: call.duration
-    }
+  const UserFullResource = {
+    id: call.id,
+    callId: call.callId,
+    status: call.status,
+    createdAt: call.createdAt,
+    updatedAt: call.updatedAt,
+    caller: callRes,
+    model: modelRes,
+    message: message,
+    amount: totalChargeForCall,
+    summary: call.summary,
+    transcript: call.transcript,
+    durationString: durationString,
+    durationInSec: call.duration,
+  };
 
-
-    return UserFullResource;
+  return UserFullResource;
 }
 
 export default CallLiteResource;

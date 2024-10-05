@@ -7,68 +7,6 @@ import { google } from "googleapis";
 const User = db.User;
 const Op = db.Sequelize.Op;
 
-import * as cheerio from "cheerio";
-import puppeteer from "puppeteer";
-
-export const ScrapeTweets = async (req, res) => {
-  let url = req.body.url;
-  try {
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
-
-    // Set User-Agent to avoid being blocked
-    await page.setUserAgent(
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
-    );
-
-    await page.goto(url, { waitUntil: "networkidle2" });
-
-    let tweets = [];
-    let previousTweetCount = 0;
-    const maxScrolls = 30; // Increase the number of scrolls
-    let scrollCount = 0;
-
-    while (tweets.length < 100 && scrollCount < maxScrolls) {
-      // Extract tweets from the page
-      const newTweets = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll("article div[lang]")).map(
-          (tweet) => tweet.innerText
-        );
-      });
-
-      tweets = [...tweets, ...newTweets];
-      tweets = [...new Set(tweets)]; // Remove duplicates
-      //console.log("Twwets", tweets);
-      // If no new tweets were loaded, break the loop
-      if (tweets.length === previousTweetCount) {
-        //console.log("No more tweets loaded, breaking out of the loop.");
-        break;
-      }
-
-      previousTweetCount = tweets.length;
-
-      // Scroll down
-      await page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
-
-      // Wait longer between scrolls to allow new content to load
-      await new Promise((resolve) => setTimeout(resolve, 4000));
-
-      scrollCount++;
-    }
-
-    await browser.close();
-    // //console.log(tweets);
-    return res.send({ status: true, message: "Tweets", data: tweets });
-  } catch (error) {
-    console.error("Error fetching the URL:", error);
-    return res.send({
-      status: false,
-      message: "Error fetching the URL:",
-      data: null,
-    });
-  }
-};
-
 export const AddInstagramAuth = async (req, res) => {
   //console.log("Add instagram login api", process.env.InstaClientId);
 
@@ -183,15 +121,17 @@ const fetchYouTubeVideos = async (accessToken) => {
   //console.log("Channel id ", channelId);
   // Fetch the user's videos
   const currentDate = new Date();
-  const threeMonthsAgo = new Date(currentDate.setMonth(currentDate.getMonth() - 3)).toISOString();
+  const threeMonthsAgo = new Date(
+    currentDate.setMonth(currentDate.getMonth() - 3)
+  ).toISOString();
 
   const videosResponse = await youtube.search.list({
     part: "snippet",
     channelId: channelId,
     maxResults: 30,
     type: "video",
-    order: "date",
-    publishedAfter: threeMonthsAgo,
+    order: "viewCount", //"date", //most popular order by views. Most recent order by date
+    // publishedAfter: threeMonthsAgo,
   });
   //console.log("Videos ", videosResponse);
 
@@ -229,6 +169,151 @@ const fetchVideoCaptions = async (youtube, videoId) => {
     : JSON.stringify(captionData);
 };
 
+export const fetchVideoCaptionsAndSummary = async (videoId, user, video) => {
+  let data = "";
+
+  console.log("Fetching Transcript", videoId);
+  let transcript = video.caption;
+  if (transcript == null || transcript == "") {
+    console.log("Dont have transcript. Fetching New");
+    let config = {
+      method: "get",
+      maxBodyLength: Infinity,
+      url: `https://www.searchapi.io/api/v1/search?api_key=cYNn3AVjaS2eVN9yz75YbCCf&engine=youtube_transcripts&video_id=${videoId}`,
+      headers: {
+        Authorization: "Bearer cYNn3AVjaS2eVN9yz75YbCCf",
+      },
+      data: data,
+    };
+
+    let response = await axios.request(config);
+    let resData = response.data;
+    // console.log("Fetched Transcript", response);
+
+    resData.transcripts.map((t) => {
+      transcript += t.text;
+    });
+  } else {
+    console.log("Already have transcript. Using that.");
+  }
+
+  console.log("Fetching Summary", videoId);
+  let summary = await summarizeText(transcript, user, video);
+  video.caption = transcript;
+  video.summary = summary.summary || "";
+  video.tokensUsed = summary.tokensUsed || 0;
+  video.cost = summary.cost || 0;
+  let saved = await video.save();
+  console.log("Fetched Summary", summary.summary);
+  //Summarize here
+};
+
+// The function to summarize text using the GPT-4 model
+async function summarizeText(transcript, user, video) {
+  // console.log("Transcript ", transcript);
+  const model = "gpt-4-turbo"; // You specified gpt-4, or it can be "gpt-4-turbo"
+  const apiUrl = "https://api.openai.com/v1/chat/completions";
+
+  // Pricing details for GPT-4
+  const pricePer1000Tokens = 0.03; // $0.03 per 1K tokens for GPT-4 (adjust this based on OpenAI's pricing)
+
+  try {
+    // Make the request to the OpenAI API
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.AIKey}`,
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          {
+            role: "system",
+            content: `##Objective:
+Your goal is to process the transcript from a YouTube video by ${
+              user.name || ""
+            }, breaking it into manageable chunks of 2000 words. For each chunk, extract the key points, topics, frameworks, and lessons, then generate conversational prompt/response pairs. These pairs should reflect the speaker’s voice, tone, and style, ensuring natural, human-like engagement with intonations, transitional words, and conversational elements such as "umm" and "hmm."
+Additionally, ensure that responses are contextually relevant and consistent with the speaker's perspective, always anticipating follow-up questions that the audience may ask.
+##Transcript Detail:
+This transcript is about the video titled ${video.title} by ${
+              user.name || ""
+            }. There may be one or more speakers in this transcript; label the speakers accurately as ${
+              user.name || ""
+            }, speaker 1, speaker 2, etc. You must distinguish each speaker clearly to maintain accurate context throughout.
+
+##Step 1: Chunk the Transcript
+Chunk the transcript into manageable sections of 2000 words. This range ensures each section is detailed enough to capture key elements while staying within optimal token limits. Each chunk should be labeled based on the word range within the transcript, like so:
+Chunk 1: (First word in chunk - Last word in chunk)
+For each chunk, identify and extract the following elements:
+Main Points: Summarize the essential information or central argument for the chunk.
+Key Topics: List the primary subjects or themes covered in the chunk.
+Frameworks/Models: Identify any strategies, frameworks, or models mentioned.
+Lessons: Highlight the key lessons or takeaways for the listeners.
+Key Message: Summarize the core message that the speaker(s) wants to convey.
+Speaker’s Perspective: Provide the speaker's unique viewpoint on the topic.
+Personal Stories: Identify any personal anecdotes or stories shared by the speaker(s).
+Common Questions: Anticipate typical questions that listeners might ask based on the content.
+Format Example:
+Chunk 1 (First word - Last word):
+Main Points:
+Key Topics:
+Frameworks/Models:
+Lessons:
+Key Message:
+Speaker’s Perspective:
+Personal Stories:
+Common Questions:
+
+##Step 2: Create Prompt/Response Pairs for Each Chunk
+For each chunk, create conversational prompt/response pairs that reflect the key points, frameworks, and lessons discussed. These pairs should cover potential user prompts and the speaker’s natural, human-like responses.
+Response Tone: Ensure the response imitates the speaker’s tone, whether it's formal, casual, instructional, or motivational. If the speaker uses humor, strong opinions, or motivational phrases, reflect this in the response.
+Natural Speech Elements: Include conversational elements like intonations, pauses, filler words (e.g., “umm,” “hmm”), and transitional phrases to create a realistic and engaging conversation flow.
+Prompts to Cover: Ensure that the prompts cover possible user inquiries about the main points, frameworks, lessons, and speaker perspectives from each chunk. Prompts can range from broad questions (e.g., "What was the key message of this section?") to specific queries (e.g., "Can you explain the speaker’s perspective on X?").
+Prompt/Response Example:
+Prompt: "What was the key message in the second part of the video?"
+Response (in the speaker’s voice): "Well, the main thing I wanted to convey here is that success doesn’t happen overnight. You need discipline and the right mindset to make it happen. No shortcuts. You have to stay consistent, even when things get tough—there’s no way around it."
+Prompt: "How does the speaker recommend prioritizing tasks?"
+Response (in the speaker’s voice): "Prioritization is key. I always tell people to focus on what moves the needle the most. Stop wasting time on low-impact tasks and start putting energy into the things that matter—whether it’s your career, relationships, or personal growth."
+
+##Step 3: Ensure Relevance and Consistency
+Contextual Relevance: Always refer back to the key message and focus of the video to keep responses relevant to the video’s content. Ensure that responses align with the speaker’s intended tone and style.
+Consistency in Speaker’s Voice: Keep the speaker’s tone consistent throughout the responses. If the speaker uses a motivational or direct tone, ensure this remains the same in all prompt/response pairs. Avoid shifting styles.
+Flow of Conversation: Keep the dialogue engaging and natural, with transitions between topics where necessary. Responses should sound conversational, rather than robotic or overly formal.
+`,
+          },
+          {
+            role: "user",
+            content: `Here is the transcript: ${transcript}`,
+          },
+        ],
+        max_tokens: 3000, // Limit the number of tokens for the response (adjust as needed)
+      }),
+    });
+
+    // Parse the response
+    const result = await response.json();
+
+    // Extract tokens used and summary from the response
+    console.log("GPT Response ", result);
+    const summary = result.choices[0].message.content;
+    const tokensUsed = result.usage.total_tokens;
+    const cost = (tokensUsed / 1000) * pricePer1000Tokens;
+
+    // Return the summary, token count, and cost in a JSON object
+    return {
+      summary: summary,
+      tokensUsed: tokensUsed,
+      cost: cost.toFixed(4), // Formatting cost to 4 decimal places
+    };
+  } catch (error) {
+    console.error("Error summarizing text:", error);
+    return {
+      error: error.message,
+    };
+  }
+}
+
 //################## Youtube Auth START ####################
 export const AddGoogleAuth = async (req, res) => {
   //console.log("Add Google login API");
@@ -252,15 +337,15 @@ export const AddGoogleAuth = async (req, res) => {
 
         if (googleUser) {
           googleUser.accessToken = accessToken;
-          googleUser.username = youtubeDetails.username
-          googleUser.description = youtubeDetails.description
-          googleUser.location = youtubeDetails.location
-          googleUser.subscriberCount = youtubeDetails.subscriberCount
-          googleUser.videoCount = youtubeDetails.videoCount
-          googleUser.viewCount = youtubeDetails.viewCount
-          googleUser.profilePicture = youtubeDetails.profilePicture
-          googleUser.website = youtubeDetails.website || null
-          googleUser.emailPublic = youtubeDetails.emailPublic || null
+          googleUser.username = youtubeDetails.username;
+          googleUser.description = youtubeDetails.description;
+          googleUser.location = youtubeDetails.location;
+          googleUser.subscriberCount = youtubeDetails.subscriberCount;
+          googleUser.videoCount = youtubeDetails.videoCount;
+          googleUser.viewCount = youtubeDetails.viewCount;
+          googleUser.profilePicture = youtubeDetails.profilePicture;
+          googleUser.website = youtubeDetails.website || null;
+          googleUser.emailPublic = youtubeDetails.emailPublic || null;
           await googleUser.save();
         } else {
           googleUser = await db.GoogleAuthModel.create({

@@ -27,6 +27,10 @@ const Assistant = (sequelize, Sequelize) => {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
+      claimed: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: true,
