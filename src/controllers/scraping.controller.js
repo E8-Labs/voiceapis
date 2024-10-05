@@ -3,12 +3,14 @@ import JWT from "jsonwebtoken";
 import qs from "qs";
 import axios from "axios";
 import { google } from "googleapis";
+import twilio from "twilio";
 
 const User = db.User;
 const Op = db.Sequelize.Op;
 
 import * as cheerio from "cheerio";
 import puppeteer from "puppeteer";
+import { addToVectorDb, findVectorData } from "../services/pindeconedb.js";
 
 export const ScrapeTweets = async (req, res) => {
   let url = req.body.url;
@@ -248,5 +250,248 @@ async function summarizeText(promptText) {
     return {
       error: error.message,
     };
+  }
+}
+
+export const AddKnowledgeBase = async (req, res) => {
+  let text = req.body.text;
+  let type = req.body.type || "text";
+  let userId = req.body.userId;
+
+  let user = await db.User.findByPk(userId);
+  if (!user) {
+    return res.send({ message: "No such user", status: false });
+  }
+
+  let added = await addToVectorDb(text, user, type);
+  if (added) {
+    return res.send({ message: "Added", status: true, data: added });
+  }
+  return res.send({ message: "Not added", status: false });
+};
+
+const getDatingAdviceFromTristan = async (text, user) => {
+  // we decide which index to go to
+
+  let context = await findVectorData(text, user, "kb-index-processed"); // string context
+  let rawContext = await findVectorData(text, user, "kb-index-transcript");
+
+  return context + rawContext;
+};
+
+export async function ChatTristan(req, res) {
+  let message = req.body.message;
+  let chatId = req.body.chatId;
+
+  let assistant = await db.User.findByPk(7);
+  // console.log("Transcript ", transcript);
+  const model = "gpt-4o"; // You specified gpt-4, or it can be "gpt-4-turbo"
+  const apiUrl = "https://api.openai.com/v1/chat/completions";
+
+  // Pricing details for GPT-4
+
+  let BasePrompt = `Get the business advice for customer from alex. Call this whenever you need to know the business or sales advice, 
+        for example when a user asks 'How can I improve my sales tactics to be more effective?' OR 'Can you give advice
+         on closing a sale effectively?' OR 'How do you balance emotional appeal with logical arguments in your sales 
+         process?' OR 'Strategies to improve business' OR 'Sales approach to different types of customers' OR
+           OR 'deal with a potential customer who seems interested but hesitan' OR 'sales pitches less about the sale 
+           and more about the relationship?' 'Grow business' OR 'Grow Sales', 'Engage Customers' OR 'Hiring the right team' OR similar broad 
+           spectrum of things related to business etc`;
+
+  BasePrompt = `If users ask about business, 13 Years of No BS Business Advice in 79 Mins, How to Sell Better than 99% Of People, 
+  life events, personal stories, then access or use this knowledge base.`;
+  const tools = [
+    {
+      type: "function",
+      function: {
+        name: "get_business_advice",
+        description: BasePrompt,
+        parameters: {
+          type: "object",
+          properties: {
+            user_question: {
+              type: "string",
+              description: "The customer's question about business or sales.",
+            },
+          },
+          required: ["user_question"],
+          additionalProperties: false,
+        },
+      },
+    },
+  ];
+  //   let dbMessages = await db.ChatModel.findAll({
+  //     where: {
+
+  //     }
+  //   })
+
+  const messages = [
+    {
+      role: "system",
+      content: `You're a helpful business coach and motivational speaker. 
+        So help the user regarding their business related queries. 
+        Motivate them if they're feeling down.  Make sure you follow
+         the tone of the speaker from the context given.`,
+    },
+    {
+      role: "user",
+      content: message,
+    },
+  ];
+
+  const pricePer1000Tokens = 0.03; // $0.03 per 1K tokens for GPT-4 (adjust this based on OpenAI's pricing)
+
+  try {
+    // Make the request to the OpenAI API
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.AIKey}`,
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: messages,
+        tools: tools,
+        max_tokens: 1000, // Limit the number of tokens for the response (adjust as needed)
+      }),
+    });
+
+    // Parse the response
+    const result = await response.json();
+
+    // Extract tokens used and summary from the response
+    console.log("GPT Response ", result);
+    const mess = result.choices[0].message;
+    let summary = null;
+    if (mess.tool_calls && mess.tool_calls.length > 0) {
+      let tool = mess.tool_calls[0];
+      if (tool.function.name == "get_business_advice") {
+        console.log("Call the date advice function");
+        let argumentString = tool.function.arguments;
+        let jsonArgs = JSON.parse(argumentString);
+        let user_question = jsonArgs.user_question;
+
+        let advice = await getDatingAdviceFromTristan(user_question, assistant);
+        if (advice) {
+          console.log("Found advice", advice);
+          //   call open ai to generate a message
+          let responseAI = await callOpenAi(user_question, advice);
+          return res.send(responseAI);
+        } else {
+          console.log("Not able to find advice");
+        }
+      }
+    } else {
+      summary = mess.content;
+      const tokensUsed = result.usage.total_tokens;
+      const cost = (tokensUsed / 1000) * pricePer1000Tokens;
+
+      // Return the summary, token count, and cost in a JSON object
+      return res.send({
+        message: summary,
+        tokensUsed: tokensUsed,
+        cost: cost.toFixed(4), // Formatting cost to 4 decimal places
+      });
+    }
+  } catch (error) {
+    console.error("Error summarizing text:", error);
+    return res.send({
+      error: error.message,
+    });
+  }
+}
+
+async function callOpenAi(message, data) {
+  const model = "gpt-4o"; // You specified gpt-4, or it can be "gpt-4-turbo"
+  const apiUrl = "https://api.openai.com/v1/chat/completions";
+
+  try {
+    // Make the request to the OpenAI API
+    let messages = [
+      { role: "system", content: data },
+      {
+        role: "system",
+        content: `You're a helpful business coach and motivational speaker. So help the user regarding 
+          their business related queries. Motivate them if they're feeling down. Make sure you 
+          follow the tone of the speaker from the context given. Keep the answer short and to the point. 
+          Complete the answer in max 250 tokens or as less as you can. Also mention the tone of the speaker 
+          from the given context and tell if this was ai response or derived from context. Make it look more like
+          the context provided. Use as less rephrasing as you can. Provide a json format response like 
+          {response: "here goes detailed response", tone: "Tone of speaker", rephrased: "Percentage of rephrasal "}`,
+      },
+      { role: "user", content: message },
+    ];
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.AIKey}`,
+      },
+
+      body: JSON.stringify({
+        model: model,
+        messages: messages,
+        max_tokens: 1000, // Limit the number of tokens for the response (adjust as needed)
+      }),
+    });
+
+    // Parse the response
+    const result = await response.json();
+
+    // Extract tokens used and summary from the response
+    console.log("GPT Response ", result);
+    const mess = result.choices[0].message;
+    let summary = null;
+    if (mess.tool_calls && mess.tool_calls.length > 0) {
+      let tool = mess.tool_calls[0];
+      if (tool.function.name == "get_date_advice") {
+        console.log("Call the date advice function");
+
+        let advice = getDatingAdviceFromTristan();
+        if (advice) {
+          //call open ai to generate a message
+        }
+      }
+    } else {
+      summary = mess.content;
+      //   const tokensUsed = result.usage.total_tokens;
+      //   const cost = (tokensUsed / 1000) * pricePer1000Tokens;
+
+      // Return the summary, token count, and cost in a JSON object
+      return {
+        message: summary,
+        // tokensUsed: tokensUsed,
+        // cost: cost.toFixed(4), // Formatting cost to 4 decimal places
+      };
+    }
+  } catch (error) {
+    console.error("Error summarizing text:", error);
+    return {
+      error: error.message,
+    };
+  }
+}
+
+export async function StartCallTwilio(req, res) {
+  let toPhoneNumber = req.body.phone;
+  const client = twilio(
+    process.env.TWILIO_ACCOUNT_SID,
+    process.env.TWILIO_AUTH_TOKEN
+  );
+  try {
+    // Make an outbound call using Twilio
+    const call = await client.calls.create({
+      url: "https://05fe-182-186-75-123.ngrok-free.app/incoming-call", // URL for TwiML to handle the call logic
+      to: toPhoneNumber, // Destination number
+      from: "+12136064500", // Twilio number you're calling from (213) 606-4500
+    });
+
+    console.log(`Call initiated successfully! Call SID: ${call.sid}`);
+    return call.sid; // Return the Call SID for tracking
+  } catch (error) {
+    console.error("Error initiating the call:", error);
+    throw error;
   }
 }

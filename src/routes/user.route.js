@@ -38,7 +38,12 @@ import {
   AddGoogleAuth,
   TestUserYoutubeDetails,
 } from "../controllers/socialauth.controller.js";
-import { ScrapeTweets } from "../controllers/scraping.controller.js";
+import {
+  ScrapeTweets,
+  ChatTristan,
+  StartCallTwilio,
+  AddKnowledgeBase,
+} from "../controllers/scraping.controller.js";
 
 import { CreateWebHook, SubscriptionUpdated } from "../services/stripe.js";
 import {
@@ -148,4 +153,10 @@ UserRouter.get(
   uploadFiles,
   GetCreatorsAndTopProducts
 );
+
+UserRouter.post("/chat", uploadFiles, ChatTristan);
+UserRouter.post("/twilio_call", uploadFiles, StartCallTwilio);
+
+//Vector DB Setup
+UserRouter.post("/add_kb", uploadFiles, AddKnowledgeBase);
 export default UserRouter;

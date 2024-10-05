@@ -12,73 +12,77 @@ import YouTubeVideo from "./videos.model.js";
 import PurchasedProduct from "./ai/purchasedproducts.model.js";
 import UserCallSummary from "./usercallsummary.model.js";
 
+import AIProfile from "./ai/aiprofile.model.js";
 
-import Sequelize from 'sequelize'
+import ChatModel from "./chat.model.js";
+
+import Sequelize from "sequelize";
 import SocialAuthModel from "./socialauth.model.js";
 import GoogleAuthModel from "./googleauth.model.js";
 import SubscriptionModel from "./subscription.model.js";
 
-const sequelize = new Sequelize(dbConfig.MYSQL_DB, dbConfig.MYSQL_DB_USER, dbConfig.MYSQL_DB_PASSWORD, {
-  host: dbConfig.MYSQL_DB_HOST,
-  port: dbConfig.MYSQL_DB_PORT,
-  dialect: dbConfig.dialect,
-  logging: false
-});
+const sequelize = new Sequelize(
+  dbConfig.MYSQL_DB,
+  dbConfig.MYSQL_DB_USER,
+  dbConfig.MYSQL_DB_PASSWORD,
+  {
+    host: dbConfig.MYSQL_DB_HOST,
+    port: dbConfig.MYSQL_DB_PORT,
+    dialect: dbConfig.dialect,
+    logging: false,
+  }
+);
 
 try {
   await sequelize.authenticate();
   //console.log('Connection has been established successfully.');
 } catch (error) {
-  console.error('Unable to connect to the database:', error);
+  console.error("Unable to connect to the database:", error);
 }
 
-
-
 const db = {};
-let models = {}
+let models = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
- 
+
+db.ChatModel = ChatModel(sequelize, Sequelize);
+models["ChatModel"] = db.ChatModel;
 
 db.User = User(sequelize, Sequelize);
-models["User"] = db.User
+models["User"] = db.User;
 
 db.CallModel = CallModel(sequelize, Sequelize);
-models["CallModel"] = db.CallModel
+models["CallModel"] = db.CallModel;
 
-db.User.hasMany(db.CallModel, { foreignKey: 'userId' }); // One user (caller) can have many calls
-db.CallModel.belongsTo(db.User, { foreignKey: 'userId', as: 'caller' }); // A call belongs to a user (caller)
+db.User.hasMany(db.CallModel, { foreignKey: "userId" }); // One user (caller) can have many calls
+db.CallModel.belongsTo(db.User, { foreignKey: "userId", as: "caller" }); // A call belongs to a user (caller)
 
 db.Assistant = Assistant(sequelize, Sequelize);
-models["Assistant"] = db.Assistant
+models["Assistant"] = db.Assistant;
 
-db.PhoneVerificationCodeModel = PhoneVerificationCodeModel(sequelize, Sequelize);
-models["PhoneVerificationCodeModel"] = db.PhoneVerificationCodeModel
+db.PhoneVerificationCodeModel = PhoneVerificationCodeModel(
+  sequelize,
+  Sequelize
+);
+models["PhoneVerificationCodeModel"] = db.PhoneVerificationCodeModel;
 
 db.UserAi = UserAi(sequelize, Sequelize);
-models["UserAi"] = db.UserAi
+models["UserAi"] = db.UserAi;
 
-
-
-
-db.User.hasMany(db.UserAi, { foreignKey: 'userId' });
-db.UserAi.belongsTo(db.User, { foreignKey: 'userId' });
-
-
-
+db.User.hasMany(db.UserAi, { foreignKey: "userId" });
+db.UserAi.belongsTo(db.User, { foreignKey: "userId" });
 
 db.SellingProducts = SellingProducts(sequelize, Sequelize);
-models["SellingProducts"] = db.SellingProducts
+models["SellingProducts"] = db.SellingProducts;
 
 db.KycQuestions = KycQuestions(sequelize, Sequelize);
-models["KycQuestions"] = db.KycQuestions
+models["KycQuestions"] = db.KycQuestions;
 
 db.EmailVerificationCode = EmailVerificationCode(sequelize, Sequelize);
-models["EmailVerificationCode"] = db.EmailVerificationCode
+models["EmailVerificationCode"] = db.EmailVerificationCode;
 
 db.KnowledgeBase = KnowledgeBase(sequelize, Sequelize);
 models["KnowledgeBase"] = db.KnowledgeBase;
-
 
 db.SocialAuthModel = SocialAuthModel(sequelize, Sequelize);
 models["SocialAuthModel"] = db.SocialAuthModel;
@@ -89,10 +93,8 @@ models["GoogleAuthModel"] = db.GoogleAuthModel;
 db.YouTubeVideo = YouTubeVideo(sequelize, Sequelize);
 models["YouTubeVideo"] = db.YouTubeVideo;
 
-
 db.SubscriptionModel = SubscriptionModel(sequelize, Sequelize);
 models["SubscriptionModel"] = db.SubscriptionModel;
-
 
 db.PurchasedProduct = PurchasedProduct(sequelize, Sequelize);
 models["PurchasedProduct"] = db.PurchasedProduct;
@@ -100,11 +102,13 @@ models["PurchasedProduct"] = db.PurchasedProduct;
 db.UserCallSummary = UserCallSummary(sequelize, Sequelize);
 models["UserCallSummary"] = db.UserCallSummary;
 
-Object.keys(models).forEach(modelName => {
+db.AIProfile = AIProfile(sequelize, Sequelize);
+models["AIProfile"] = db.AIProfile;
+
+Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {
     models[modelName].associate(models);
   }
 });
-
 
 export default db;
