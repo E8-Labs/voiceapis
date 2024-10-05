@@ -113,26 +113,24 @@ fastify.all("/incoming-call", async (request, reply) => {
                           </Response>`;
   reply.type("text/xml").send(twimlResponse);
 });
+const openAiWs = new WebSocket(
+  "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01",
+  {
+    headers: {
+      Authorization: `Bearer ${AIKey}`,
+      "OpenAI-Beta": "realtime=v1",
+    },
+  }
+);
+openAiWs.on("open", () => {
+  console.log("Connected to OpenAI Realtime API");
+});
 // WebSocket route for media-stream
 fastify.register(async (fastify) => {
   fastify.get("/media-stream", { websocket: true }, (connection, req) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const callSid = url.searchParams.get("callSid"); // Retrieve CallSid from query
     console.log(`Handling media stream for Call SID: ${callSid}`);
-
-    const openAiWs = new WebSocket(
-      "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01",
-      {
-        headers: {
-          Authorization: `Bearer ${AIKey}`,
-          "OpenAI-Beta": "realtime=v1",
-        },
-      }
-    );
-
-    openAiWs.on("open", () => {
-      console.log("Connected to OpenAI Realtime API");
-    });
 
     // Handle incoming messages from Twilio (user audio)
     connection.on("message", async (message) => {
