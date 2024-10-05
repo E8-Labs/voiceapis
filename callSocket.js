@@ -4,16 +4,31 @@ import fs from "fs";
 import dotenv from "dotenv";
 import fastifyFormBody from "@fastify/formbody";
 import fastifyWs from "@fastify/websocket";
-import axios from "axios"; // Add axios to handle Whisper API requests
-import { writeFile } from "fs/promises";
-import { exec } from "child_process"; // For converting audio format using sox or ffmpeg
+
+// Load environment variables from .env file
+dotenv.config();
+
+// Retrieve the OpenAI API key from environment variables. You must have OpenAI Realtime API access.
+const { OPENAI_API_KEY } = process.env;
+
+if (!OPENAI_API_KEY) {
+  console.error("Missing OpenAI API key. Please set it in the .env file.");
+  process.exit(1);
+}
+
+// Initialize Fastify
+const fastify = Fastify();
+fastify.register(fastifyFormBody);
+fastify.register(fastifyWs);
 
 // Constants
-export const SYSTEM_MESSAGE =
-  "You are a helpful and knowledgeable AI assistant who loves to chat about business, sales, and maintaining a business. You also answer based on the user's previous conversation history and additional context.";
-export const VOICE = "alloy";
-export const PORT = 5050;
-export const LOG_EVENT_TYPES = [
+const SYSTEM_MESSAGE =
+  "You are a helpful and bubbly AI assistant who loves to chat about anything the user is interested about and is prepared to offer them facts. You have a penchant for dad jokes, owl jokes, and rickrolling – subtly. Always stay positive, but work in a joke when appropriate.";
+const VOICE = "alloy";
+const PORT = process.env.PORT || 5050; // Allow dynamic port assignment
+
+// List of Event Types to log to the console. See OpenAI Realtime API Documentation. (session.updated is handled separately.)
+const LOG_EVENT_TYPES = [
   "response.content.done",
   "rate_limits.updated",
   "response.done",
@@ -23,167 +38,125 @@ export const LOG_EVENT_TYPES = [
   "session.created",
 ];
 
-// Load environment variables
-dotenv.config();
-const AIKey = process.env.OPENAI_API_KEY;
-if (!AIKey) {
-  console.error("Missing OpenAI API key. Please set it in the .env file.");
-  process.exit(1);
-}
+// Root Route
+fastify.get("/", async (request, reply) => {
+  reply.send({ message: "Twilio Media Stream Server is running!" });
+});
 
-// Function to transcribe audio using Whisper API
-async function transcribeAudio(filePath) {
-  try {
-    const formData = new FormData();
-    formData.append("file", fs.createReadStream(filePath));
-    formData.append("model", "whisper-1");
-
-    const response = await axios.post(
-      "https://api.openai.com/v1/audio/transcriptions",
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${AIKey}`,
-          ...formData.getHeaders(),
-        },
-      }
-    );
-    return response.data.text; // This will return the transcription text
-  } catch (error) {
-    console.error(
-      "Error transcribing audio:",
-      error.response ? error.response.data : error.message
-    );
-    return null;
-  }
-}
-
-// Simulate fetching knowledge base based on query
-async function getKnowledgeBase(query) {
-  if (query.includes("business")) {
-    return "Business growth strategies include expanding into new markets and improving customer retention.";
-  } else if (query.includes("sales")) {
-    return "For improving sales, focus on understanding customer needs and optimizing your sales process.";
-  }
-  return "No specific knowledge base found for this query.";
-}
-
-// Save base64 audio data as a file
-async function saveAudioFile(base64Data, filePath) {
-  const buffer = Buffer.from(base64Data, "base64");
-  await writeFile(filePath, buffer);
-  console.log(`Audio saved to ${filePath}`);
-}
-
-// Convert G711 ulaw audio to mp3 or wav using ffmpeg or sox
-async function convertAudio(inputFilePath, outputFilePath) {
-  return new Promise((resolve, reject) => {
-    // You can use sox or ffmpeg installed on the system to convert the file
-    const command = `ffmpeg -y -f ulaw -ar 8000 -i ${inputFilePath} ${outputFilePath}`; // Example using ffmpeg
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error converting audio: ${error.message}`);
-        return reject(error);
-      }
-      console.log(`Audio converted to ${outputFilePath}`);
-      resolve(outputFilePath);
-    });
-  });
-}
-
-// Initialize Fastify
-const fastify = Fastify();
-fastify.register(fastifyFormBody);
-fastify.register(fastifyWs);
-
+// Route for Twilio to handle incoming and outgoing calls
+// <Say> punctuation to improve text-to-speech translation
 fastify.all("/incoming-call", async (request, reply) => {
   const callSid = request.query.CallSid || ""; // Get the CallSid from the incoming call
   console.log(`Call started with Call SID: ${callSid}`);
 
   console.log(`Call started at hose: ${request.headers.host}`);
-
   const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
                           <Response>
-                              <Say>Please wait</Say>
+                              <Say>Please wait while we connect your call to the AI</Say>
                               <Pause length="1"/>
-                              <Say>OK, Speak!</Say>
+                              <Say>Start talking</Say>
                               <Connect>
                                   <Stream url="wss://${request.headers.host}:5050/media-stream?callSid=${callSid}" />
                               </Connect>
                           </Response>`;
+
   reply.type("text/xml").send(twimlResponse);
 });
-const openAiWs = new WebSocket(
-  "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01",
-  {
-    headers: {
-      Authorization: `Bearer ${AIKey}`,
-      "OpenAI-Beta": "realtime=v1",
-    },
-  }
-);
-openAiWs.on("open", () => {
-  console.log("Connected to OpenAI Realtime API");
-});
+
 // WebSocket route for media-stream
 fastify.register(async (fastify) => {
   fastify.get("/media-stream", { websocket: true }, (connection, req) => {
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const callSid = url.searchParams.get("callSid"); // Retrieve CallSid from query
-    console.log(`Handling media stream for Call SID: ${callSid}`);
+    console.log("Client connected");
 
-    // Handle incoming messages from Twilio (user audio)
-    connection.on("message", async (message) => {
+    const openAiWs = new WebSocket(
+      "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01",
+      {
+        headers: {
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+          "OpenAI-Beta": "realtime=v1",
+        },
+      }
+    );
+
+    let streamSid = null;
+
+    const sendSessionUpdate = () => {
+      const sessionUpdate = {
+        type: "session.update",
+        session: {
+          turn_detection: { type: "server_vad" },
+          input_audio_format: "g711_ulaw",
+          output_audio_format: "g711_ulaw",
+          voice: VOICE,
+          instructions: SYSTEM_MESSAGE,
+          modalities: ["text", "audio"],
+          temperature: 0.8,
+        },
+      };
+
+      console.log("Sending session update:", JSON.stringify(sessionUpdate));
+      openAiWs.send(JSON.stringify(sessionUpdate));
+    };
+
+    // Open event for OpenAI WebSocket
+    openAiWs.on("open", () => {
+      console.log("Connected to the OpenAI Realtime API");
+      setTimeout(sendSessionUpdate, 250); // Ensure connection stability, send after .25 seconds
+    });
+
+    // Listen for messages from the OpenAI WebSocket (and send to Twilio if necessary)
+    openAiWs.on("message", (data) => {
+      try {
+        const response = JSON.parse(data);
+
+        if (LOG_EVENT_TYPES.includes(response.type)) {
+          console.log(`Received event: ${response.type}`, response);
+        }
+
+        if (response.type === "session.updated") {
+          console.log("Session updated successfully:", response);
+        }
+
+        if (response.type === "response.audio.delta" && response.delta) {
+          const audioDelta = {
+            event: "media",
+            streamSid: streamSid,
+            media: {
+              payload: Buffer.from(response.delta, "base64").toString("base64"),
+            },
+          };
+          connection.send(JSON.stringify(audioDelta));
+        }
+      } catch (error) {
+        console.error(
+          "Error processing OpenAI message:",
+          error,
+          "Raw message:",
+          data
+        );
+      }
+    });
+
+    // Handle incoming messages from Twilio
+    connection.on("message", (message) => {
       try {
         const data = JSON.parse(message);
+
         switch (data.event) {
           case "media":
-            console.log("Receiving user audio stream");
-            const userAudioBase64 = data.media.payload; // Audio in base64
+            if (openAiWs.readyState === WebSocket.OPEN) {
+              const audioAppend = {
+                type: "input_audio_buffer.append",
+                audio: data.media.payload,
+              };
 
-            // Save the audio to a file
-            const rawAudioFile = `./audio_${callSid}.ulaw`; // Save as ulaw
-            const finalAudioFile = `./audio_${callSid}.mp3`; // Converted to mp3
-
-            await saveAudioFile(userAudioBase64, rawAudioFile);
-
-            // Convert to mp3 or wav using ffmpeg or sox
-            await convertAudio(rawAudioFile, finalAudioFile);
-
-            // Transcribe the converted audio using Whisper API
-            const transcription = await transcribeAudio(finalAudioFile);
-            console.log("User transcription:", transcription);
-
-            // If transcription contains business/sales, fetch knowledge base
-            let context = "";
-            if (
-              transcription &&
-              (transcription.includes("business") ||
-                transcription.includes("sales"))
-            ) {
-              context = await getKnowledgeBase(transcription);
+              openAiWs.send(JSON.stringify(audioAppend));
             }
-
-            // Send session update with context
-            const sessionUpdateWithContext = {
-              type: "session.update",
-              session: {
-                knowledge_base: [context],
-                modalities: ["text", "audio"],
-                voice: VOICE,
-              },
-            };
-            console.log(
-              "Sending session update with context:",
-              JSON.stringify(sessionUpdateWithContext)
-            );
-            openAiWs.send(JSON.stringify(sessionUpdateWithContext));
             break;
-
           case "start":
-            console.log("Incoming stream has started");
+            streamSid = data.start.streamSid;
+            console.log("Incoming stream has started", streamSid);
             break;
-
           default:
             console.log("Received non-media event:", data.event);
             break;
@@ -193,18 +166,19 @@ fastify.register(async (fastify) => {
       }
     });
 
-    // Handle WebSocket connection close
+    // Handle connection close
     connection.on("close", () => {
       if (openAiWs.readyState === WebSocket.OPEN) openAiWs.close();
       console.log("Client disconnected.");
     });
 
+    // Handle WebSocket close and errors
     openAiWs.on("close", () => {
-      console.log("Disconnected from OpenAI Realtime API");
+      console.log("Disconnected from the OpenAI Realtime API");
     });
 
     openAiWs.on("error", (error) => {
-      console.error("Error in OpenAI WebSocket:", error);
+      console.error("Error in the OpenAI WebSocket:", error);
     });
   });
 });
@@ -230,7 +204,6 @@ fastify.get("/call-status", async (request, reply) => {
   reply.status(200).send("Status received");
 });
 
-// Start the server
 fastify.listen({ port: PORT }, (err) => {
   if (err) {
     console.error(err);
