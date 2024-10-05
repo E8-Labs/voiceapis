@@ -108,7 +108,7 @@ fastify.all("/incoming-call", async (request, reply) => {
                               <Pause length="1"/>
                               <Say>OK, Speak!</Say>
                               <Connect>
-                                  <Stream url="wss://${request.headers.host}:444/media-stream?callSid=${callSid}" />
+                                  <Stream url="wss://${request.headers.host}:5050/media-stream?callSid=${callSid}" />
                               </Connect>
                           </Response>`;
   reply.type("text/xml").send(twimlResponse);
