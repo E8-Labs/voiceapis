@@ -25,7 +25,7 @@ export const LOG_EVENT_TYPES = [
 
 // Load environment variables
 dotenv.config();
-const { AIKey } = process.env;
+const AIKey = process.env.OPENAI_API_KEY;
 if (!AIKey) {
   console.error("Missing OpenAI API key. Please set it in the .env file.");
   process.exit(1);
