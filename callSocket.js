@@ -17,7 +17,9 @@ if (!OPENAI_API_KEY) {
 }
 
 // Initialize Fastify
-const fastify = Fastify();
+const fastify = Fastify({
+  logger: true, // Enables detailed logging
+});
 fastify.register(fastifyFormBody);
 fastify.register(fastifyWs);
 
