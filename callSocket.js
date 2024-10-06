@@ -27,7 +27,7 @@ const SYSTEM_MESSAGE =
 const VOICE = "alloy";
 const PORT = process.env.PORT || 5050; // Allow dynamic port assignment
 
-// List of Event Types to log to the console. See OpenAI Realtime API Documentation. (session.updated is handled separately.)
+// List of Event Types to log to the console. See OpenAI Realtime API Documentation.
 const LOG_EVENT_TYPES = [
   "response.content.done",
   "rate_limits.updated",
@@ -44,19 +44,17 @@ fastify.get("/", async (request, reply) => {
 });
 
 // Route for Twilio to handle incoming and outgoing calls
-// <Say> punctuation to improve text-to-speech translation
 fastify.all("/incoming-call", async (request, reply) => {
   const callSid = request.query.CallSid || ""; // Get the CallSid from the incoming call
   console.log(`Call started with Call SID: ${callSid}`);
 
-  console.log(`Call started at hose: ${request.headers.host}`);
   const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
                           <Response>
                               <Say>Please wait while we connect your call to the AI</Say>
                               <Pause length="1"/>
                               <Say>Start talking</Say>
                               <Connect>
-                                  <Stream url="wss://${request.headers.host}/media-stream?callSid=${callSid}" />
+                                  <Stream url="wss://www.blindcircle.com/media-stream?callSid=${callSid}" />
                               </Connect>
                           </Response>`;
 
@@ -101,7 +99,7 @@ fastify.register(async (fastify) => {
     // Open event for OpenAI WebSocket
     openAiWs.on("open", () => {
       console.log("Connected to the OpenAI Realtime API");
-      setTimeout(sendSessionUpdate, 250); // Ensure connection stability, send after .25 seconds
+      setTimeout(sendSessionUpdate, 250); // Ensure connection stability
     });
 
     // Listen for messages from the OpenAI WebSocket (and send to Twilio if necessary)
@@ -183,11 +181,11 @@ fastify.register(async (fastify) => {
   });
 });
 
+// Handle call status updates
 fastify.post("/call-status", async (request, reply) => {
-  const callSid = request.body.CallSid;
-  const callStatus = request.body.CallStatus;
+  const { CallSid, CallStatus } = request.body;
 
-  console.log(`Call SID: ${callSid} is now ${callStatus}`);
+  console.log(`Call SID: ${CallSid} is now ${CallStatus}`);
 
   // Store or update the status in your database or application
   reply.sendStatus(200);
@@ -204,6 +202,7 @@ fastify.get("/call-status", async (request, reply) => {
   reply.status(200).send("Status received");
 });
 
+// Start the Fastify server
 fastify.listen({ port: PORT }, (err) => {
   if (err) {
     console.error(err);
