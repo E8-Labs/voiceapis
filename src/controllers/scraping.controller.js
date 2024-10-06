@@ -483,10 +483,10 @@ export async function StartCallTwilio(req, res) {
   try {
     // Make an outbound call using Twilio
     const call = await client.calls.create({
-      url: "https://www.blindcircle.com:444/incoming-call", // URL for TwiML to handle the call logic
+      url: "https://www.blindcircle.com/incoming-call", // URL for TwiML to handle the call logic
       to: toPhoneNumber, // Destination number
       from: "+12136064500", // Twilio number you're calling from (213) 606-4500
-      statusCallback: "https://www.blindcircle.com:444/call-status", // Set this to track call events
+      statusCallback: "https://www.blindcircle.com/call-status", // Set this to track call events
     });
 
     console.log(`Call initiated successfully! Call SID: ${call.sid}`);
