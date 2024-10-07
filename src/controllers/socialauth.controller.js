@@ -3,6 +3,8 @@ import JWT from "jsonwebtoken";
 import qs from "qs";
 import axios from "axios";
 import { google } from "googleapis";
+import { addToVectorDb } from "../services/pindeconedb.js";
+import { constants } from "../../constants/constants.js";
 
 const User = db.User;
 const Op = db.Sequelize.Op;
@@ -169,10 +171,15 @@ const fetchVideoCaptions = async (youtube, videoId) => {
     : JSON.stringify(captionData);
 };
 
-export const fetchVideoCaptionsAndSummary = async (videoId, user, video) => {
+export const fetchVideoCaptionsAndProcessWithPrompt = async (
+  videoId,
+  user,
+  video
+) => {
   let data = "";
 
-  console.log("Fetching Transcript", videoId);
+  console.log("Fetching Transcript", user.id);
+  // return;
   let transcript = video.caption;
   if (transcript == null || transcript == "") {
     console.log("Dont have transcript. Fetching New");
@@ -198,9 +205,62 @@ export const fetchVideoCaptionsAndSummary = async (videoId, user, video) => {
   }
 
   console.log("Fetching Summary", videoId);
-  let summary = await summarizeText(transcript, user, video);
-  video.caption = transcript;
+
+  //add the transcript to vdb
+
+  let summary = await processVideoTranscript(transcript, user, video);
   video.summary = summary.summary || "";
+  let saved1 = await video.save();
+  try {
+    let json = JSON.parse(summary.summary);
+    let metaData = null;
+    if (json) {
+      metaData = {
+        MainPoints: json.AdditionalContent.MainPoints,
+        KeyTopics: json.AdditionalContent.KeyTopics,
+        FrameworksModels: json.AdditionalContent.FrameworksModels,
+        KeyTopics: json.AdditionalContent.KeyTopics,
+        videoDbId: video.id,
+        videoTitle: video.title,
+      };
+      let added = await addToVectorDb(transcript, user, "youtube", metaData);
+      if (added) {
+        console.log("Added to vector db");
+        video.addedToDb = true;
+        // return res.send({ message: "Added", status: true, data: added });
+      }
+
+      //add the personality traits to the db table
+
+      let traits = json.PersonaCharacteristics.PersonalityTraits;
+      const updatedTraits = traits.map((trait, index) => {
+        return {
+          ...trait, // Spread the existing user object
+          userId: user.id, // Add a new key 'userId' with a value (you can customize this)
+        };
+      });
+
+      console.log("Personality Traits ", updatedTraits);
+      if (updatedTraits) {
+        try {
+          // Use await with bulkCreate to insert the users
+          await db.PersonalityTrait.bulkCreate(updatedTraits, {
+            updateOnDuplicate: ["trait"],
+          });
+          console.log("Traits added successfully!");
+        } catch (error) {
+          console.error("Error inserting users:", error);
+        }
+      } else {
+        console.log("No traits found");
+      }
+    }
+  } catch (error) {
+    console.log("Error parsing json", summary.summary);
+  }
+
+  video.caption = transcript;
+
   video.tokensUsed = summary.tokensUsed || 0;
   video.cost = summary.cost || 0;
   let saved = await video.save();
@@ -208,8 +268,8 @@ export const fetchVideoCaptionsAndSummary = async (videoId, user, video) => {
   //Summarize here
 };
 
-// The function to summarize text using the GPT-4 model
-async function summarizeText(transcript, user, video) {
+// The function to summarize transcript using the GPT-4 model
+async function processVideoTranscript(transcript, user, video) {
   // console.log("Transcript ", transcript);
   const model = "gpt-4-turbo"; // You specified gpt-4, or it can be "gpt-4-turbo"
   const apiUrl = "https://api.openai.com/v1/chat/completions";
@@ -219,6 +279,9 @@ async function summarizeText(transcript, user, video) {
 
   try {
     // Make the request to the OpenAI API
+
+    let kbPrompt = constants.YoutubeKbPrompt;
+    kbPrompt = kbPrompt.replace("{username}", user.username);
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
@@ -230,64 +293,14 @@ async function summarizeText(transcript, user, video) {
         messages: [
           {
             role: "system",
-            content: `##Objective:
-Your goal is to process the transcript from a YouTube video by ${
-              user.name || ""
-            }, breaking it into manageable chunks of 2000 words. For each chunk, extract the key points, topics, frameworks, and lessons, then generate conversational prompt/response pairs. These pairs should reflect the speaker’s voice, tone, and style, ensuring natural, human-like engagement with intonations, transitional words, and conversational elements such as "umm" and "hmm."
-Additionally, ensure that responses are contextually relevant and consistent with the speaker's perspective, always anticipating follow-up questions that the audience may ask.
-##Transcript Detail:
-This transcript is about the video titled ${video.title} by ${
-              user.name || ""
-            }. There may be one or more speakers in this transcript; label the speakers accurately as ${
-              user.name || ""
-            }, speaker 1, speaker 2, etc. You must distinguish each speaker clearly to maintain accurate context throughout.
-
-##Step 1: Chunk the Transcript
-Chunk the transcript into manageable sections of 2000 words. This range ensures each section is detailed enough to capture key elements while staying within optimal token limits. Each chunk should be labeled based on the word range within the transcript, like so:
-Chunk 1: (First word in chunk - Last word in chunk)
-For each chunk, identify and extract the following elements:
-Main Points: Summarize the essential information or central argument for the chunk.
-Key Topics: List the primary subjects or themes covered in the chunk.
-Frameworks/Models: Identify any strategies, frameworks, or models mentioned.
-Lessons: Highlight the key lessons or takeaways for the listeners.
-Key Message: Summarize the core message that the speaker(s) wants to convey.
-Speaker’s Perspective: Provide the speaker's unique viewpoint on the topic.
-Personal Stories: Identify any personal anecdotes or stories shared by the speaker(s).
-Common Questions: Anticipate typical questions that listeners might ask based on the content.
-Format Example:
-Chunk 1 (First word - Last word):
-Main Points:
-Key Topics:
-Frameworks/Models:
-Lessons:
-Key Message:
-Speaker’s Perspective:
-Personal Stories:
-Common Questions:
-
-##Step 2: Create Prompt/Response Pairs for Each Chunk
-For each chunk, create conversational prompt/response pairs that reflect the key points, frameworks, and lessons discussed. These pairs should cover potential user prompts and the speaker’s natural, human-like responses.
-Response Tone: Ensure the response imitates the speaker’s tone, whether it's formal, casual, instructional, or motivational. If the speaker uses humor, strong opinions, or motivational phrases, reflect this in the response.
-Natural Speech Elements: Include conversational elements like intonations, pauses, filler words (e.g., “umm,” “hmm”), and transitional phrases to create a realistic and engaging conversation flow.
-Prompts to Cover: Ensure that the prompts cover possible user inquiries about the main points, frameworks, lessons, and speaker perspectives from each chunk. Prompts can range from broad questions (e.g., "What was the key message of this section?") to specific queries (e.g., "Can you explain the speaker’s perspective on X?").
-Prompt/Response Example:
-Prompt: "What was the key message in the second part of the video?"
-Response (in the speaker’s voice): "Well, the main thing I wanted to convey here is that success doesn’t happen overnight. You need discipline and the right mindset to make it happen. No shortcuts. You have to stay consistent, even when things get tough—there’s no way around it."
-Prompt: "How does the speaker recommend prioritizing tasks?"
-Response (in the speaker’s voice): "Prioritization is key. I always tell people to focus on what moves the needle the most. Stop wasting time on low-impact tasks and start putting energy into the things that matter—whether it’s your career, relationships, or personal growth."
-
-##Step 3: Ensure Relevance and Consistency
-Contextual Relevance: Always refer back to the key message and focus of the video to keep responses relevant to the video’s content. Ensure that responses align with the speaker’s intended tone and style.
-Consistency in Speaker’s Voice: Keep the speaker’s tone consistent throughout the responses. If the speaker uses a motivational or direct tone, ensure this remains the same in all prompt/response pairs. Avoid shifting styles.
-Flow of Conversation: Keep the dialogue engaging and natural, with transitions between topics where necessary. Responses should sound conversational, rather than robotic or overly formal.
-`,
+            content: kbPrompt,
           },
           {
             role: "user",
             content: `Here is the transcript: ${transcript}`,
           },
         ],
-        max_tokens: 3000, // Limit the number of tokens for the response (adjust as needed)
+        // max_tokens: 3000, // Limit the number of tokens for the response (adjust as needed)
       }),
     });
 
@@ -296,7 +309,11 @@ Flow of Conversation: Keep the dialogue engaging and natural, with transitions b
 
     // Extract tokens used and summary from the response
     console.log("GPT Response ", result);
-    const summary = result.choices[0].message.content;
+    let content = result.choices[0].message.content;
+    content = content.replace(new RegExp("```json", "g"), "");
+    content = content.replace(new RegExp("```", "g"), "");
+    content = content.replace(new RegExp("\n", "g"), "");
+    const summary = content;
     const tokensUsed = result.usage.total_tokens;
     const cost = (tokensUsed / 1000) * pricePer1000Tokens;
 

@@ -170,43 +170,6 @@ async function getUserCallStats(userId) {
   return results;
 }
 
-export const MyAi = async (req, res) => {
-  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
-    if (authData) {
-      let userId = authData.user.id;
-      let ai = await db.UserAi.findOne({
-        where: {
-          userId: userId,
-        },
-      });
-      let kb = await db.KnowledgeBase.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-
-      let products = await db.SellingProducts.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-
-      let questions = await db.KycQuestions.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-      res.send({
-        status: true,
-        data: { ai, kb, products, questions },
-        message: "My AI",
-      });
-    } else {
-      res.send({ status: false, data: null, message: "Unauthenticated user" });
-    }
-  });
-};
-
 export const AssistantCalls = async (req, res) => {
   let offset = req.query.offset || 0;
   let search = req.query.search || "";

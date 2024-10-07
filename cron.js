@@ -2,7 +2,7 @@ import nodeCron from "node-cron";
 import db from "./src/models/index.js";
 import { GetACall } from "./src/controllers/call.controller.js";
 import { ChargeCustomer } from "./src/services/stripe.js";
-import { fetchVideoCaptionsAndSummary } from "./src/controllers/socialauth.controller.js";
+import { fetchVideoCaptionsAndProcessWithPrompt } from "./src/controllers/socialauth.controller.js";
 
 import { ScrapWebUrl } from "./src/controllers/scraping.controller.js";
 
@@ -175,29 +175,29 @@ import { KbProcessingCron } from "./src/controllers/buildai.controller.js";
 
 //Youtube Video Summary Generation Cron
 
-// const YoutubeSummaryCronJob = nodeCron.schedule(
-//   "*/1 * * * *",
-//   async function () {
-//     console.log("Cron Fetch Youtube Summary");
-//     let videos = await db.YouTubeVideo.findAll({
-//       where: {
-//         summary: {
-//           [db.Sequelize.Op.is]: null,
-//         },
-//       },
-//     });
+const YoutubeSummaryCronJob = nodeCron.schedule(
+  "*/1 * * * *",
+  async function () {
+    console.log("Cron Fetch Youtube Summary");
+    let videos = await db.YouTubeVideo.findAll({
+      where: {
+        summary: {
+          [db.Sequelize.Op.is]: null,
+        },
+      },
+    });
 
-//     if (videos) {
-//       console.log("Videos Found :", videos.length);
-//       for (let i = 0; i < videos.length; i++) {
-//         let v = videos[i];
-//         let user = await db.User.findByPk(v.userId);
-//         fetchVideoCaptionsAndSummary(v.videoId, user, v);
-//       }
-//     }
-//   }
-// );
-// YoutubeSummaryCronJob.start();
+    if (videos) {
+      console.log("Videos Found :", videos.length);
+      for (let i = 0; i < videos.length; i++) {
+        let v = videos[i];
+        let user = await db.User.findByPk(v.userId);
+        fetchVideoCaptionsAndProcessWithPrompt(v.videoId, user, v);
+      }
+    }
+  }
+);
+YoutubeSummaryCronJob.start();
 
 // const WebScrapperCronJob = nodeCron.schedule(
 //   "*/30 * * * * *",
@@ -239,5 +239,5 @@ import { KbProcessingCron } from "./src/controllers/buildai.controller.js";
 // );
 // WebScrapperCronJob.start();
 
-const KbCron = nodeCron.schedule("*/30 * * * * *", KbProcessingCron);
-KbCron.start();
+// const KbCron = nodeCron.schedule("*/30 * * * * *", KbProcessingCron);
+// KbCron.start();
