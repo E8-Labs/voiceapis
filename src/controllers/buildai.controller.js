@@ -16,6 +16,54 @@ import {
 import { create } from "domain";
 import { createProductAndPaymentLink } from "../services/stripe.js";
 
+export const MyAi = async (req, res) => {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (authData) {
+      let userId = authData.user.id;
+      let ai = await db.UserAi.findOne({
+        where: {
+          userId: userId,
+        },
+      });
+      let kb = await db.KnowledgeBase.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+
+      let products = await db.SellingProducts.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+
+      let questions = await db.KycQuestions.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+
+      let personalityTraits = await db.PersonalityTrait.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+      res.send({
+        status: true,
+        data: {
+          ai: ai,
+          kb: kb,
+          products: products,
+          questions: questions,
+          traits: personalityTraits,
+        },
+        message: "My AI",
+      });
+    } else {
+      res.send({ status: false, data: null, message: "Unauthenticated user" });
+    }
+  });
+};
 export const BuildYourAi = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {

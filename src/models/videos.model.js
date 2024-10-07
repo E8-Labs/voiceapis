@@ -32,6 +32,10 @@ const YouTubeVideo = (sequelize, Sequelize) => {
         key: "id",
       },
     },
+    addedToDb: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
     tokensUsed: {
       type: Sequelize.INTEGER,
       defaultValue: 0,

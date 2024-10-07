@@ -20,6 +20,7 @@ import Sequelize from "sequelize";
 import SocialAuthModel from "./socialauth.model.js";
 import GoogleAuthModel from "./googleauth.model.js";
 import SubscriptionModel from "./subscription.model.js";
+import PersonalityTrait from "./ai/personalitytrait.model.js";
 
 const sequelize = new Sequelize(
   dbConfig.MYSQL_DB,
@@ -104,6 +105,9 @@ models["UserCallSummary"] = db.UserCallSummary;
 
 db.AIProfile = AIProfile(sequelize, Sequelize);
 models["AIProfile"] = db.AIProfile;
+
+db.PersonalityTrait = PersonalityTrait(sequelize, Sequelize);
+models["PersonalityTrait"] = db.PersonalityTrait;
 
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {

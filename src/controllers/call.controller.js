@@ -128,7 +128,7 @@ export const MakeACall = async (req, res) => {
     let calls = await db.CallModel.findAll({
       where: {
         phone: PhoneNumber,
-        modelId: modelId
+        modelId: modelId,
       },
     });
     console.log(`Calls for phone ${PhoneNumber} `, calls.length);
@@ -466,25 +466,22 @@ export const WebhookSynthflow = async (req, res) => {
     console.log("Assistant is ", assistant);
     //send the data to ghl here only once
 
-    let webhook = "https://services.leadconnectorhq.com/hooks/ZzSCCR0w9ExkwP1fHpqh/webhook-trigger/88c7822d-7de9-434e-bad5-eaa65c394e1b"
-    if(assistant.webook != '' && assistant.webook != null){
-      console.log("Assistant has a webhook")
+    let webhook =
+      "https://services.leadconnectorhq.com/hooks/ZzSCCR0w9ExkwP1fHpqh/webhook-trigger/88c7822d-7de9-434e-bad5-eaa65c394e1b";
+    if (assistant.webook != "" && assistant.webook != null) {
+      console.log("Assistant has a webhook");
       webhook = assistant.webook;
     }
 
-    console.log('Sending TO GHL', webhook)
-    
+    console.log("Sending TO GHL", webhook);
+
     try {
-      const ghlResponse = await axios.post(
-        webhook,
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            // 'Authorization': `Bearer GHL_API_KEY`, // Add any necessary headers
-          },
-        }
-      );
+      const ghlResponse = await axios.post(webhook, data, {
+        headers: {
+          "Content-Type": "application/json",
+          // 'Authorization': `Bearer GHL_API_KEY`, // Add any necessary headers
+        },
+      });
       console.log("Data sent to GHL:", dbCall.callId);
     } catch (error) {
       console.error("Error sending data to GHL:", error);
@@ -510,7 +507,7 @@ async function chargeUser(caller, dbCall, assistant) {
   //update the user minutes available and charge if needed
   console.log("Charging user start");
   let amount = 1000; // update this to user's amount he charges (10 / 60) * duration * 100; //10 / 60 => amount per second & then x 100 to convert to cents
-let duration = dbCall.duration;
+  let duration = dbCall.duration;
   // let user = caller
   if (caller && !assistant.allowTrial) {
     // if caller exists and the assistant/model does not allow trial then charge the user
@@ -539,7 +536,7 @@ let duration = dbCall.duration;
       dbCall.chargeDescription = charge.message;
 
       let saved = await dbCall.save();
-      
+
       let userSaved = await caller.save();
       //console.log("User call time updated ", user.seconds_available);
       // } else {

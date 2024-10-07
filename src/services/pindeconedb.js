@@ -8,8 +8,8 @@ const pineconeClient = new Pinecone({
   apiKey: process.env.PineConeApiKey,
 });
 
-// const indexName = "kb-index-transcript"; // another for processed data kb_index_processed
-const indexName = "kb-index-processed";
+const indexName = "kb-index-transcript"; // another for processed data kb_index_processed
+// const indexName = "kb-index-processed";
 // const indexNameChat = "plurawl-chat-collection";
 
 (async () => {
@@ -42,7 +42,7 @@ function getChunkLength(text) {
 }
 
 //type = web, youtube, document, text etc
-export const addToVectorDb = async (text, user, type) => {
+export const addToVectorDb = async (text, user, type, additionalMetaData) => {
   try {
     const chunkLength = getChunkLength(text);
     console.log("Chunk Length", chunkLength);
@@ -65,6 +65,7 @@ export const addToVectorDb = async (text, user, type) => {
               userId: user.id,
               type: type,
               date: `${Date.now()}`,
+              ...additionalMetaData,
             },
           },
         ]);

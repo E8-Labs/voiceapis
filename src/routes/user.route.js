@@ -49,7 +49,6 @@ import { CreateWebHook, SubscriptionUpdated } from "../services/stripe.js";
 import {
   CreatorDashboard,
   AssistantCalls,
-  MyAi,
 } from "../controllers/profile.controller.js";
 import {
   GetCallLogs,
@@ -142,7 +141,6 @@ UserRouter.get(
   CreatorDashboard
 );
 UserRouter.get("/creator_calls", verifyJwtToken, uploadFiles, AssistantCalls);
-UserRouter.get("/my_ai", verifyJwtToken, uploadFiles, MyAi);
 
 //Caller Profile
 UserRouter.get("/call_logs", verifyJwtToken, uploadFiles, GetCallLogs);

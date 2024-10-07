@@ -17,11 +17,10 @@ import * as stripe from "../services/stripe.js";
 const User = db.User;
 const Op = db.Sequelize.Op;
 
-
 export const MakeACall = async (userId, modelId) => {
-  console.log("Initiating call from Add Card")
+  console.log("Initiating call from Add Card");
   // setLoading(true);
-  
+
   // let model = model
 
   let assistant = await db.Assistant.findOne({
@@ -30,7 +29,7 @@ export const MakeACall = async (userId, modelId) => {
     },
   });
   if (!assistant) {
-    console.log("No assisant found for ", modelId)
+    console.log("No assisant found for ", modelId);
     return {
       status: false,
       message: "No such assistant",
@@ -50,9 +49,8 @@ export const MakeACall = async (userId, modelId) => {
   let Email = user.email;
 
   if (user) {
-    
   } else {
-    console.log('"Here No Such User"')
+    console.log('"Here No Such User"');
     return {
       status: false,
       message: "User with this phone number does not exist",
@@ -65,8 +63,7 @@ export const MakeACall = async (userId, modelId) => {
   //console.log("Model ", assistant.modelId);
   try {
     let basePrompt = assistant.prompt;
-    
-   
+
     let data = JSON.stringify({
       name: Name,
       phone: PhoneNumber,
@@ -88,13 +85,13 @@ export const MakeACall = async (userId, modelId) => {
     try {
       const response = await axios.request(config);
       let json = response.data;
-  
+
       if (json.status === "ok" || json.status === "success") {
         let callId = json.response.call_id;
-  
+
         // Push data to GHL
         // let savedToGhl = await PushDataToGhl(Name, Email, PhoneNumber, callId);
-  
+
         // Save call details to the database
         let saved = await db.CallModel.create({
           callId: callId,
@@ -109,7 +106,7 @@ export const MakeACall = async (userId, modelId) => {
           chargeDescription: "",
           userId: user.id,
         });
-  
+
         // Return success response
         return { status: true, message: "Call is initiated", data: json };
       } else {
@@ -118,7 +115,7 @@ export const MakeACall = async (userId, modelId) => {
       }
     } catch (error) {
       console.log(error);
-  
+
       // Return error response
       return {
         status: false,
@@ -128,7 +125,7 @@ export const MakeACall = async (userId, modelId) => {
     }
   } catch (error) {
     console.error("Error occured is :", error);
-    return{ status: false, message: "call is not initiated", data: null };
+    return { status: false, message: "call is not initiated", data: null };
   }
 };
 
@@ -138,33 +135,30 @@ export const AddCard = async (req, res) => {
     if (authData) {
       let user = await db.User.findByPk(authData.user.id);
       let token = req.body.source;
-      let modelId = req.body.modelId || null
+      let modelId = req.body.modelId || null;
       console.log("Add Card Token is ", token);
       try {
         let card = await stripe.createCard(user, token);
 
-        if(card && typeof card.brand != 'undefined'){
-
-          let callData = null
-          if(modelId){
+        if (card && typeof card.brand != "undefined") {
+          let callData = null;
+          if (modelId) {
             // call the api to initiate call
-            callData = await MakeACall(user.id, modelId)
+            callData = await MakeACall(user.id, modelId);
           }
           res.send({
             status: true,
             message: "Card added",
             data: card,
-            callData: callData
+            callData: callData,
           });
-        }
-        else{
+        } else {
           res.send({
             status: false,
             message: card.error,
             data: card,
           });
         }
-        
       } catch (error) {
         res.send({
           status: false,
@@ -172,8 +166,7 @@ export const AddCard = async (req, res) => {
           data: error,
         });
       }
-    }
-    else{
+    } else {
       res.send({
         status: false,
         message: "Unauthenticated user",
@@ -209,17 +202,21 @@ export const GetUserPaymentSources = async (req, res) => {
       const defaultPaymentMethodId =
         customer.invoice_settings.default_payment_method;
       let cards = await stripe.loadCards(user);
-      const paymentMethodsWithDefault = cards.map((paymentMethod) => {
-        let card = paymentMethod.card
-        return {
-          id: paymentMethod.id,
-          brand: card.brand,
-          last4: card.last4,
-          exp_month: card.exp_month,
-          exp_year: card.exp_year,
-          isDefault: paymentMethod.id === defaultPaymentMethodId, // Mark if this is the default
-        };
-      });
+      let paymentMethodsWithDefault = [];
+      if (cards) {
+        paymentMethodsWithDefault = cards.map((paymentMethod) => {
+          let card = paymentMethod.card;
+          return {
+            id: paymentMethod.id,
+            brand: card.brand,
+            last4: card.last4,
+            exp_month: card.exp_month,
+            exp_year: card.exp_year,
+            isDefault: paymentMethod.id === defaultPaymentMethodId, // Mark if this is the default
+          };
+        });
+      }
+
       ////console.log("cards loaded ", cards)
       res.send({
         status: true,
