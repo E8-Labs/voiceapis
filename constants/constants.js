@@ -1,9 +1,12 @@
 export const constants = {
   YoutubeKbPrompt: `
-Your goal is to process the transcript from a YouTube video by {username}, 
-1- Label speakers in the video and don't miss anything. Extract the following from the video:
+This transcript is about the video titled {titleofvideo} by {username}. There may be one or more speakers in this transcript; label the speakers accurately as 
+{username}, speaker 1(name), speaker 2(name), etc. You must distinguish each speaker clearly to maintain accurate context throughout.
+Make sure to label the entire transcript according to the speakers. 
+Using the entire transcript provided, identify and extract the following elements in the JSON structure::
 
-2- Identify and extract the following elements and also the ones mentioned in the JSON structure:
+
+
 Main Points: Summarize the essential information or central argument for the chunk.
 Key Topics: List the primary subjects or themes covered in the chunk.
 Frameworks/Models: Identify any strategies, frameworks, or models mentioned.
@@ -12,46 +15,42 @@ Key Message: Summarize the core message that the speaker(s) wants to convey.
 Speaker’s Perspective: Provide the speaker's unique viewpoint on the topic.
 Personal Stories: Identify any personal anecdotes or stories shared by the speaker(s).
 Common Questions: Anticipate typical questions that listeners might ask based on the content.
-PersonaCharacteristics: Profession, PersonalBackgroundAndValues, PersonalityTraits, PhilosophyAndViews
-Communication: CommunicationInstructions, SampleCommunication, Demeanor, InterpersonalSkills, CommunicationStyle,InteractionExamples, ShortPhrases, HowToExplainComplexConcepts
+PersonaCharacteristics:  PersonalBackground, Values and Beliefs, PersonalityTraits, PhilosophyAndViews
+Communication: CommunicationInstructions, SampleCommunication, Demeanor, InterpersonalSkills, CommunicationStyle,InteractionExamples, ShortPhrases
 SpecificStrategiesAndTechniques: 
-ObjectiveOfTheAiDuringTheCall: 
+Based on the transcript, let’s start defining the ultimate ai twin for {username}. Please define the following if applicable, if not, state null. 
 
 
-3- Follow this JSON Format strictly. 
+
+3- Follow this JSON Format strictly as an example. 
         
 
         {
 "LabeledTranscript": "The transcript after identifying labelling speakers in the transcript"
     "PersonaCharacteristics": {
         "Profession": "Customer Support Representative",
-        "PersonalBackgroundAndValues": {
-            "Education": "Bachelor's in Communication",
-            "Hobbies": ["Reading", "Traveling", "Volunteering"],
-            "CoreValues": ["Empathy", "Integrity", "Responsibility"]
-        },
+        "PersonalBackground": The persona’s personal history, including where they come from, their challenges, and key life experiences that shape their philosophy and character. It adds depth to their advice and responses by providing relatable, real-world examples.,
+        "ValuesAndBeliefs": Core principles and philosophies that the persona lives by. These guide how the persona responds to certain topics, how they interact with callers, and what advice or direction they give. Examples include accountability, resilience, or self-reliance.,
         "PersonalityTraits": [
             {
-                trait: name of trait. Name could be one of these (Aggressive, Polite, Humor, Positive),
+                trait: name of trait. Name could be one or more of the following: (Aggressive, Polite, Humor, Positive),
                 score: "score from 1-10 depending on the conversation"
             }
         ],
         "PhilosophyAndViews": {
-            "CustomerServicePhilosophy": "Always prioritize the customer's needs, while balancing company goals.",
-            "Worldview": "Believes in making meaningful connections and providing value in every interaction."
+            
         }
     },
     "Communication": {
         "CommunicationInstructions": {
-            "Tone": "Friendly, Calm, Supportive",
-            "Instructions": "Always acknowledge the customer's concerns first, and ask clarifying questions before providing a solution."
+            Guidelines on how {creatorname} should engage with users during conversations, including pacing, tone, and energy. Include examples of how {creatorname} would respond to common prompts to ensure the communication aligns with the {creatorname} traits.
         },
         "SampleCommunication": {
             "Greeting": "Hi there! How can I assist you today?",
             "IssueAcknowledgement": "I completely understand how frustrating that must be, and I’m here to help."
         },
-        "Demeanor": "Calm, friendly, and patient, especially during stressful situations.",
-        "InterpersonalSkills": ["Active listening", "Conflict resolution", "Empathy"],
+        "Demeanor": "The overall attitude or mood that the persona should maintain during conversations. This could be bold, assertive, challenging, or motivational, depending on the context of the call and the persona’s character.",
+        "InterpersonalSkills": ["The techniques {creatorname} uses to engage the caller, including asking probing questions, building rapport, and following up on their responses. It also covers how the {creatorname} adapts based on the caller's tone and needs, all while maintaining their core character traits."],
         "CommunicationStyle": "Direct and concise, using simple language and providing step-by-step guidance.",
         "InteractionExamples": {
             "IssueResolution": "If the customer reports a delay in service, acknowledge the delay, provide the reason if available, and offer compensation or solution options.",

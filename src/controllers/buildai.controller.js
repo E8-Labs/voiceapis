@@ -510,6 +510,413 @@ export async function AddKnowledgebase(req, res) {
   });
 }
 
+//Personality Traits
+export async function AddTrait(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { trait, score } = req.body;
+    let added = await db.PersonalityTrait.create({
+      trait: trait,
+      score: score,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      return res.send({ status: true, message: "Trait added", data: added });
+    } else {
+      return res.send({
+        status: false,
+        message: "Trait not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteTrait(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.PersonalityTrait.findByPk(id);
+    let del = await db.PersonalityTrait.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      return res.send({ status: true, message: "Trait deleted", data: null });
+    } else {
+      return res.send({
+        status: false,
+        message: "Trait not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateTrait(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.PersonalityTrait.findByPk(id);
+
+    if (req.body.trait) {
+      trait.trait = req.body.trait;
+    }
+    if (req.body.score) {
+      trait.score = req.body.score;
+    }
+
+    let saved = await trait.save();
+    return res.send({ status: true, message: "Trait saved", data: trait });
+  });
+}
+
+//Frameworks And Techniques
+export async function AddFramework(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { title, description } = req.body;
+    let added = await db.FrameworkAndTechnique.create({
+      title: title,
+      description: description,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      return res.send({
+        status: true,
+        message: "Framework added",
+        data: added,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Framework not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteFramework(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { frameworkId } = req.body;
+    let trait = await db.FrameworkAndTechnique.findByPk(frameworkId);
+    let del = await db.FrameworkAndTechnique.destroy({
+      where: {
+        id: frameworkId,
+      },
+    });
+    if (del) {
+      return res.send({
+        status: true,
+        message: "Framework deleted",
+        data: null,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Framework not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateFramework(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { frameworkId } = req.body;
+    let trait = await db.FrameworkAndTechnique.findByPk(frameworkId);
+
+    if (req.body.title) {
+      trait.title = req.body.title;
+    }
+    if (req.body.description) {
+      trait.description = req.body.description;
+    }
+
+    let saved = await trait.save();
+    return res.send({ status: true, message: "Framework saved", data: trait });
+  });
+}
+
+//User Values
+export async function AddUserValue(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { title, description } = req.body;
+    let added = await db.UserValues.create({
+      title: title,
+      description: description,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      return res.send({
+        status: true,
+        message: "Listing added",
+        data: added,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Listing not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteUserValue(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.UserValues.findByPk(id);
+    let del = await db.UserValues.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      return res.send({
+        status: true,
+        message: "Listing deleted",
+        data: null,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Listing not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateUserValue(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.UserValues.findByPk(id);
+
+    if (req.body.title) {
+      trait.title = req.body.title;
+    }
+    if (req.body.description) {
+      trait.description = req.body.description;
+    }
+
+    let saved = await trait.save();
+    return res.send({ status: true, message: "Listing saved", data: trait });
+  });
+}
+
+//User Beliefs
+export async function AddUserBelief(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { title, description } = req.body;
+    let added = await db.UserBeliefs.create({
+      title: title,
+      description: description,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      return res.send({
+        status: true,
+        message: "Listing added",
+        data: added,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Listing not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteUserBelief(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.UserBeliefs.findByPk(id);
+    let del = await db.UserBeliefs.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      return res.send({
+        status: true,
+        message: "Listing deleted",
+        data: null,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Listing not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateUserBelief(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.UserBeliefs.findByPk(id);
+
+    if (req.body.title) {
+      trait.title = req.body.title;
+    }
+    if (req.body.description) {
+      trait.description = req.body.description;
+    }
+
+    let saved = await trait.save();
+    return res.send({ status: true, message: "Listing saved", data: trait });
+  });
+}
+
+//Intraction Examples
+export async function AddIntractionExample(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { question, answer } = req.body;
+    let added = await db.IntractionExample.create({
+      question: question,
+      answer: answer,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      return res.send({
+        status: true,
+        message: "Listing added",
+        data: added,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Listing not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteIntractionExample(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.IntractionExample.findByPk(id);
+    let del = await db.IntractionExample.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      return res.send({
+        status: true,
+        message: "Listing deleted",
+        data: null,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Listing not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateIntractionExample(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.IntractionExample.findByPk(id);
+
+    if (req.body.question) {
+      trait.question = req.body.question;
+    }
+    if (req.body.anwer) {
+      trait.anwer = req.body.anwer;
+    }
+
+    let saved = await trait.save();
+    return res.send({ status: true, message: "Listing saved", data: trait });
+  });
+}
+
 export async function KbProcessingCron() {
   console.log("Kb processing start cron");
   let kbs = await db.KnowledgeBase.findAll({

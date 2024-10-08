@@ -21,6 +21,10 @@ import SocialAuthModel from "./socialauth.model.js";
 import GoogleAuthModel from "./googleauth.model.js";
 import SubscriptionModel from "./subscription.model.js";
 import PersonalityTrait from "./ai/personalitytrait.model.js";
+import FrameworkAndTechnique from "./ai/frameworks.model.js";
+import UserValues from "./ai/values.model.js";
+import UserBeliefs from "./ai/beliefs.model.js";
+import IntractionExample from "./ai/intraction.model.js";
 
 const sequelize = new Sequelize(
   dbConfig.MYSQL_DB,
@@ -108,6 +112,18 @@ models["AIProfile"] = db.AIProfile;
 
 db.PersonalityTrait = PersonalityTrait(sequelize, Sequelize);
 models["PersonalityTrait"] = db.PersonalityTrait;
+
+db.FrameworkAndTechnique = FrameworkAndTechnique(sequelize, Sequelize);
+models["FrameworkAndTechnique"] = db.FrameworkAndTechnique;
+
+db.UserValues = UserValues(sequelize, Sequelize);
+models["UserValues"] = db.UserValues;
+
+db.UserBeliefs = UserBeliefs(sequelize, Sequelize);
+models["UserBeliefs"] = db.UserBeliefs;
+
+db.IntractionExample = IntractionExample(sequelize, Sequelize);
+models["IntractionExample"] = db.IntractionExample;
 
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {
