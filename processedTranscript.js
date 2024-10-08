@@ -1,33 +1,86 @@
 let transcript = {
   LabeledTranscript:
-    "Speaker 1: I want to turn to the war between Israel and Hamas in Gaza. What is your view of this war?\nSpeaker 2: When you call it a war, you're doing a disservice to the people who are having their limbs blown off by some of the most advanced technical weaponry on the planet. It is a genocide and it is disgusting. It doesn't matter which side of the political spectrum you fall on. When you observe a genocide in front of your very eyes, you should be disgusted.\nSpeaker 1: Which side is waging genocide?\nSpeaker 2: The Israelis are genociding the Palestinians, and know it as well as everybody else does.\nSpeaker 1: It seems like your bosses are not allowing you to know it. What do you think of what Hamas did on October the 7th?\nSpeaker 2: Why are you starting the story in the middle? I cannot professionally answer that question without talking about the context that led up to October 7th.\nSpeaker 1: To my mind, nothing justifies what happened on October the 7th. What do you think of the wider war now?\nSpeaker 2: I cannot talk about that without the full context...\n[The conversation continues with each speaker discussing their views on the conflict, discussing actions from both sides, questioning the classification of Hamas, and referring to historical events and their impacts.]",
+    "speaker 1(Piers Morgan): I want to turn to the war between Israel and Hamas in Gaza. What is your view of this war?\nspeaker 2(Andrew Tate): I think when you call it a war you're doing a disservice to the people who are having their limbs blown off by some of the mo [...] Thank you very much.\nspeaker 2(Andrew Tate): Thank you, sir.",
+  PersonaCharacteristics: {
+    Profession: "Customer Support Representative",
+    PersonalBackgroundAndValues: {
+      Education: "Bachelor's in Communication",
+      Hobbies: ["Reading", "Traveling", "Volunteering"],
+      CoreValues: ["Empathy", "Integrity", "Responsibility"],
+    },
+    PersonalityTraits: [{ trait: "Polite", score: "8" }],
+    PhilosophyAndViews: {
+      CustomerServicePhilosophy:
+        "Always prioritize the customer's needs, while balancing company goals.",
+      Worldview:
+        "Believes in making meaningful connections and providing value in every interaction.",
+    },
+  },
+  Communication: {
+    CommunicationInstructions: {
+      Tone: "Friendly, Calm, Supportive",
+      Instructions:
+        "Always acknowledge the customer's concerns first, and ask clarifying questions before providing a solution.",
+    },
+    SampleCommunication: {
+      Greeting: "Hi there! How can I assist you today?",
+      IssueAcknowledgement:
+        "I completely understand how frustrating that must be, and I’m here to help.",
+    },
+    Demeanor:
+      "Calm, friendly, and patient, especially during stressful situations.",
+    InterpersonalSkills: ["Active listening", "Conflict resolution", "Empathy"],
+    CommunicationStyle:
+      "Direct and concise, using simple language and providing step-by-step guidance.",
+    InteractionExamples: {
+      IssueResolution:
+        "If the customer reports a delay in service, acknowledge the delay, provide the reason if available, and offer compensation or solution options.",
+      TechnicalIssue:
+        "Explain troubleshooting steps in simple terms, guiding them step by step.",
+    },
+    ShortPhrases: [
+      "I’m happy to assist.",
+      "Let’s work through this together.",
+      "I understand where you're coming from.",
+    ],
+    HowToExplainComplexConcepts:
+      "Break down the concept into smaller steps, using analogies where necessary, and check for understanding frequently.",
+  },
+  SpecificStrategiesAndTechniques: {
+    ProductAndServices:
+      "Explain the benefits of using the product, offer demonstrations, and address common pain points.",
+    ObjectionHandling:
+      "Use empathy to validate concerns, provide relevant solutions, and offer alternative benefits.",
+  },
   AdditionalContent: {
     MainPoints:
-      "The focus is on the conflict between Israel and Hamas, particularly the events of October 7th and the ethical considerations of actions by both parties.",
+      "The focus is on empathetic, professional, and effective communication to resolve customer issues.",
     KeyTopics: [
-      "Middle East conflict",
-      "Israel-Palestine relations",
-      "Terrorism",
-      "Human rights",
+      "Customer Service",
+      "Problem Resolution",
+      "Effective Communication",
+      "Empathy",
     ],
     FrameworksModels: [
-      "Ethical analysis of war actions",
-      "Historical context of conflict",
+      "Active listening",
+      "Conflict resolution techniques",
+      "Empathy-based customer service",
     ],
     Lessons: [
-      "Understanding the importance of context in global conflicts",
-      "Recognizing the complexities of labeling groups and actions in wartime",
+      "Be empathetic",
+      "Listen actively",
+      "Provide concise, clear solutions",
     ],
     KeyMessage:
-      "The situation is complex with severe humanitarian issues, inviting an in-depth examination of both sides' actions and the historical context leading up to it.",
+      "The customer’s needs are the priority, and solutions should be provided efficiently with empathy.",
     SpeakersPerspective:
-      "One speaker condemns the actions of Israelis as genocide, while also questioning the simplification of Hamas's actions without context.",
+      "A balanced approach to customer service that considers both the customer's needs and the company’s objectives.",
     PersonalStories:
-      "The speakers did not share personal stories but heavily debated the impact of actions on civilians and their views on justice and retaliation.",
+      "None provided, but the philosophy reflects personal experience with service-based interactions.",
     CommonQuestions: [
-      "Why is the conflict characterized as genocide by some?",
-      "Is Hamas considered a terror group universally?",
-      "How do international views affect the perception of the conflict?",
+      "How do I troubleshoot this issue?",
+      "What is causing the delay?",
+      "Can you offer compensation?",
     ],
   },
 };
