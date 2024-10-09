@@ -28,11 +28,14 @@ export const GetCallLogs = async (req, res) => {
       let userId = authData.user.id;
       //console.log("Finding call logs for ", userId);
       //Get User Products
+      let offset = Number(req.query.offset) || 0;
       let calls = await db.CallModel.findAll({
         where: {
           userId: userId,
           status: "completed",
         },
+        limit: 30,
+        offset: offset,
         order: [["createdAt", "DESC"]],
       });
       let data = await CallLiteResource(calls);
@@ -95,20 +98,20 @@ export async function ListCallerInvoices(req, res) {
               paymentIntent.metadata?.product_description || "N/A";
           }
 
-          let creator = null//"CreatorX"
+          let creator = null; //"CreatorX"
           let purchasedProduct = await db.PurchasedProduct.findOne({
             where: {
-              paymentIntentId: paymentIntent.id
-            }
-          })
-          if(purchasedProduct){
+              paymentIntentId: paymentIntent.id,
+            },
+          });
+          if (purchasedProduct) {
             let prod = await db.SellingProducts.findOne({
               where: {
-                id: purchasedProduct.productId
-              }
-            })
-            if(prod){
-              creator = await db.User.findByPk(prod.userId)
+                id: purchasedProduct.productId,
+              },
+            });
+            if (prod) {
+              creator = await db.User.findByPk(prod.userId);
             }
           }
           filteredPaymentIntents.push({

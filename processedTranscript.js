@@ -1,164 +1,43 @@
-let transcript = {
+let data = {
   LabeledTranscript:
-    "speaker 1(Piers Morgan): I want to turn to the war between Israel and Hamas in Gaza. What is your view of this war?\nspeaker 2(Andrew Tate): I think when you call it a war you're doing a disservice to the people who are having their limbs blown off by some of the mo [...] Thank you very much.\nspeaker 2(Andrew Tate): Thank you, sir.",
+    "{creatorname}: \"He didn't apologize, they didn't. Firstly, they're not sorry; this was signed off on, and to sit here and let France mock the country, mock your religion, make fun of every single thing you feel holy. This is the last supper; this is everything holy about Christianity, and we say absolutely nothing about it and say, oh, you cannot even complain. What are we doing wrong by saying that this is disgusting? This is not our doing. Everyone, I want you, they don't try and trick you or deceive you. If I give you a poison apple, and you eat it, I murdered you. If I say this is a poison apple, all of this is done on purpose; they're telling you exactly what's going to happen. They're coming for your kids; they're coming for all your institutions; there's nothing cultural left now. They have an imp or Europe. This is disgusting, am I right? It's disgusting; it's disgusting. There are Christians all over the world.\"",
   PersonaCharacteristics: {
-    Profession: "Customer Support Representative",
-    PersonalBackgroundAndValues: {
-      Education: "Bachelor's in Communication",
-      Hobbies: ["Reading", "Traveling", "Volunteering"],
-      CoreValues: ["Empathy", "Integrity", "Responsibility"],
-    },
-    PersonalityTraits: [{ trait: "Polite", score: "8" }],
-    PhilosophyAndViews: {
-      CustomerServicePhilosophy:
-        "Always prioritize the customer's needs, while balancing company goals.",
-      Worldview:
-        "Believes in making meaningful connections and providing value in every interaction.",
-    },
+    Profession: null,
+    PersonalBackground: null,
+    PersonalValues: [null],
+    PersonalBeliefs: [null],
+    PersonalityTraits: null,
+    PhilosophyAndViews: null,
   },
   Communication: {
-    CommunicationInstructions: {
-      Tone: "Friendly, Calm, Supportive",
-      Instructions:
-        "Always acknowledge the customer's concerns first, and ask clarifying questions before providing a solution.",
-    },
-    SampleCommunication: {
-      Greeting: "Hi there! How can I assist you today?",
-      IssueAcknowledgement:
-        "I completely understand how frustrating that must be, and I’m here to help.",
-    },
-    Demeanor:
-      "Calm, friendly, and patient, especially during stressful situations.",
-    InterpersonalSkills: ["Active listening", "Conflict resolution", "Empathy"],
-    CommunicationStyle:
-      "Direct and concise, using simple language and providing step-by-step guidance.",
-    InteractionExamples: {
-      IssueResolution:
-        "If the customer reports a delay in service, acknowledge the delay, provide the reason if available, and offer compensation or solution options.",
-      TechnicalIssue:
-        "Explain troubleshooting steps in simple terms, guiding them step by step.",
-    },
-    ShortPhrases: [
-      "I’m happy to assist.",
-      "Let’s work through this together.",
-      "I understand where you're coming from.",
-    ],
-    HowToExplainComplexConcepts:
-      "Break down the concept into smaller steps, using analogies where necessary, and check for understanding frequently.",
+    CommunicationInstructions: null,
+    FrameworksAndTechniques: [null],
+    SampleCommunication: { Greeting: null, IssueAcknowledgement: null },
+    Demeanor: null,
+    InterpersonalSkills: null,
+    CommunicationStyle: null,
+    InteractionExamples: [null],
+    ShortPhrases: [null],
+    HowToExplainComplexConcepts: null,
   },
   SpecificStrategiesAndTechniques: {
-    ProductAndServices:
-      "Explain the benefits of using the product, offer demonstrations, and address common pain points.",
-    ObjectionHandling:
-      "Use empathy to validate concerns, provide relevant solutions, and offer alternative benefits.",
+    ProductAndServices: null,
+    ObjectionHandling: null,
   },
   AdditionalContent: {
     MainPoints:
-      "The focus is on empathetic, professional, and effective communication to resolve customer issues.",
-    KeyTopics: [
-      "Customer Service",
-      "Problem Resolution",
-      "Effective Communication",
-      "Empathy",
-    ],
-    FrameworksModels: [
-      "Active listening",
-      "Conflict resolution techniques",
-      "Empathy-based customer service",
-    ],
-    Lessons: [
-      "Be empathetic",
-      "Listen actively",
-      "Provide concise, clear solutions",
-    ],
+      "The speaker expresses indignation over a perceived mockery of Christianity, referencing an incident that involved disrespecting religious symbols during the Olympics opening ceremony.",
+    KeyTopics: ["Religious disrespect", "Cultural degradation"],
+    FrameworksModels: null,
+    Lessons: null,
     KeyMessage:
-      "The customer’s needs are the priority, and solutions should be provided efficiently with empathy.",
+      "The speaker is urging recognition and action against public disrespect towards Christianity and cultural institutions.",
     SpeakersPerspective:
-      "A balanced approach to customer service that considers both the customer's needs and the company’s objectives.",
-    PersonalStories:
-      "None provided, but the philosophy reflects personal experience with service-based interactions.",
+      "{creatorname} conveys a strong disapproval and sense of betrayal regarding the handling of Christian symbols in public settings, emphasizing the intentional nature of these actions.",
+    PersonalStories: null,
     CommonQuestions: [
-      "How do I troubleshoot this issue?",
-      "What is causing the delay?",
-      "Can you offer compensation?",
-    ],
-  },
-};
-
-let json2 = {
-  LabeledTranscript:
-    "nullI want to turn to the war between Israel and Hamas in Gaza. What is your view of this war?\nSpeaker 1: I think when you call it a war, you're doing a disservice to the people who are having their limbs blown off by some of the most advanced technical weaponry on the planet. It is a genocide, and it is disgusting...",
-  PersonaCharacteristics: {
-    Profession: "Professional Speaker",
-    PersonalBackgroundAndValues: {
-      Education: "Varies",
-      Hobbies: ["Debating", "Political Commentary"],
-      CoreValues: ["Justice", "Fairness", "Transparency"],
-    },
-    PersonalityTraits: {
-      Primary: "Assertive",
-      Secondary: ["Opinionated", "Passionate", "Intense"],
-    },
-    PhilosophyAndViews: {
-      CustomerServicePhilosophy: "N/A",
-      Worldview:
-        "A strong advocate for recognizing and addressing injustices in global conflicts, emphasizing a need for recognition of humanitarian crises.",
-    },
-  },
-  Communication: {
-    CommunicationInstructions: {
-      Tone: "Direct, Critical, Emphatic",
-      Instructions:
-        "Use strong language to emphasize points, maintain a direct approach when addressing sensitive subjects.",
-    },
-    SampleCommunication: {
-      Greeting: "What is your view on the current geopolitical crisis?",
-      IssueAcknowledgement:
-        "I recognize the severity and the human impact of these events, and it's crucial we discuss this openly.",
-    },
-    Demeanor:
-      "Firm, confrontational, and unyielding, especially on topics of moral and ethical concern.",
-    InterpersonalSkills: ["Debate", "Negotiation", "Strategic Communication"],
-    CommunicationStyle:
-      "Eloquent and forceful, utilizing rhetoric to challenge and persuade.",
-    InteractionExamples: {
-      IssueResolution:
-        "Focusing on proposing solutions or improvements to crisis management strategies.",
-      TechnicalIssue:
-        "Discussing the implications of military strategies and their humanitarian impact.",
-    },
-    ShortPhrases: [
-      "Absolutely unacceptable.",
-      "It's imperative to understand...",
-      "We cannot ignore...",
-    ],
-    HowToExplainComplexConcepts:
-      "Uses analogies related to warfare and human rights to make complex geopolitical issues relatable and understandable.",
-  },
-  SpecificStrategiesAndTechniques: {
-    ProductAndServices:
-      "Offering insights into conflict resolution and international diplomacy.",
-    ObjectionHandling:
-      "Addressing counterarguments with structured responses and factual backing.",
-  },
-  AdditionalContent: {
-    MainPoints:
-      "The conversation emphasizes the distinction between acts of war and acts of terrorism, critiquing the ethical implications of military tactics.",
-    KeyTopics: ["International Relations", "Human Rights", "Ethics of Warfare"],
-    FrameworksModels: ["Debate tactics", "Rhetorical strategies"],
-    Lessons: [
-      "Understanding the complexity of global conflicts",
-      "Recognizing the human impact of warfare",
-    ],
-    KeyMessage:
-      "Acts of violence, particularly in geopolitical conflicts, must be critically examined beyond surface-level labels.",
-    SpeakersPerspective:
-      "Believes strongly in assessing the intricate details and backgrounds of international incidents.",
-    PersonalStories:
-      "References personal experiences and observations relevant to discussions of oppression and injustice.",
-    CommonQuestions: [
-      "What defines an act of terrorism?",
-      "How can international communities effectively address human rights violations in conflict zones?",
+      "Why is there public disrespect towards Christianity?",
+      "What was the incident referred to by {creatorname}?",
     ],
   },
 };

@@ -171,6 +171,142 @@ const fetchVideoCaptions = async (youtube, videoId) => {
     : JSON.stringify(captionData);
 };
 
+function getDataWithUserIdAdded(user, data) {
+  const updatedData = data.map((item, index) => {
+    return {
+      ...item, // Spread the existing user object
+      userId: user.id, // Add a new key 'userId' with a value (you can customize this)
+    };
+  });
+  return updatedData;
+}
+
+async function AddPersonalBeliefsAndValue(json, user) {
+  let traits = json.PersonaCharacteristics.PersonalValues;
+
+  const updatedTraits = getDataWithUserIdAdded(user, traits);
+
+  console.log("Personal Value ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.UserValues.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("Values added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No Values found");
+  }
+
+  let beliefs = json.PersonaCharacteristics.PersonalBeliefs;
+  const updatedBeliefs = getDataWithUserIdAdded(user, beliefs);
+
+  console.log("Personal Value ", updatedBeliefs);
+  if (updatedBeliefs) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.UserBeliefs.bulkCreate(updatedBeliefs, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("Beliefs added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No Beliefs found");
+  }
+}
+
+async function AddTraits(json, user) {
+  let traits = json.PersonaCharacteristics.PersonalityTraits;
+  const updatedTraits = getDataWithUserIdAdded(user, traits);
+
+  console.log("Personality Traits ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.PersonalityTrait.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["trait"],
+      });
+      console.log("Traits added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No traits found");
+  }
+}
+async function AddFrameworks(json, user) {
+  let traits = json.Communication.FrameworksAndTechniques;
+  const updatedTraits = getDataWithUserIdAdded(user, traits);
+
+  console.log("Personality Traits ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.FrameworkAndTechnique.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("Frameworks added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No Frameworks found");
+  }
+}
+
+async function AddIntractionExample(json, user) {
+  let traits = json.Communication.InteractionExamples;
+  const updatedTraits = getDataWithUserIdAdded(user, traits);
+
+  console.log("Intraction Examples ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.IntractionExample.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["question"],
+      });
+      console.log("Intraction Ex added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No Intraction Ex found");
+  }
+}
+
+async function AddAllData(json, user) {
+  console.log("Json to add ", json);
+  try {
+    console.log("Adding Traits");
+    await AddTraits(json, user);
+  } catch (error) {
+    console.log("Error Adding Traits", error);
+  }
+  try {
+    console.log("Adding Frameworks");
+    await AddFrameworks(json, user);
+  } catch (error) {
+    console.log("Error Adding Frame", error);
+  }
+  try {
+    console.log("Adding Beliefs");
+    await AddPersonalBeliefsAndValue(json, user);
+  } catch (error) {
+    console.log("Error Adding Beliefs And Values", error);
+  }
+  try {
+    console.log("Adding Intractions");
+    await AddIntractionExample(json, user);
+  } catch (error) {
+    console.log("Error Adding Intractions", error);
+  }
+}
+
 export const fetchVideoCaptionsAndProcessWithPrompt = async (
   videoId,
   user,
@@ -235,32 +371,10 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
       }
 
       //add the personality traits to the db table
-
-      let traits = json.PersonaCharacteristics.PersonalityTraits;
-      const updatedTraits = traits.map((trait, index) => {
-        return {
-          ...trait, // Spread the existing user object
-          userId: user.id, // Add a new key 'userId' with a value (you can customize this)
-        };
-      });
-
-      console.log("Personality Traits ", updatedTraits);
-      if (updatedTraits) {
-        try {
-          // Use await with bulkCreate to insert the users
-          await db.PersonalityTrait.bulkCreate(updatedTraits, {
-            updateOnDuplicate: ["trait"],
-          });
-          console.log("Traits added successfully!");
-        } catch (error) {
-          console.error("Error inserting users:", error);
-        }
-      } else {
-        console.log("No traits found");
-      }
+      await AddAllData(json, user);
     }
   } catch (error) {
-    console.log("Error parsing json", summary.summary);
+    console.log("Error parsing json");
   }
 
   video.caption = transcript;
@@ -268,7 +382,7 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
   video.tokensUsed = summary.tokensUsed || 0;
   video.cost = summary.cost || 0;
   let saved = await video.save();
-  console.log("Fetched Summary", summary.summary);
+  // console.log("Fetched Summary", summary.summary);
   //Summarize here
 };
 
