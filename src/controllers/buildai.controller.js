@@ -48,6 +48,26 @@ export const MyAi = async (req, res) => {
           userId: userId,
         },
       });
+      let Values = await db.UserValues.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+      let beliefs = await db.UserBeliefs.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+      let intractions = await db.IntractionExample.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+      let Frameworks = await db.FrameworkAndTechnique.findAll({
+        where: {
+          userId: userId,
+        },
+      });
       res.send({
         status: true,
         data: {
@@ -56,6 +76,10 @@ export const MyAi = async (req, res) => {
           products: products,
           questions: questions,
           traits: personalityTraits,
+          beliefs: beliefs,
+          values: Values,
+          frameworks: Frameworks,
+          intractions: intractions,
         },
         message: "My AI",
       });
