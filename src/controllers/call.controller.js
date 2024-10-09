@@ -419,7 +419,9 @@ export const WebhookSynthflow = async (req, res) => {
     },
   });
 
-  data.email = caller.email;
+  if (data && data.lead) {
+    data.lead.email = caller.email;
+  }
 
   //only generate summary if the call status is empty or null otherwise don't
   console.log(`DB Call status${dbCall.status}`);
