@@ -126,6 +126,9 @@ export const MakeACall = async (req, res) => {
     let basePrompt = assistant.prompt;
     basePrompt = basePrompt.replace("{prospect_name}", Name);
     //find if any previous calls exist
+    console.log("#############################################\n");
+    console.log("Base prompt being sent ", basePrompt);
+    console.log("#############################################\n");
     let calls = await db.CallModel.findAll({
       where: {
         phone: PhoneNumber,
