@@ -479,7 +479,7 @@ export const WebhookSynthflow = async (req, res) => {
       const ghlResponse = await axios.post(webhook, data, {
         headers: {
           "Content-Type": "application/json",
-          // 'Authorization': `Bearer GHL_API_KEY`, // Add any necessary headers
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2NhdGlvbl9pZCI6IlVvSVlheDZaRjBQOURzNnhhNm1DIiwidmVyc2lvbiI6MSwiaWF0IjoxNzI1MzA4NzU1NjI3LCJzdWIiOiJaT3RBV2VQUGFnTzgzY2NvT0swNyJ9.o-PckxoKRwm8nJk712tho__n1MczZ8B1of-lihdt7p4`, // Add any necessary headers
         },
       });
       console.log("Data sent to GHL:", dbCall.callId);
