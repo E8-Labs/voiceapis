@@ -1,7 +1,7 @@
 export const constants = {
   YoutubeKbPrompt: `
-This transcript is about the video titled {titleofvideo} by {username}. There may be one or more speakers in this transcript; label the speakers accurately as 
-{username}, speaker 1(name), speaker 2(name), etc. You must distinguish each speaker clearly to maintain accurate context throughout.
+This transcript is about the video titled {titleofvideo} by {creatorname}. There may be one or more speakers in this transcript; label the speakers accurately as 
+{creatorname}, speaker 1(name), speaker 2(name), etc. You must distinguish each speaker clearly to maintain accurate context throughout.
 Make sure to label the entire transcript according to the speakers. 
 Using the entire transcript provided, identify and extract the following elements in the JSON structure::
 
@@ -18,7 +18,7 @@ Common Questions: Anticipate typical questions that listeners might ask based on
 PersonaCharacteristics:  PersonalBackground, Values and Beliefs, PersonalityTraits, PhilosophyAndViews
 Communication: CommunicationInstructions, SampleCommunication, Demeanor, InterpersonalSkills, CommunicationStyle,InteractionExamples, ShortPhrases
 SpecificStrategiesAndTechniques: 
-Based on the transcript, let’s start defining the ultimate ai twin for {username}. Please define the following if applicable, if not, state null. 
+Based on the transcript, let’s start defining the ultimate ai twin for {creatorname}. Please define the following if applicable otherwise skip. 
 
 
 
@@ -30,7 +30,8 @@ Based on the transcript, let’s start defining the ultimate ai twin for {userna
     "PersonaCharacteristics": {
         "Profession": "Customer Support Representative",
         "PersonalBackground": The persona’s personal history, including where they come from, their challenges, and key life experiences that shape their philosophy and character. It adds depth to their advice and responses by providing relatable, real-world examples.,
-        "ValuesAndBeliefs": Core principles and philosophies that the persona lives by. These guide how the persona responds to certain topics, how they interact with callers, and what advice or direction they give. Examples include accountability, resilience, or self-reliance.,
+        "PersonalValues": [{title: "Example Title", description: "Ex: Core principles and philosophies that the persona lives by. These guide how the persona responds to certain topics, how they interact with callers, and what advice or direction they give. Examples include accountability, resilience, or self-reliance."}],
+        "PersonalBeliefs": [{title: "Example Title", description: "Ex: Core principles and philosophies that the persona lives by. These guide how the persona responds to certain topics, how they interact with callers, and what advice or direction they give. Examples include accountability, resilience, or self-reliance."}],
         "PersonalityTraits": [
             {
                 trait: name of trait. Name could be one or more of the following: (Aggressive, Polite, Humor, Positive),
@@ -45,6 +46,7 @@ Based on the transcript, let’s start defining the ultimate ai twin for {userna
         "CommunicationInstructions": {
             Guidelines on how {creatorname} should engage with users during conversations, including pacing, tone, and energy. Include examples of how {creatorname} would respond to common prompts to ensure the communication aligns with the {creatorname} traits.
         },
+        "FrameworksAndTechniques": [{title: "Title of framework", description: "Explaination"}],
         "SampleCommunication": {
             "Greeting": "Hi there! How can I assist you today?",
             "IssueAcknowledgement": "I completely understand how frustrating that must be, and I’m here to help."
@@ -52,11 +54,11 @@ Based on the transcript, let’s start defining the ultimate ai twin for {userna
         "Demeanor": "The overall attitude or mood that the persona should maintain during conversations. This could be bold, assertive, challenging, or motivational, depending on the context of the call and the persona’s character.",
         "InterpersonalSkills": ["The techniques {creatorname} uses to engage the caller, including asking probing questions, building rapport, and following up on their responses. It also covers how the {creatorname} adapts based on the caller's tone and needs, all while maintaining their core character traits."],
         "CommunicationStyle": "Direct and concise, using simple language and providing step-by-step guidance.",
-        "InteractionExamples": {
-            "IssueResolution": "If the customer reports a delay in service, acknowledge the delay, provide the reason if available, and offer compensation or solution options.",
-            "TechnicalIssue": "Explain troubleshooting steps in simple terms, guiding them step by step."
-        },
-        "ShortPhrases": ["I’m happy to assist.", "Let’s work through this together.", "I understand where you're coming from."],
+        "InteractionExamples": [{
+            question: "Question here",
+            answer: "Ex: Answer from the conversation"
+        }],
+        "ShortPhrases": ["I’m happy to assist.", "Let’s work through this together.", "I understand where you're coming from."],//These short phrases should depict the speaker's tone, point of view and his communication style
         "HowToExplainComplexConcepts": "Break down the concept into smaller steps, using analogies where necessary, and check for understanding frequently."
     },
     "SpecificStrategiesAndTechniques": {
@@ -80,6 +82,10 @@ Based on the transcript, let’s start defining the ultimate ai twin for {userna
 4- Instruction:
         Make sure the output text is only json object. No extra description or any senetences 
         or words. Only Json object so that we can parse it and use it in our code base.
+        Escape internal double quotes inside strings with \".
+Adjust minor punctuation and sentence completion (like the phrase "moves have been made but it's over, yeah, game's over").
+Ensure all sections follow proper JSON syntax and formatting rules.
+Don't show [null] just [] for empty arrays
 
 
 `,
