@@ -475,7 +475,7 @@ export const WebhookSynthflow = async (req, res) => {
     }
 
     console.log("Sending TO GHL", webhook);
-
+    console.log("Data sending to GHL:", data);
     try {
       const ghlResponse = await axios.post(webhook, data, {
         headers: {
