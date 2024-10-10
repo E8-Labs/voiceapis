@@ -648,7 +648,7 @@ export async function DeleteFramework(req, res) {
 
     let userId = authData.user.id;
     let { id } = req.body;
-    let trait = await db.FrameworkAndTechnique.findByPk(frameworkId);
+    let trait = await db.FrameworkAndTechnique.findByPk(id);
     let del = await db.FrameworkAndTechnique.destroy({
       where: {
         id: frameworkId,
@@ -678,7 +678,7 @@ export async function UpdateFramework(req, res) {
 
     let userId = authData.user.id;
     let { id } = req.body;
-    let trait = await db.FrameworkAndTechnique.findByPk(frameworkId);
+    let trait = await db.FrameworkAndTechnique.findByPk(id);
 
     if (req.body.title) {
       trait.title = req.body.title;
