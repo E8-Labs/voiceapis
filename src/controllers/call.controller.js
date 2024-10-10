@@ -124,7 +124,11 @@ export const MakeACall = async (req, res) => {
   console.log("Model ", assistant.modelId);
   try {
     let basePrompt = assistant.prompt;
+    basePrompt = basePrompt.replace("{prospect_name}", Name);
     //find if any previous calls exist
+    console.log("#############################################\n");
+    console.log("Base prompt being sent ", basePrompt);
+    console.log("#############################################\n");
     let calls = await db.CallModel.findAll({
       where: {
         phone: PhoneNumber,
@@ -415,6 +419,10 @@ export const WebhookSynthflow = async (req, res) => {
     },
   });
 
+  if (data && data.lead) {
+    data.lead.email = caller.email;
+  }
+
   //only generate summary if the call status is empty or null otherwise don't
   console.log(`DB Call status${dbCall.status}`);
   if (dbCall.status == "" || dbCall.status == null) {
@@ -474,12 +482,12 @@ export const WebhookSynthflow = async (req, res) => {
     }
 
     console.log("Sending TO GHL", webhook);
-
+    console.log("Data sending to GHL:", data);
     try {
       const ghlResponse = await axios.post(webhook, data, {
         headers: {
           "Content-Type": "application/json",
-          // 'Authorization': `Bearer GHL_API_KEY`, // Add any necessary headers
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2NhdGlvbl9pZCI6IlVvSVlheDZaRjBQOURzNnhhNm1DIiwidmVyc2lvbiI6MSwiaWF0IjoxNzI1MzA4NzU1NjI3LCJzdWIiOiJaT3RBV2VQUGFnTzgzY2NvT0swNyJ9.o-PckxoKRwm8nJk712tho__n1MczZ8B1of-lihdt7p4`, // Add any necessary headers
         },
       });
       console.log("Data sent to GHL:", dbCall.callId);
