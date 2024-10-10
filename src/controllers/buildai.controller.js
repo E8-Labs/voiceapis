@@ -651,7 +651,7 @@ export async function DeleteFramework(req, res) {
     let trait = await db.FrameworkAndTechnique.findByPk(id);
     let del = await db.FrameworkAndTechnique.destroy({
       where: {
-        id: frameworkId,
+        id: id,
       },
     });
     if (del) {
