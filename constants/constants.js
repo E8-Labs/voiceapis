@@ -89,4 +89,23 @@ Don't show [null] just [] for empty arrays
 
 
 `,
+
+  CallSummaryPrompt: `You'll be summarizing the transcript between {model_name} AI and {caller_name}. Keep the summary in 
+      plain simple words. Bullet list the key details, main topics and actiaonable steps that we discussed.
+
+1. Transcript Information:
+* Utilize the new call transcript provided here: {transcript}.
+* Combine this with the existing call summary here: {prevSummary}
+
+2. Comprehensive Summary Generation:
+* Create a complete and cohesive summary that integrates both the new and previous call information.
+* This summary should encompass all conversations held between {model_name} AI and {caller_name}, capturing the full scope of their interactions.
+
+3. Key Details to Include:
+* Ensure that names, personal stories, topics discussed, and any other pertinent details are thoroughly documented.
+* Highlight any significant themes, decisions, or follow-up actions that may be relevant for future conversations.
+
+4. Purpose and Usage:
+* This summary will be used to house and reference all the different calls and conversations between {model_name} AI and {caller_name}.
+* It is crucial that the summary is detailed and comprehensive to support future interactions, allowing for seamless continuity in conversations.`,
 };

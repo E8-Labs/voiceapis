@@ -4,6 +4,7 @@ import { loadCards } from "../services/stripe.js";
 import CallLiteResource from "../resources/callliteresource.js";
 import OpenAI from "openai";
 import { ChargeCustomer } from "../services/stripe.js";
+import { constants } from "../../constants/constants.js";
 
 // export const MakeACall = async(req, res) => {
 
@@ -689,24 +690,14 @@ const generateGptSummary = async (
     // const openaiClient = new openai.OpenAIApi({
     //   apiKey: process.env.AIKey, // Make sure your API key is set in environment variables
     // });
+
+    let callPromptText = constants.CallSummaryPrompt;
+    callPromptText = callPromptText.replace("{model_name}", model.name);
+    callPromptText = callPromptText.replace("{caller_name}", caller.name);
+    callPromptText = callPromptText.replace("{transcript}", transcript);
+    callPromptText = callPromptText.replace("{prevSummary}", prevSummary);
     const prompt = {
-      content: `You'll be summarizing the transcript between ${model.name} AI and ${caller.name}.
-
-1. Transcript Information:
-* Utilize the new call transcript provided here: ${transcript}.
-* Combine this with the existing call summary here: ${prevSummary}
-
-2. Comprehensive Summary Generation:
-* Create a complete and cohesive summary that integrates both the new and previous call information.
-* This summary should encompass all conversations held between ${model.name} AI and ${caller.name}, capturing the full scope of their interactions.
-
-3. Key Details to Include:
-* Ensure that names, personal stories, topics discussed, and any other pertinent details are thoroughly documented.
-* Highlight any significant themes, decisions, or follow-up actions that may be relevant for future conversations.
-
-4. Purpose and Usage:
-* This summary will be used to house and reference all the different calls and conversations between ${model.name} AI and ${caller.name}.
-* It is crucial that the summary is detailed and comprehensive to support future interactions, allowing for seamless continuity in conversations.`,
+      content: callPromptText,
       role: "system",
     };
 

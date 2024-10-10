@@ -213,7 +213,7 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
                 userId: p.id,
               },
               order: [["productPrice", "DESC"]], // Top products by price, adjust if necessary
-              limit: 20,
+              limit: 50,
             });
 
             const pRes = await UserProfileFullResource(p);
@@ -279,4 +279,14 @@ export const GetCreatorsAndTopProducts = async (req, res) => {
       }
     }
   });
+};
+
+//For pagination on caller dashboard
+export const GetCreatorProducts = async (req, res) => {
+  //get creator products with pagination
+};
+
+//For pagination on caller dashboard
+export const GetPurchasedProducts = async (req, res) => {
+  //get creator products with pagination
 };

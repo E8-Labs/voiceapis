@@ -97,22 +97,20 @@ fastify.register(fastifyFormBody);
 fastify.register(fastifyWs);
 
 fastify.all("/incoming-call", async (request, reply) => {
-  const callSid = request.query.CallSid || ""; // Get the CallSid from the incoming call
-  console.log(`Call started with Call SID: ${callSid}`);
+  console.log("Incoming content type:", request.headers["content-type"]); // Log content type
 
-  console.log(`Call started at hose: ${request.headers.host}`);
+  const callSid = request.query.CallSid || request.body.CallSid || ""; // Handle both GET and POST
+  console.log(`Call started with Call SID: ${callSid}`);
 
   const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
                           <Response>
                               <Say>Please wait</Say>
                               <Pause length="1"/>
                               <Say>OK, Speak!</Say>
-                              <Connect>
-                                  <Stream url="wss://${request.headers.host}:5050/media-stream?callSid=${callSid}" />
-                              </Connect>
                           </Response>`;
   reply.type("text/xml").send(twimlResponse);
 });
+
 const openAiWs = new WebSocket(
   "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01",
   {
@@ -216,7 +214,7 @@ fastify.post("/call-status", async (request, reply) => {
   console.log(`Call SID: ${callSid} is now ${callStatus}`);
 
   // Store or update the status in your database or application
-  reply.sendStatus(200);
+  reply.status(200).send({ data: "Call status received" });
 });
 
 // Define the GET route for call-status

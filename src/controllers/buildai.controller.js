@@ -647,7 +647,7 @@ export async function DeleteFramework(req, res) {
     }
 
     let userId = authData.user.id;
-    let { frameworkId } = req.body;
+    let { id } = req.body;
     let trait = await db.FrameworkAndTechnique.findByPk(frameworkId);
     let del = await db.FrameworkAndTechnique.destroy({
       where: {
@@ -677,7 +677,7 @@ export async function UpdateFramework(req, res) {
     }
 
     let userId = authData.user.id;
-    let { frameworkId } = req.body;
+    let { id } = req.body;
     let trait = await db.FrameworkAndTechnique.findByPk(frameworkId);
 
     if (req.body.title) {
