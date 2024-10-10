@@ -56,7 +56,7 @@ fastify.all("/incoming-call", async (request, reply) => {
                               <Pause length="1"/>
                               <Say>Start talking</Say>
                               <Connect>
-                                  <Stream url="wss://${request.headers.host}/media-stream" />
+                                  <Stream url="wss://0476-182-186-72-132.ngrok-free.app/media-stream" />
                               </Connect>
                           </Response>`;
 
@@ -190,7 +190,7 @@ fastify.post("/call-status", async (request, reply) => {
   console.log(`Call SID: ${CallSid} is now ${CallStatus}`);
 
   // Store or update the status in your database or application
-  reply.sendStatus(200);
+  reply.status(200).send("Status received");
 });
 
 // Define the GET route for call-status
