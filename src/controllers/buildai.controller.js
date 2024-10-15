@@ -68,10 +68,35 @@ export const MyAi = async (req, res) => {
           userId: userId,
         },
       });
+      let Philosophies = await db.UserPhilosophyAndViews.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+      let DoNots = await db.DonotDiscuss.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+      let PhrasesAndQuotes = await db.PhrasesAndQuotes.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+      let CommunicationInstructions =
+        await db.CommunicationInstructions.findAll({
+          where: {
+            userId: userId,
+          },
+        });
       res.send({
         status: true,
         data: {
           ai: ai,
+          Philosophies: Philosophies,
+          DoNots: DoNots,
+          PhrasesAndQuotes: PhrasesAndQuotes,
+          CommunicationInstructions: CommunicationInstructions,
           kb: kb,
           products: products,
           questions: questions,
