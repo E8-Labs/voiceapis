@@ -483,10 +483,10 @@ export async function StartCallTwilio(req, res) {
   try {
     // Make an outbound call using Twilio
     const call = await client.calls.create({
-      url: "https://6ad5-182-186-72-132.ngrok-free.app/incoming-call", // URL for TwiML to handle the call logic
+      url: "https://3210-182-186-72-132.ngrok-free.app/incoming-call", // URL for TwiML to handle the call logic
       to: toPhoneNumber, // Destination number
       from: "+12136064500", // Twilio number you're calling from (213) 606-4500
-      statusCallback: "https://6ad5-182-186-72-132.ngrok-free.app/call-status", // Set this to track call events
+      statusCallback: "https://3210-182-186-72-132.ngrok-free.app/call-status", // Set this to track call events
     });
 
     console.log(`Call initiated successfully! Call SID: ${call.sid}`);

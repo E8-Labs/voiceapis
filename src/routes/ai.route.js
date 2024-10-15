@@ -22,6 +22,18 @@ import {
   AddIntractionExample,
   DeleteIntractionExample,
   UpdateIntractionExample,
+  AddPhilosophyAndViews,
+  UpdateUserPhilosophyAndViews,
+  DeletePhilosophyAndViews,
+  AddPhrasesAndQuotes,
+  UpdatePhrasesAndQuotes,
+  DeletePhrasesAndQuotes,
+  AddCommunicationInstruction,
+  UpdateCommunicationInstruction,
+  DeleteCommunicationInstruction,
+  AddDonotDiscuss,
+  UpdateDonotDiscuss,
+  DeleteDonotDiscuss,
 } from "../controllers/buildai.controller.js";
 
 import { verifyJwtToken } from "../middleware/jwtmiddleware.js";
@@ -52,6 +64,96 @@ AiRouter.post("/updateFramework", verifyJwtToken, uploadFiles, UpdateFramework);
 AiRouter.post("/addUserValue", verifyJwtToken, uploadFiles, AddUserValue);
 AiRouter.post("/deleteUserValue", verifyJwtToken, uploadFiles, DeleteUserValue);
 AiRouter.post("/updateUserValue", verifyJwtToken, uploadFiles, UpdateUserValue);
+
+AiRouter.post(
+  "/addPhraseAndQuote",
+  verifyJwtToken,
+  uploadFiles,
+  AddPhrasesAndQuotes
+);
+AiRouter.post(
+  "/deletePhraseAndQuote",
+  verifyJwtToken,
+  uploadFiles,
+  DeletePhrasesAndQuotes
+);
+AiRouter.post(
+  "/updatePhraseAndQuote",
+  verifyJwtToken,
+  uploadFiles,
+  UpdatePhrasesAndQuotes
+);
+
+AiRouter.post(
+  "/addCommunicationInstruction",
+  verifyJwtToken,
+  uploadFiles,
+  AddCommunicationInstruction
+);
+AiRouter.post(
+  "/deleteCommunicationInstruction",
+  verifyJwtToken,
+  uploadFiles,
+  DeleteCommunicationInstruction
+);
+AiRouter.post(
+  "/updateCommunicationInstruction",
+  verifyJwtToken,
+  uploadFiles,
+  UpdateCommunicationInstruction
+);
+
+AiRouter.post("/addDonotDiscuss", verifyJwtToken, uploadFiles, AddDonotDiscuss);
+AiRouter.post(
+  "/deleteDonotDiscuss",
+  verifyJwtToken,
+  uploadFiles,
+  DeleteDonotDiscuss
+);
+AiRouter.post(
+  "/updateDonotDiscuss",
+  verifyJwtToken,
+  uploadFiles,
+  UpdateDonotDiscuss
+);
+
+AiRouter.post(
+  "/addIntractionExample",
+  verifyJwtToken,
+  uploadFiles,
+  AddIntractionExample
+);
+AiRouter.post(
+  "/deleteIntractionExample",
+  verifyJwtToken,
+  uploadFiles,
+  DeleteIntractionExample
+);
+AiRouter.post(
+  "/updateIntractionExample",
+  verifyJwtToken,
+  uploadFiles,
+  UpdateIntractionExample
+);
+
+AiRouter.post(
+  "/addUserPhilosophy",
+  verifyJwtToken,
+  uploadFiles,
+  AddPhilosophyAndViews
+);
+AiRouter.post(
+  "/deleteUserPhilosophy",
+  verifyJwtToken,
+  uploadFiles,
+  DeletePhilosophyAndViews
+);
+AiRouter.post(
+  "/updateUserPhilosophy",
+  verifyJwtToken,
+  uploadFiles,
+  UpdateUserPhilosophyAndViews
+);
 
 AiRouter.post("/addUserBelief", verifyJwtToken, uploadFiles, AddUserBelief);
 AiRouter.post(

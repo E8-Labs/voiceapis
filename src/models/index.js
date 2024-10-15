@@ -25,6 +25,10 @@ import FrameworkAndTechnique from "./ai/frameworks.model.js";
 import UserValues from "./ai/values.model.js";
 import UserBeliefs from "./ai/beliefs.model.js";
 import IntractionExample from "./ai/intraction.model.js";
+import UserPhilosophyAndViews from "./ai/philosophyviews.model.js";
+import PhrasesAndQuotes from "./ai/phrasesandquotes.model.js";
+import DonotDiscuss from "./ai/donotdiscuss.model.js";
+import CommunicationInstructions from "./ai/communicationinstructions.model.js";
 
 const sequelize = new Sequelize(
   dbConfig.MYSQL_DB,
@@ -124,6 +128,18 @@ models["UserBeliefs"] = db.UserBeliefs;
 
 db.IntractionExample = IntractionExample(sequelize, Sequelize);
 models["IntractionExample"] = db.IntractionExample;
+
+db.UserPhilosophyAndViews = UserPhilosophyAndViews(sequelize, Sequelize);
+models["UserPhilosophyAndViews"] = db.UserPhilosophyAndViews;
+
+db.PhrasesAndQuotes = PhrasesAndQuotes(sequelize, Sequelize);
+models["PhrasesAndQuotes"] = db.PhrasesAndQuotes;
+
+db.CommunicationInstructions = CommunicationInstructions(sequelize, Sequelize);
+models["CommunicationInstructions"] = db.CommunicationInstructions;
+
+db.DonotDiscuss = DonotDiscuss(sequelize, Sequelize);
+models["DonotDiscuss"] = db.DonotDiscuss;
 
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {

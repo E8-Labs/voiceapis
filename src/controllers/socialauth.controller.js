@@ -351,30 +351,40 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
     let json = JSON.parse(summary.summary);
     let metaData = null;
     if (json) {
-      metaData = {
-        MainPoints: json.AdditionalContent.MainPoints,
-        KeyTopics: json.AdditionalContent.KeyTopics,
-        FrameworksModels: json.AdditionalContent.FrameworksModels,
-        KeyTopics: json.AdditionalContent.KeyTopics,
-        videoDbId: video.id,
-        videoTitle: video.title,
-      };
-      if (!video.addedToDb) {
-        let added = await addToVectorDb(transcript, user, "youtube", metaData);
-        if (added) {
-          console.log("Added to vector db");
-          video.addedToDb = true;
-          // return res.send({ message: "Added", status: true, data: added });
+      try {
+        metaData = {
+          MainPoints: json.AdditionalContent.MainPoints,
+          KeyTopics: json.AdditionalContent.KeyTopics,
+          FrameworksModels: json.AdditionalContent.FrameworksModels,
+          KeyTopics: json.AdditionalContent.KeyTopics,
+          videoDbId: video.id,
+          videoTitle: video.title,
+        };
+        if (!video.addedToDb) {
+          let added = await addToVectorDb(
+            transcript,
+            user,
+            "youtube",
+            metaData
+          );
+          if (added) {
+            console.log("Added to vector db");
+            video.addedToDb = true;
+            // return res.send({ message: "Added", status: true, data: added });
+          }
+        } else {
+          console.log("Already added to vdb");
         }
-      } else {
-        console.log("Already added to vdb");
+        //add the personality traits to the db table
+        await AddAllData(json, user);
+      } catch (error) {
+        console.log("error while scraping data from json");
+        console.log(error);
       }
-
-      //add the personality traits to the db table
-      await AddAllData(json, user);
     }
   } catch (error) {
     console.log("Error parsing json");
+    console.log(error);
   }
 
   video.caption = transcript;
@@ -399,10 +409,11 @@ async function processVideoTranscript(transcript, user, video) {
     // Make the request to the OpenAI API
 
     let kbPrompt = constants.YoutubeKbPrompt;
-    kbPrompt = kbPrompt.replace("{username}", user.username);
-    kbPrompt = kbPrompt.replace("{creatorname}", user.username);
-    kbPrompt = kbPrompt.replace("{titleofvideo}", video.title);
+    kbPrompt = kbPrompt.replace(/{username}/g, user.username);
+    kbPrompt = kbPrompt.replace(/{creatorname}/g, user.username);
+    kbPrompt = kbPrompt.replace(/{titleofvideo}/g, video.title);
 
+    console.log("prompt ", kbPrompt);
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
