@@ -2,6 +2,10 @@ import { Pinecone } from "@pinecone-database/pinecone";
 import { split } from "sentence-splitter";
 import OpenAI from "openai";
 import { encode, decode } from "gpt-3-encoder";
+
+import dotenv from "dotenv";
+dotenv.config();
+
 const openai = new OpenAI({ apiKey: process.env.AIKey });
 
 const pineconeClient = new Pinecone({
@@ -126,7 +130,7 @@ export const findVectorData = async (
       )
     );
     // return allResults
-    // console.log("Found context for user", contextTexts);
+    console.log("Found context for user", contextTexts);
     let context = "";
     contextTexts.map((text) => {
       context = `${context}\n${text}`;
