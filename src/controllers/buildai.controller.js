@@ -16,96 +16,99 @@ import {
 import { create } from "domain";
 import { createProductAndPaymentLink } from "../services/stripe.js";
 
+const GetAiForUser = async (userId) => {
+  let ai = await db.UserAi.findOne({
+    where: {
+      userId: userId,
+    },
+  });
+  let kb = await db.KnowledgeBase.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+
+  let products = await db.SellingProducts.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+
+  let questions = await db.KycQuestions.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+
+  let personalityTraits = await db.PersonalityTrait.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+  let Values = await db.UserValues.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+  let beliefs = await db.UserBeliefs.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+  let intractions = await db.IntractionExample.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+  let Frameworks = await db.FrameworkAndTechnique.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+  let Philosophies = await db.UserPhilosophyAndViews.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+  let DoNots = await db.DonotDiscuss.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+  let PhrasesAndQuotes = await db.PhrasesAndQuotes.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+  let CommunicationInstructions = await db.CommunicationInstructions.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+  return {
+    ai: ai,
+    Philosophies: Philosophies,
+    DoNots: DoNots,
+    PhrasesAndQuotes: PhrasesAndQuotes,
+    CommunicationInstructions: CommunicationInstructions,
+    kb: kb,
+    products: products,
+    questions: questions,
+    traits: personalityTraits,
+    beliefs: beliefs,
+    values: Values,
+    frameworks: Frameworks,
+    intractions: intractions,
+  };
+};
 export const MyAi = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
-      let ai = await db.UserAi.findOne({
-        where: {
-          userId: userId,
-        },
-      });
-      let kb = await db.KnowledgeBase.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-
-      let products = await db.SellingProducts.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-
-      let questions = await db.KycQuestions.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-
-      let personalityTraits = await db.PersonalityTrait.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-      let Values = await db.UserValues.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-      let beliefs = await db.UserBeliefs.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-      let intractions = await db.IntractionExample.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-      let Frameworks = await db.FrameworkAndTechnique.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-      let Philosophies = await db.UserPhilosophyAndViews.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-      let DoNots = await db.DonotDiscuss.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-      let PhrasesAndQuotes = await db.PhrasesAndQuotes.findAll({
-        where: {
-          userId: userId,
-        },
-      });
-      let CommunicationInstructions =
-        await db.CommunicationInstructions.findAll({
-          where: {
-            userId: userId,
-          },
-        });
+      let ai = GetAiForUser(userId);
       res.send({
         status: true,
-        data: {
-          ai: ai,
-          Philosophies: Philosophies,
-          DoNots: DoNots,
-          PhrasesAndQuotes: PhrasesAndQuotes,
-          CommunicationInstructions: CommunicationInstructions,
-          kb: kb,
-          products: products,
-          questions: questions,
-          traits: personalityTraits,
-          beliefs: beliefs,
-          values: Values,
-          frameworks: Frameworks,
-          intractions: intractions,
-        },
+        data: ai,
         message: "My AI",
       });
     } else {
@@ -580,7 +583,8 @@ export async function AddTrait(req, res) {
       type: "manual",
     });
     if (added) {
-      return res.send({ status: true, message: "Trait added", data: added });
+      let ai = GetAiForUser(userId);
+      return res.send({ status: true, message: "Trait added", data: ai });
     } else {
       return res.send({
         status: false,
@@ -606,7 +610,8 @@ export async function DeleteTrait(req, res) {
       },
     });
     if (del) {
-      return res.send({ status: true, message: "Trait deleted", data: null });
+      let ai = GetAiForUser(userId);
+      return res.send({ status: true, message: "Trait deleted", data: ai });
     } else {
       return res.send({
         status: false,
@@ -635,7 +640,8 @@ export async function UpdateTrait(req, res) {
     }
 
     let saved = await trait.save();
-    return res.send({ status: true, message: "Trait saved", data: trait });
+    let ai = GetAiForUser(userId);
+    return res.send({ status: true, message: "Trait saved", data: ai });
   });
 }
 
@@ -655,10 +661,11 @@ export async function AddFramework(req, res) {
       type: "manual",
     });
     if (added) {
+      let ai = GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Framework added",
-        data: added,
+        data: ai,
       });
     } else {
       return res.send({
@@ -685,10 +692,11 @@ export async function DeleteFramework(req, res) {
       },
     });
     if (del) {
+      let ai = GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Framework deleted",
-        data: null,
+        data: ai,
       });
     } else {
       return res.send({
@@ -718,7 +726,8 @@ export async function UpdateFramework(req, res) {
     }
 
     let saved = await trait.save();
-    return res.send({ status: true, message: "Framework saved", data: trait });
+    let ai = GetAiForUser(userId);
+    return res.send({ status: true, message: "Framework saved", data: ai });
   });
 }
 
@@ -738,10 +747,11 @@ export async function AddUserValue(req, res) {
       type: "manual",
     });
     if (added) {
+      let ai = GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing added",
-        data: added,
+        data: ai,
       });
     } else {
       return res.send({
@@ -768,10 +778,11 @@ export async function DeleteUserValue(req, res) {
       },
     });
     if (del) {
+      let ai = GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing deleted",
-        data: null,
+        data: ai,
       });
     } else {
       return res.send({
@@ -801,7 +812,8 @@ export async function UpdateUserValue(req, res) {
     }
 
     let saved = await trait.save();
-    return res.send({ status: true, message: "Listing saved", data: trait });
+    let ai = GetAiForUser(userId);
+    return res.send({ status: true, message: "Listing saved", data: ai });
   });
 }
 
@@ -820,7 +832,8 @@ export async function AddPhilosophyAndViews(req, res) {
       type: "manual",
     });
     if (added) {
-      return res.send({ status: true, message: "Listing added", data: added });
+      let ai = await GetAiForUser(userId);
+      return res.send({ status: true, message: "Listing added", data: ai });
     } else {
       return res.send({
         status: false,
@@ -852,10 +865,11 @@ export async function DeletePhilosophyAndViews(req, res) {
         data: null,
       });
     } else {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: false,
         message: "Listing not deleted",
-        data: null,
+        data: ai,
       });
     }
   });
@@ -879,7 +893,8 @@ export async function UpdateUserPhilosophyAndViews(req, res) {
     }
 
     let saved = await trait.save();
-    return res.send({ status: true, message: "Listing saved", data: trait });
+    let ai = await GetAiForUser(userId);
+    return res.send({ status: true, message: "Listing saved", data: ai });
   });
 }
 
@@ -899,10 +914,11 @@ export async function AddUserBelief(req, res) {
       type: "manual",
     });
     if (added) {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing added",
-        data: added,
+        data: ai,
       });
     } else {
       return res.send({
@@ -929,10 +945,11 @@ export async function DeleteUserBelief(req, res) {
       },
     });
     if (del) {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing deleted",
-        data: null,
+        data: ai,
       });
     } else {
       return res.send({
@@ -962,7 +979,8 @@ export async function UpdateUserBelief(req, res) {
     }
 
     let saved = await trait.save();
-    return res.send({ status: true, message: "Listing saved", data: trait });
+    let ai = await GetAiForUser(userId);
+    return res.send({ status: true, message: "Listing saved", data: ai });
   });
 }
 
@@ -982,10 +1000,11 @@ export async function AddIntractionExample(req, res) {
       type: "manual",
     });
     if (added) {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing added",
-        data: added,
+        data: ai,
       });
     } else {
       return res.send({
@@ -1012,10 +1031,11 @@ export async function DeleteIntractionExample(req, res) {
       },
     });
     if (del) {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing deleted",
-        data: null,
+        data: ai,
       });
     } else {
       return res.send({
@@ -1045,7 +1065,8 @@ export async function UpdateIntractionExample(req, res) {
     }
 
     let saved = await trait.save();
-    return res.send({ status: true, message: "Listing saved", data: trait });
+    let ai = await GetAiForUser(userId);
+    return res.send({ status: true, message: "Listing saved", data: ai });
   });
 }
 
@@ -1065,10 +1086,11 @@ export async function AddDonotDiscuss(req, res) {
       type: "manual",
     });
     if (added) {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing added",
-        data: added,
+        data: ai,
       });
     } else {
       return res.send({
@@ -1095,10 +1117,11 @@ export async function DeleteDonotDiscuss(req, res) {
       },
     });
     if (del) {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing deleted",
-        data: null,
+        data: ai,
       });
     } else {
       return res.send({
@@ -1125,7 +1148,8 @@ export async function UpdateDonotDiscuss(req, res) {
     }
 
     let saved = await trait.save();
-    return res.send({ status: true, message: "Listing saved", data: trait });
+    let ai = await GetAiForUser(userId);
+    return res.send({ status: true, message: "Listing saved", data: ai });
   });
 }
 
@@ -1145,10 +1169,11 @@ export async function AddPhrasesAndQuotes(req, res) {
       type: "manual",
     });
     if (added) {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing added",
-        data: added,
+        data: ai,
       });
     } else {
       return res.send({
@@ -1175,10 +1200,11 @@ export async function DeletePhrasesAndQuotes(req, res) {
       },
     });
     if (del) {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing deleted",
-        data: null,
+        data: ai,
       });
     } else {
       return res.send({
@@ -1209,7 +1235,8 @@ export async function UpdatePhrasesAndQuotes(req, res) {
     }
 
     let saved = await trait.save();
-    return res.send({ status: true, message: "Listing saved", data: trait });
+    let ai = await GetAiForUser(userId);
+    return res.send({ status: true, message: "Listing saved", data: ai });
   });
 }
 
@@ -1229,10 +1256,11 @@ export async function AddCommunicationInstruction(req, res) {
       type: "manual",
     });
     if (added) {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing added",
-        data: added,
+        data: ai,
       });
     } else {
       return res.send({
@@ -1259,10 +1287,11 @@ export async function DeleteCommunicationInstruction(req, res) {
       },
     });
     if (del) {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing deleted",
-        data: null,
+        data: ai,
       });
     } else {
       return res.send({
@@ -1292,7 +1321,8 @@ export async function UpdateCommunicationInstruction(req, res) {
     }
 
     let saved = await trait.save();
-    return res.send({ status: true, message: "Listing saved", data: trait });
+    let ai = await GetAiForUser(userId);
+    return res.send({ status: true, message: "Listing saved", data: ai });
   });
 }
 
