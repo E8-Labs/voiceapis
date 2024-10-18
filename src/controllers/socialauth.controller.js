@@ -397,7 +397,6 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
 
 // The function to summarize transcript using the GPT-4 model
 async function processVideoTranscript(transcript, user, video) {
-  // console.log("Transcript ", transcript);
   const model = "gpt-4-turbo"; // You specified gpt-4, or it can be "gpt-4-turbo"
   const apiUrl = "https://api.openai.com/v1/chat/completions";
 
