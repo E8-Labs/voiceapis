@@ -5,6 +5,7 @@ import axios from "axios";
 import { google } from "googleapis";
 import { addToVectorDb } from "../services/pindeconedb.js";
 import { constants } from "../../constants/constants.js";
+import { processVideoTranscript } from "../services/kbservice.js";
 
 const User = db.User;
 const Op = db.Sequelize.Op;
@@ -396,70 +397,6 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
 };
 
 // The function to summarize transcript using the GPT-4 model
-async function processVideoTranscript(transcript, user, video) {
-  const model = "gpt-4-turbo"; // You specified gpt-4, or it can be "gpt-4-turbo"
-  const apiUrl = "https://api.openai.com/v1/chat/completions";
-
-  // Pricing details for GPT-4
-  const pricePer1000Tokens = 0.03; // $0.03 per 1K tokens for GPT-4 (adjust this based on OpenAI's pricing)
-
-  try {
-    // Make the request to the OpenAI API
-
-    let kbPrompt = constants.YoutubeKbPrompt;
-    kbPrompt = kbPrompt.replace(/{username}/g, user.username);
-    kbPrompt = kbPrompt.replace(/{creatorname}/g, user.username);
-    kbPrompt = kbPrompt.replace(/{titleofvideo}/g, video.title);
-
-    console.log("prompt ", kbPrompt);
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.AIKey}`,
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          {
-            role: "system",
-            content: kbPrompt,
-          },
-          {
-            role: "user",
-            content: `Here is the transcript: ${transcript}`,
-          },
-        ],
-        max_tokens: 4000, // Limit the number of tokens for the response (adjust as needed)
-      }),
-    });
-
-    // Parse the response
-    const result = await response.json();
-
-    // Extract tokens used and summary from the response
-    console.log("GPT Response ", result);
-    let content = result.choices[0].message.content;
-    content = content.replace(new RegExp("```json", "g"), "");
-    content = content.replace(new RegExp("```", "g"), "");
-    content = content.replace(new RegExp("\n", "g"), "");
-    const summary = content;
-    const tokensUsed = result.usage.total_tokens;
-    const cost = (tokensUsed / 1000) * pricePer1000Tokens;
-
-    // Return the summary, token count, and cost in a JSON object
-    return {
-      summary: summary,
-      tokensUsed: tokensUsed,
-      cost: cost.toFixed(4), // Formatting cost to 4 decimal places
-    };
-  } catch (error) {
-    console.error("Error summarizing text:", error);
-    return {
-      error: error.message,
-    };
-  }
-}
 
 //################## Youtube Auth START ####################
 export const AddGoogleAuth = async (req, res) => {

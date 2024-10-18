@@ -859,17 +859,17 @@ export async function DeletePhilosophyAndViews(req, res) {
       },
     });
     if (del) {
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing deleted",
-        data: null,
+        data: ai,
       });
     } else {
-      let ai = await GetAiForUser(userId);
       return res.send({
         status: false,
         message: "Listing not deleted",
-        data: ai,
+        data: null,
       });
     }
   });

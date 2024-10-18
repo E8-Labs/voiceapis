@@ -20,6 +20,10 @@ const YouTubeVideo = (sequelize, Sequelize) => {
       type: Sequelize.TEXT("medium"),
       allowNull: true,
     },
+    labeledTranscript: {
+      type: Sequelize.TEXT("medium"),
+      allowNull: true,
+    },
     summary: {
       type: Sequelize.TEXT("medium"),
       allowNull: true,
