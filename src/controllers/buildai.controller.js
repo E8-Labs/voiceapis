@@ -1040,8 +1040,8 @@ export async function UpdateIntractionExample(req, res) {
     if (req.body.question) {
       trait.question = req.body.question;
     }
-    if (req.body.anwer) {
-      trait.anwer = req.body.anwer;
+    if (req.body.answer) {
+      trait.answer = req.body.answer;
     }
 
     let saved = await trait.save();
