@@ -317,6 +317,7 @@ export const UpdateYourAi = async (req, res) => {
         webinarUrl,
         goalTitle,
         goalUrl,
+        aiObjective,
       } = req.body;
 
       const updateData = {};
@@ -378,6 +379,10 @@ export const UpdateYourAi = async (req, res) => {
         updateData.goalTitle = goalTitle;
       if (goalUrl !== null && goalUrl !== undefined)
         updateData.goalUrl = goalUrl;
+
+      // aiObjective
+      if (aiObjective !== null && aiObjective !== undefined)
+        updateData.aiObjective = aiObjective;
 
       //console.log("Data to update ", updateData)
       // Update the table in the database using Sequelize
@@ -807,9 +812,10 @@ export async function AddPhilosophyAndViews(req, res) {
     }
 
     let userId = authData.user.id;
-    let { description } = req.body;
+    let { title, description } = req.body;
     let added = await db.UserPhilosophyAndViews.create({
       description: description,
+      title: title,
       userId: userId,
       type: "manual",
     });
@@ -865,9 +871,9 @@ export async function UpdateUserPhilosophyAndViews(req, res) {
     let { id } = req.body;
     let trait = await db.UserPhilosophyAndViews.findByPk(id);
 
-    // if (req.body.title) {
-    //   trait.title = req.body.title;
-    // }
+    if (req.body.title) {
+      trait.title = req.body.title;
+    }
     if (req.body.description) {
       trait.description = req.body.description;
     }
@@ -1131,10 +1137,10 @@ export async function AddPhrasesAndQuotes(req, res) {
     }
 
     let userId = authData.user.id;
-    let { description } = req.body;
+    let { title, description } = req.body;
     let added = await db.PhrasesAndQuotes.create({
       description: description,
-
+      title: title,
       userId: userId,
       type: "manual",
     });
@@ -1198,6 +1204,10 @@ export async function UpdatePhrasesAndQuotes(req, res) {
       trait.description = req.body.description;
     }
 
+    if (req.body.title) {
+      trait.title = req.body.title;
+    }
+
     let saved = await trait.save();
     return res.send({ status: true, message: "Listing saved", data: trait });
   });
@@ -1211,10 +1221,10 @@ export async function AddCommunicationInstruction(req, res) {
     }
 
     let userId = authData.user.id;
-    let { description } = req.body;
+    let { title, description } = req.body;
     let added = await db.CommunicationInstructions.create({
       description: description,
-
+      title: title,
       userId: userId,
       type: "manual",
     });
@@ -1276,6 +1286,9 @@ export async function UpdateCommunicationInstruction(req, res) {
 
     if (req.body.description) {
       trait.description = req.body.description;
+    }
+    if (req.body.title) {
+      trait.title = req.body.title;
     }
 
     let saved = await trait.save();
