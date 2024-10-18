@@ -352,17 +352,16 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
     let metaData = null;
     if (json) {
       try {
-        metaData = {
-          MainPoints: json.AdditionalContent.MainPoints,
-          KeyTopics: json.AdditionalContent.KeyTopics,
-          FrameworksModels: json.AdditionalContent.FrameworksModels,
-          KeyTopics: json.AdditionalContent.KeyTopics,
-          videoDbId: video.id,
-          videoTitle: video.title,
+        const metaData = {
+          MainPoints: json.AdditionalContent?.MainPoints ?? "",
+          KeyTopics: json.AdditionalContent?.KeyTopics ?? "",
+          FrameworksModels: json.AdditionalContent?.FrameworksModels ?? "",
+          videoDbId: video?.id ?? "",
+          videoTitle: video?.title ?? "",
         };
-        if (!video.addedToDb) {
+        if (!video.addedToDb && json.LabeledTranscript) {
           let added = await addToVectorDb(
-            transcript,
+            transcript, //json.LabeledTranscript,
             user,
             "youtube",
             metaData
@@ -432,7 +431,7 @@ async function processVideoTranscript(transcript, user, video) {
             content: `Here is the transcript: ${transcript}`,
           },
         ],
-        // max_tokens: 3000, // Limit the number of tokens for the response (adjust as needed)
+        max_tokens: 4000, // Limit the number of tokens for the response (adjust as needed)
       }),
     });
 

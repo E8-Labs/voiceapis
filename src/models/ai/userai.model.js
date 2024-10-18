@@ -93,6 +93,11 @@ const UserAi = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       defaultValue: "",
     },
+    aiObjective: {
+      //from dashboard
+      type: Sequelize.STRING,
+      defaultValue: "",
+    },
   });
 
   return User;
