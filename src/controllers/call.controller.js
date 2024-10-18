@@ -62,11 +62,12 @@ export const MakeACall = async (req, res) => {
       userId: modelId,
     },
   });
+  console.log("No Assistant for", modelId);
   if (!assistant) {
     return res.send({
       status: false,
       message: "No such assistant",
-      data: null,
+      data: modelId,
       reason: "no_such_assistant",
     });
   }
@@ -125,7 +126,10 @@ export const MakeACall = async (req, res) => {
   console.log("Model ", assistant.modelId);
   try {
     let basePrompt = assistant.prompt;
-    basePrompt = basePrompt.replace("{prospect_name}", Name);
+    basePrompt = basePrompt.replace(/{prospect_name}/g, Name);
+    basePrompt = basePrompt.replace(/{phone}/g, PhoneNumber);
+    basePrompt = basePrompt.replace(/{email}/g, Email);
+    // kbPrompt = kbPrompt.replace(/{username}/g, user.username);
     //find if any previous calls exist
     console.log("#############################################\n");
     console.log("Base prompt being sent ", basePrompt);

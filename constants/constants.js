@@ -3,22 +3,10 @@ export const constants = {
  Your objective is to follow the three steps precisely.
 
 
-Step 1: This transcript is about the video titled "{titleofvideo}" by {creatorname}. There may be one or more speakers in this transcript.
-- Label the speakers accurately as Speaker 1 (name), Speaker 2 (name), etc. You must **identify and assign the names of the speakers** based on clues from the transcript. If the transcript clearly states the names of the speakers, use those names.
+This transcript is about the video titled "{titleofvideo}" by {creatorname}. There may be one or more speakers in this transcript.
 
 
-- Be mindful of the context, especially questions and answers, to distinguish between speakers.
-- For example, if {creatorname} is speaking, label them as "{creatorname}" instead of Speaker 1. If another speaker is the interviewer (or asks the majority of questions), label them with their name, e.g., "Piers Morgan."
- **Guidelines for labeling:**
-- If a speaker is identified by name in the transcript (e.g., "Piers, what do you think?"), use their name.
-- If the speaker is {creatorname}, label them as "{creatorname}" (not Speaker 1).
-- For additional speakers whose names are not provided, label them as Speaker 3, Speaker 4, etc.
-
-
-If the transcript provides no name for a speaker, but context strongly suggests who it might be (e.g., the host or interviewer), use logical inference to label them. Otherwise, keep the speaker as Speaker 2, Speaker 3, etc.
-
-
- Step 2: Using the entire transcript provided, identify and extract the following elements in the JSON structure:
+ Step 1: Using the entire transcript provided, identify and extract the following elements in the JSON structure:
  you may find instances where more than one apply so define and list all that relevant to that section:
  Main Points: Summarize the essential information or central argument.
  Key Topics: List the primary subjects or topics covered.
@@ -50,8 +38,7 @@ KeyQuotes: Memorable and impactful statements from {creatorname} that encapsulat
   Follow this JSON Format strictly as an example.
         
           {
-  "LabeledTranscript": "The transcript after identifying labelling speakers in the transcript. Label the full transcript after identifying the speakers",
-  "Creator": "Speaker who is {creatorname} i.e., if Speaker 1 is {creatorname}, then speaker 1; else speaker 2 or 3 or 4, etc.",
+  
   "PersonaCharacteristics": {
     "Profession": "Customer Support Representative",
     "PersonalBackground": "The creator’s personal history, including where they come from, their challenges, and key life experiences that shape their philosophy and character. It adds depth to their advice and responses by providing relatable, real-world examples.",
@@ -205,23 +192,27 @@ KeyQuotes: Memorable and impactful statements from {creatorname} that encapsulat
   
   
   `,
-  YoutubeLabellingPrompt: ` 
- Your objective is to follow the following instructions precisely.
+  YoutubeLabellingPrompt: `Your objective is to label the transcript for the video titled "{titleofvideo}" by {creatorname}. There may be multiple speakers in the transcript. Follow these instructions precisely:
 
-Step 1: This transcript is about the video titled "{titleofvideo}" by {creatorname}. There may be one or more speakers in this transcript.
-- Label the speakers accurately as Speaker 1 (name), Speaker 2 (name), etc. You must **identify and assign the names of the speakers** based on clues from the transcript. If the transcript clearly states the names of the speakers, use those names.
+1. **Identify and Label Speakers**:
+   - Label the speakers as **Speaker 1 (name)**, **Speaker 2 (name)**, etc. If the transcript clearly provides the names of the speakers, use their actual names instead of generic labels.
+   - Be mindful of the context (especially questions and answers) to accurately distinguish between speakers. For example, if {creatorname} is speaking, label them as "{creatorname}" instead of "Speaker 1".
+   - If another speaker (e.g., an interviewer) is frequently asking questions, label them with their name (e.g., "Piers Morgan").
 
+2. **Guidelines for Labeling**:
+   - If a speaker is directly addressed or identified by name in the transcript (e.g., "Piers, what do you think?"), use their name.
+   - If the speaker is {creatorname}, always label them as "{creatorname}".
+   - For additional speakers whose names are not provided, label them as Speaker 3, Speaker 4, etc.
+   
+3. **Inference for Unnamed Speakers**:
+   - If the transcript does not provide a name for a speaker, but the context suggests who it might be (e.g., the host or interviewer), use logical inference to label them.
+   - Otherwise, retain the label as Speaker 2, Speaker 3, etc.
 
-- Be mindful of the context, especially questions and answers, to distinguish between speakers.
-- For example, if {creatorname} is speaking, label them as "{creatorname}" instead of Speaker 1. If another speaker is the interviewer (or asks the majority of questions), label them with their name, e.g., "Piers Morgan."
- **Guidelines for labeling:**
-- If a speaker is identified by name in the transcript (e.g., "Piers, what do you think?"), use their name.
-- If the speaker is {creatorname}, label them as "{creatorname}" (not Speaker 1).
-- For additional speakers whose names are not provided, label them as Speaker 3, Speaker 4, etc.
+4. **Continuation**:
+   - If the transcript is long and cannot be labeled entirely in one response, continue from where you left off. Ensure the entire transcript is labeled in full, without leaving any gaps or missed speakers.
 
-If the transcript provides no name for a speaker, but context strongly suggests who it might be (e.g., the host or interviewer), use logical inference to label them. Otherwise, keep the speaker as Speaker 2, Speaker 3, etc.
-
-  `,
+Make sure the output is properly structured, with each speaker clearly labeled and each part of the conversation properly attributed.
+`,
 
   CallSummaryPrompt: `You'll be summarizing the transcript between {model_name} AI and {caller_name}. Keep the summary in 
         plain simple words. Bullet list the key details, main topics and actiaonable steps that we discussed.

@@ -344,8 +344,11 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
   console.log("Fetching Summary", videoId);
 
   //add the transcript to vdb
-
-  let summary = await processVideoTranscript(transcript, user, video);
+  let trans = transcript;
+  // if (video.LabeledTranscript) {
+  //   trans = video.LabeledTranscript;
+  // }
+  let summary = await processVideoTranscript(trans, user, video);
   video.summary = summary.summary || "";
   let saved1 = await video.save();
   try {

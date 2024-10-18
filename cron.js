@@ -176,33 +176,31 @@ import { LabelVideoTranscript } from "./src/services/kbservice.js";
 
 //Youtube Video Summary Generation Cron
 
-const YoutubeSummaryCronJob = nodeCron.schedule(
-  "*/1 * * * *",
-  async function () {
-    console.log("Cron Fetch Youtube Summary");
-    let videos = await db.YouTubeVideo.findAll({
-      where: {
-        summary: {
-          [db.Sequelize.Op.is]: null,
-        },
+async function ProcessLabelledTranscript() {
+  console.log("Cron Fetch Youtube Summary");
+  let videos = await db.YouTubeVideo.findAll({
+    where: {
+      summary: {
+        [db.Sequelize.Op.is]: null,
       },
-    });
+    },
+  });
 
-    if (videos) {
-      console.log("Videos Found :", videos.length);
-      for (let i = 0; i < videos.length; i++) {
-        let v = videos[i];
-        let user = await db.User.findByPk(v.userId);
-        fetchVideoCaptionsAndProcessWithPrompt(v.videoId, user, v);
-      }
+  if (videos) {
+    console.log("Videos Found :", videos.length);
+    for (let i = 0; i < videos.length; i++) {
+      let v = videos[i];
+      let user = await db.User.findByPk(v.userId);
+      fetchVideoCaptionsAndProcessWithPrompt(v.videoId, user, v);
     }
-
-    let videosNotLabelled;
   }
-);
-// YoutubeSummaryCronJob.start();
 
-const YoutubeLabelCronJob = nodeCron.schedule("*/1 * * * *", async function () {
+  let videosNotLabelled;
+}
+// const YoutubeSummaryCronJob = nodeCron.schedule("*/1 * * * *", ProcessLabelledTranscript);
+// YoutubeSummaryCronJob.start();
+ProcessLabelledTranscript();
+async function FindAndLabelYoutubeVideos() {
   console.log("Cron Fetch Youtube Labeled Transcript");
   let videos = await db.YouTubeVideo.findAll({
     where: {
@@ -229,9 +227,14 @@ const YoutubeLabelCronJob = nodeCron.schedule("*/1 * * * *", async function () {
   }
 
   let videosNotLabelled;
-});
-YoutubeLabelCronJob.start();
+}
+// const YoutubeLabelCronJob = nodeCron.schedule(
+//   "*/2 * * * *",
+//   FindAndLabelYoutubeVideos
+// );
+// YoutubeLabelCronJob.start();
 
+// FindAndLabelYoutubeVideos();
 // const WebScrapperCronJob = nodeCron.schedule(
 //   "*/30 * * * * *",
 //   async function () {
