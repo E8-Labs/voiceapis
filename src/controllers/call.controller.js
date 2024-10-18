@@ -62,8 +62,9 @@ export const MakeACall = async (req, res) => {
       userId: modelId,
     },
   });
-  console.log("No Assistant for", modelId);
+
   if (!assistant) {
+    console.log("No Assistant for", modelId);
     return res.send({
       status: false,
       message: "No such assistant",
