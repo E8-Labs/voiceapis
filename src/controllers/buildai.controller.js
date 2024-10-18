@@ -105,7 +105,7 @@ export const MyAi = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
-      let ai = GetAiForUser(userId);
+      let ai = await GetAiForUser(userId);
       res.send({
         status: true,
         data: ai,
@@ -583,7 +583,7 @@ export async function AddTrait(req, res) {
       type: "manual",
     });
     if (added) {
-      let ai = GetAiForUser(userId);
+      let ai = await GetAiForUser(userId);
       return res.send({ status: true, message: "Trait added", data: ai });
     } else {
       return res.send({
@@ -610,7 +610,7 @@ export async function DeleteTrait(req, res) {
       },
     });
     if (del) {
-      let ai = GetAiForUser(userId);
+      let ai = await GetAiForUser(userId);
       return res.send({ status: true, message: "Trait deleted", data: ai });
     } else {
       return res.send({
@@ -640,7 +640,7 @@ export async function UpdateTrait(req, res) {
     }
 
     let saved = await trait.save();
-    let ai = GetAiForUser(userId);
+    let ai = await GetAiForUser(userId);
     return res.send({ status: true, message: "Trait saved", data: ai });
   });
 }
@@ -661,7 +661,7 @@ export async function AddFramework(req, res) {
       type: "manual",
     });
     if (added) {
-      let ai = GetAiForUser(userId);
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Framework added",
@@ -692,7 +692,7 @@ export async function DeleteFramework(req, res) {
       },
     });
     if (del) {
-      let ai = GetAiForUser(userId);
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Framework deleted",
@@ -726,7 +726,7 @@ export async function UpdateFramework(req, res) {
     }
 
     let saved = await trait.save();
-    let ai = GetAiForUser(userId);
+    let ai = await GetAiForUser(userId);
     return res.send({ status: true, message: "Framework saved", data: ai });
   });
 }
@@ -747,7 +747,7 @@ export async function AddUserValue(req, res) {
       type: "manual",
     });
     if (added) {
-      let ai = GetAiForUser(userId);
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing added",
@@ -778,7 +778,7 @@ export async function DeleteUserValue(req, res) {
       },
     });
     if (del) {
-      let ai = GetAiForUser(userId);
+      let ai = await GetAiForUser(userId);
       return res.send({
         status: true,
         message: "Listing deleted",
@@ -812,7 +812,7 @@ export async function UpdateUserValue(req, res) {
     }
 
     let saved = await trait.save();
-    let ai = GetAiForUser(userId);
+    let ai = await GetAiForUser(userId);
     return res.send({ status: true, message: "Listing saved", data: ai });
   });
 }
