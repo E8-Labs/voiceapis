@@ -7,6 +7,7 @@ import { fetchVideoCaptionsAndProcessWithPrompt } from "./src/controllers/social
 import { ScrapWebUrl } from "./src/controllers/scraping.controller.js";
 
 import { KbProcessingCron } from "./src/controllers/buildai.controller.js";
+import { LabelVideoTranscript } from "./src/services/kbservice.js";
 
 // async function rechargeUsersAccounts() {
 //   let users = await db.User.findAll({
@@ -195,9 +196,41 @@ const YoutubeSummaryCronJob = nodeCron.schedule(
         fetchVideoCaptionsAndProcessWithPrompt(v.videoId, user, v);
       }
     }
+
+    let videosNotLabelled;
   }
 );
-YoutubeSummaryCronJob.start();
+// YoutubeSummaryCronJob.start();
+
+const YoutubeLabelCronJob = nodeCron.schedule("*/1 * * * *", async function () {
+  console.log("Cron Fetch Youtube Labeled Transcript");
+  let videos = await db.YouTubeVideo.findAll({
+    where: {
+      labeledTranscript: {
+        [db.Sequelize.Op.is]: null,
+      },
+    },
+  });
+
+  if (videos) {
+    console.log("Videos Not Labelled Found :", videos.length);
+    for (let i = 0; i < videos.length; i++) {
+      let v = videos[i];
+      let user = await db.User.findByPk(v.userId);
+      if (v.caption != null && v.caption != "") {
+        let labeled = await LabelVideoTranscript(v.caption, user, v);
+        if (labeled && labeled.labeledTranscript) {
+          v.labeledTranscript = labeled.labeledTranscript;
+          let saved = await v.save();
+          console.log("Video labeled and saved");
+        }
+      }
+    }
+  }
+
+  let videosNotLabelled;
+});
+YoutubeLabelCronJob.start();
 
 // const WebScrapperCronJob = nodeCron.schedule(
 //   "*/30 * * * * *",
