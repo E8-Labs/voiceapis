@@ -89,14 +89,16 @@ export const MakeACall = async (req, res) => {
   if (user) {
     //check whether the user allows Trial
     if (assistant.allowTrial) {
+      console.log("Assistant allows trial");
       //If yes
       //check the number of calls of this user with this model
-      if (calls && calls.length == 3) {
+      if (calls && calls.length >= 3) {
         return res.send({
           status: false,
           message: "You can only make 3 calls for this user",
           data: null,
           reason: "max_call_limit_trial_user_reached",
+          calls: calls.length,
         });
       }
     }
