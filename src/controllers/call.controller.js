@@ -95,7 +95,7 @@ export const MakeACall = async (req, res) => {
       if (calls && calls.length >= 3) {
         return res.send({
           status: false,
-          message: "You can only make 3 calls for this user",
+          message: "You've reached your maximum of 3 free calls.",
           data: null,
           reason: "max_call_limit_trial_user_reached",
           calls: calls.length,
