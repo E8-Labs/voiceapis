@@ -1,5 +1,8 @@
 import axios from "axios";
 import { constants } from "../../constants/constants.js";
+import { KbTypes } from "../models/ai/kbtype.model.js";
+import { CallOpenAi } from "./gptService.js";
+import { addToVectorDb } from "./pindeconedb.js";
 
 // export async function LabelVideoTranscript(transcript, user, video) {
 //   const model = "gpt-4-turbo"; // GPT-4 Turbo model
@@ -127,6 +130,142 @@ import { constants } from "../../constants/constants.js";
 //     };
 //   }
 // }
+
+export function getDataWithUserIdAdded(user, data) {
+  const updatedData = data.map((item, index) => {
+    return {
+      ...item, // Spread the existing user object
+      userId: user.id, // Add a new key 'userId' with a value (you can customize this)
+    };
+  });
+  return updatedData;
+}
+
+export async function AddPersonalBeliefsAndValue(json, user) {
+  let traits = json.PersonaCharacteristics.PersonalValues;
+
+  const updatedTraits = getDataWithUserIdAdded(user, traits);
+
+  console.log("Personal Value ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.UserValues.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("Values added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No Values found");
+  }
+
+  let beliefs = json.PersonaCharacteristics.PersonalBeliefs;
+  const updatedBeliefs = getDataWithUserIdAdded(user, beliefs);
+
+  console.log("Personal Value ", updatedBeliefs);
+  if (updatedBeliefs) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.UserBeliefs.bulkCreate(updatedBeliefs, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("Beliefs added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No Beliefs found");
+  }
+}
+
+export async function AddTraits(json, user) {
+  let traits = json.PersonaCharacteristics.PersonalityTraits;
+  const updatedTraits = getDataWithUserIdAdded(user, traits);
+
+  console.log("Personality Traits ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.PersonalityTrait.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["trait"],
+      });
+      console.log("Traits added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No traits found");
+  }
+}
+export async function AddFrameworks(json, user) {
+  let traits = json.Communication.FrameworksAndTechniques;
+  const updatedTraits = getDataWithUserIdAdded(user, traits);
+
+  console.log("Personality Traits ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.FrameworkAndTechnique.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("Frameworks added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No Frameworks found");
+  }
+}
+
+export async function AddIntractionExample(json, user) {
+  let traits = json.Communication.InteractionExamples;
+  const updatedTraits = getDataWithUserIdAdded(user, traits);
+
+  console.log("Intraction Examples ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.IntractionExample.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["question"],
+      });
+      console.log("Intraction Ex added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No Intraction Ex found");
+  }
+}
+
+export async function AddAllData(json, user) {
+  console.log("Json to add ", json);
+  try {
+    console.log("Adding Traits");
+    await AddTraits(json, user);
+  } catch (error) {
+    console.log("Error Adding Traits", error);
+  }
+  try {
+    console.log("Adding Frameworks");
+    await AddFrameworks(json, user);
+  } catch (error) {
+    console.log("Error Adding Frame", error);
+  }
+  try {
+    console.log("Adding Beliefs");
+    await AddPersonalBeliefsAndValue(json, user);
+  } catch (error) {
+    console.log("Error Adding Beliefs And Values", error);
+  }
+  try {
+    console.log("Adding Intractions");
+    await AddIntractionExample(json, user);
+  } catch (error) {
+    console.log("Error Adding Intractions", error);
+  }
+}
 
 export async function LabelVideoTranscript(transcript, user, video) {
   const model = "gpt-4-turbo"; // GPT-4 Turbo model
@@ -291,6 +430,98 @@ export async function LabelVideoTranscript(transcript, user, video) {
   }
 }
 
+//Youtube Video Transcripts
+export const fetchVideoCaptionsAndProcessWithPrompt = async (
+  videoId,
+  user,
+  video
+) => {
+  let data = "";
+
+  console.log("Fetching Transcript", user.id);
+  // return;
+  let transcript = video.caption;
+  if (transcript == null || transcript == "") {
+    console.log("Dont have transcript. Fetching New");
+    let config = {
+      method: "get",
+      maxBodyLength: Infinity,
+      url: `https://www.searchapi.io/api/v1/search?api_key=cYNn3AVjaS2eVN9yz75YbCCf&engine=youtube_transcripts&video_id=${videoId}`,
+      headers: {
+        Authorization: "Bearer cYNn3AVjaS2eVN9yz75YbCCf",
+      },
+      data: data,
+    };
+
+    let response = await axios.request(config);
+    let resData = response.data;
+    // console.log("Fetched Transcript", response);
+
+    resData.transcripts.map((t) => {
+      transcript += t.text;
+    });
+  } else {
+    console.log("Already have transcript. Using that.");
+  }
+
+  console.log("Fetching Summary", videoId);
+
+  //add the transcript to vdb
+  let trans = transcript;
+  // if (video.LabeledTranscript) {
+  //   trans = video.LabeledTranscript;
+  // }
+  let summary = await processVideoTranscript(trans, user, video);
+  video.summary = summary.summary || "";
+  let saved1 = await video.save();
+  try {
+    let json = JSON.parse(summary.summary);
+    let metaData = null;
+    if (json) {
+      try {
+        const metaData = {
+          MainPoints: json.AdditionalContent?.MainPoints ?? "",
+          KeyTopics: json.AdditionalContent?.KeyTopics ?? "",
+          FrameworksModels: json.AdditionalContent?.FrameworksModels ?? "",
+          videoDbId: video?.id ?? "",
+          videoTitle: video?.title ?? "",
+        };
+        if (!video.addedToDb) {
+          let added = await addToVectorDb(
+            transcript, //json.LabeledTranscript,
+            user,
+            "youtube",
+            metaData
+          );
+          if (added) {
+            console.log("Added to vector db");
+            video.addedToDb = true;
+            // return res.send({ message: "Added", status: true, data: added });
+          }
+        } else {
+          console.log("Already added to vdb");
+        }
+        //add the personality traits to the db table
+        await AddAllData(json, user);
+      } catch (error) {
+        console.log("error while scraping data from json");
+        console.log(error);
+      }
+    }
+  } catch (error) {
+    console.log("Error parsing json");
+    console.log(error);
+  }
+
+  video.caption = transcript;
+
+  video.tokensUsed = summary.tokensUsed || 0;
+  video.cost = summary.cost || 0;
+  let saved = await video.save();
+  // console.log("Fetched Summary", summary.summary);
+  //Summarize here
+};
+
 export async function processVideoTranscript(transcript, user, video) {
   const model = "gpt-4-turbo"; // You specified gpt-4, or it can be "gpt-4-turbo"
   const apiUrl = "https://api.openai.com/v1/chat/completions";
@@ -353,5 +584,93 @@ export async function processVideoTranscript(transcript, user, video) {
     return {
       error: error.message,
     };
+  }
+}
+
+//Document And Text Processing
+export async function ProcessDocumentAndTextKb() {
+  console.log("Kb processing start cron");
+  let kbs = await db.KnowledgeBase.findAll({
+    where: {
+      processed: false,
+    },
+  });
+
+  if (kbs) {
+    console.log("Found Kb ", kbs.length);
+    for (let i = 0; i < kbs.length; i++) {
+      let kb = kbs[i];
+
+      let user = await db.User.findByPk(kb.userId);
+      let kbPrompt = constants.KBPrompt;
+
+      let type = kb.type;
+      if (type == KbTypes.Document) {
+        kbPrompt = kbPrompt.replace(/{document_name}/g, kb.name);
+        kbPrompt = kbPrompt.replace(/{creatorname}/g, user.username);
+        kbPrompt = kbPrompt.replace(/{document_description}/g, kb.description);
+        kbPrompt = kbPrompt.replace(/{document_text}/g, kb.content); //document_text
+      }
+
+      let result = await CallOpenAi(prompt);
+      if (result.status) {
+        let content = result.message;
+        content = content.replace(new RegExp("```json", "g"), "");
+        content = content.replace(new RegExp("```", "g"), "");
+        content = content.replace(new RegExp("\n", "g"), "");
+        kb.processedData = content;
+        kb.processed = true;
+        let saved = await kb.save();
+        try {
+          let json = JSON.parse(content);
+          let metaData = null;
+          if (json) {
+            try {
+              const metaData = {
+                MainPoints: json.AdditionalContent?.MainPoints ?? "",
+                KeyTopics: json.AdditionalContent?.KeyTopics ?? "",
+                FrameworksModels:
+                  json.AdditionalContent?.FrameworksModels ?? "",
+                documentDbId: kb?.id ?? "",
+                documentTitle: kb?.name ?? "",
+              };
+              if (!kb.addedToDb) {
+                let added = await addToVectorDb(
+                  transcript, //json.LabeledTranscript,
+                  user,
+                  "Document",
+                  metaData
+                );
+                if (added) {
+                  console.log("Added to vector db");
+                  kb.addedToDb = true;
+                  await kb.save();
+                  // return res.send({ message: "Added", status: true, data: added });
+                }
+              } else {
+                console.log("Already added to vdb");
+              }
+              //add the personality traits to the db table
+              await AddAllData(json, user);
+            } catch (error) {
+              console.log("error while scraping data from json");
+              console.log(error);
+            }
+          }
+        } catch (error) {
+          console.log("Error parsing json");
+          console.log(error);
+        }
+        let aiProfile = await db.AIProfile.create({
+          userId: kb.userId,
+          profileData: content,
+        });
+        console.log("Kb updated and processed", content);
+      } else {
+        console.log("Kb processing error", result.error);
+      }
+    }
+  } else {
+    console.log("No Kbs to process");
   }
 }

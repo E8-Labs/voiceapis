@@ -79,7 +79,28 @@ export const MakeACall = async (req, res) => {
     },
   });
 
+  let calls = await db.CallModel.findAll({
+    where: {
+      phone: PhoneNumber,
+      modelId: modelId,
+    },
+  });
+
   if (user) {
+    //check whether the user allows Trial
+    if (assistant.allowTrial) {
+      //If yes
+      //check the number of calls of this user with this model
+      if (calls && calls.length == 3) {
+        return res.send({
+          status: false,
+          message: "You can only make 3 calls for this user",
+          data: null,
+          reason: "max_call_limit_trial_user_reached",
+        });
+      }
+    }
+
     // user is in the database.
 
     //The below logic is discarded enclosed in #####
@@ -135,12 +156,7 @@ export const MakeACall = async (req, res) => {
     console.log("#############################################\n");
     console.log("Base prompt being sent ", basePrompt);
     console.log("#############################################\n");
-    let calls = await db.CallModel.findAll({
-      where: {
-        phone: PhoneNumber,
-        modelId: modelId,
-      },
-    });
+
     console.log(`Calls for phone ${PhoneNumber} `, calls.length);
     for (let i = 0; i < calls.length; i++) {
       let call = calls[i];
