@@ -294,7 +294,7 @@ export const MakeACall = async (req, res) => {
           let sentSalman = SendMail(
             "salman@e8-labs.com",
             "Call Failed",
-            (text = ""),
+            "",
             html
           );
           console.log("Emails sent ", sentSalman);
@@ -387,7 +387,7 @@ export const MakeACall = async (req, res) => {
         let sentSalman = SendMail(
           "salman@e8-labs.com",
           "Call Failed",
-          (text = ""),
+          "",
           html
         );
         console.log("Emails sent ", sentSalman);
