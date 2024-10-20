@@ -5,6 +5,7 @@ import CallLiteResource from "../resources/callliteresource.js";
 import OpenAI from "openai";
 import { ChargeCustomer } from "../services/stripe.js";
 import { constants } from "../../constants/constants.js";
+import { SendMail } from "../services/maileservice.js";
 
 // export const MakeACall = async(req, res) => {
 
@@ -224,6 +225,88 @@ export const MakeACall = async (req, res) => {
       })
       .catch((error) => {
         console.log(error);
+        ///check and send email
+        let html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error Notification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 20px;
+    }
+    .content {
+      font-size: 16px;
+      color: #333;
+      line-height: 1.5;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #888;
+    }
+    .error {
+      color: #D8000C;
+      background-color: #FFD2D2;
+      border: 1px solid #D8000C;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Error Notification</h2>
+    </div>
+    <div class="content">
+      <p>Dear Team,</p>
+      <p>An error occurred while attempting to start a voice call. Below are the details:</p>
+      <div class="error">
+        <p><strong>Status:</strong> Error</p>
+        <p><strong>Message:</strong> ${error.response.answer}.</p>
+        <p><strong>Model ID:</strong> ${assistant.modelId}</p>
+      </div>
+      <p>Please review the issue and take appropriate action.</p>
+      <p>Best regards,</p>
+      <p>Your Automated Notification System</p>
+    </div>
+    <div class="footer">
+      <p>&copy; 2024 Your Company. All Rights Reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+        let sent = SendMail(
+          "noahdeveloperr@gmail.com",
+          "Call Failed",
+          (text = ""),
+          html
+        );
+        let sentSalman = SendMail(
+          "salman@e8-labs.com",
+          "Call Failed",
+          (text = ""),
+          html
+        );
         res.send({
           status: false,
           message: "call is not initiated",
