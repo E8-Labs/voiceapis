@@ -225,6 +225,7 @@ export const MakeACall = async (req, res) => {
       })
       .catch((error) => {
         console.log(error);
+
         ///check and send email
         let html = `<!DOCTYPE html>
 <html>
@@ -295,18 +296,19 @@ export const MakeACall = async (req, res) => {
 </body>
 </html>
 `;
-        let sent = SendMail(
-          "noahdeveloperr@gmail.com",
-          "Call Failed",
-          (text = ""),
-          html
-        );
+        // let sent = SendMail(
+        //   "noahdeveloperr@gmail.com",
+        //   "Call Failed",
+        //   (text = ""),
+        //   html
+        // );
         let sentSalman = SendMail(
           "salman@e8-labs.com",
           "Call Failed",
           (text = ""),
           html
         );
+        console.log("Emails sent ", sentSalman);
         res.send({
           status: false,
           message: "call is not initiated",
