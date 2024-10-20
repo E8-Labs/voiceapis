@@ -285,12 +285,12 @@ export const MakeACall = async (req, res) => {
 </body>
 </html>
 `;
-          // let sent = SendMail(
-          //   "noahdeveloperr@gmail.com",
-          //   "Call Failed",
-          //   (text = ""),
-          //   html
-          // );
+          let sent = SendMail(
+            "noahdeveloperr@gmail.com",
+            "Call Failed",
+            "",
+            html
+          );
           let sentSalman = SendMail(
             "salman@e8-labs.com",
             "Call Failed",
@@ -378,12 +378,12 @@ export const MakeACall = async (req, res) => {
 </body>
 </html>
 `;
-        // let sent = SendMail(
-        //   "noahdeveloperr@gmail.com",
-        //   "Call Failed",
-        //   (text = ""),
-        //   html
-        // );
+        let sent = SendMail(
+          "noahdeveloperr@gmail.com",
+          "Call Failed",
+          "",
+          html
+        );
         let sentSalman = SendMail(
           "salman@e8-labs.com",
           "Call Failed",
