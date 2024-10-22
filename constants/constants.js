@@ -224,62 +224,64 @@ Make sure the output is properly structured, with each speaker clearly labeled a
   * It is crucial that the summary is detailed and comprehensive to support future interactions, allowing for seamless continuity in conversations.`,
   KBPrompt: `Your goal is to process documents shared by users in various formats: .txt, .doc, .docx, .rtf, .pdf, .ppt, .pptx, .xls, .xlsx, and .csv. Break them into meaningful sections or chunks and generate conversational prompt/response pairs based on the key points, frameworks, lessons, and common questions readers may ask. Before starting, gather the document name and description to understand its context and ensure accurate, meaningful responses.
 
-##Step 1: Document Overview
+## Step 1: Document Overview
 Use the following details:
-Document Name: {document_name}
-Description: {document_description}
-Content Of Document: {document_text}
-Extract Key Elements:
-Main points: Summarize the core message of each section.
-Key topics: Identify important subjects or themes.
-Frameworks: Note any models, strategies, or frameworks introduced.
-Lessons: Highlight the main lessons or takeaways.
-Message: Summarize the overall message of the section.
-Common questions: Anticipate questions the reader might ask about the content.
+- **Document Name**: {document_name}
+- **Description**: {document_description}
+- **Content Of Document**: {document_text}
 
- Step 3: Based on the transcript, let’s start defining the ultimate ai twin for {creatorname}. Please define the following if applicable
- otherwise skip.
-  Follow this JSON Format strictly as an example.
-        
-          {
-  
+Extract Key Elements:
+- **Main Points**: Summarize the core message of each section.
+- **Key Topics**: Identify important subjects or themes.
+- **Frameworks**: Note any models, strategies, or frameworks introduced.
+- **Lessons**: Highlight the main lessons or takeaways.
+- **Message**: Summarize the overall message of the section.
+- **Common Questions**: Anticipate questions the reader might ask about the content.
+
+## Step 2: Define the Ultimate AI Twin
+Based on the transcript, let's define the ultimate AI twin for {creatorname}. Please define the following, if applicable; otherwise, skip. Follow this **strict JSON format**. Ensure **no extra text, explanations, or comments are added** beyond the required JSON structure.
+
+### JSON Structure Example:
+
+
+{
   "PersonaCharacteristics": {
     "Profession": "Customer Support Representative",
-    "PersonalBackground": "The creator’s personal history, including where they come from, their challenges, and key life experiences that shape their philosophy and character. It adds depth to their advice and responses by providing relatable, real-world examples.",
+    "PersonalBackground": "The creator’s personal history...",
     "PersonalValues": [
       {
         "title": "Personal Value Title",
-        "description": "Ex: Core principles and philosophies that the {creatorname} lives by. These guide how the {creatorname} responds to certain topics, how they interact with callers, and what advice or direction they give. Examples include accountability, resilience, or self-reliance."
+        "description": "Ex: Core principles and philosophies..."
       }
     ],
     "PersonalBeliefs": [
       {
         "title": "Persona Beliefs Title",
-        "description": "Ex: Core principles and philosophies that the {creatorname} lives by. These guide how the {creatorname} responds to certain topics, how they interact with callers, and what advice or direction they give. Examples include accountability, resilience, or self-reliance."
+        "description": "Ex: Core principles and philosophies..."
       }
     ],
     "PersonalityTraits": [
       {
-        "trait": "Name of trait. Examples include aggressive, polite, humor, positive, etc.",
-        "score": "Score from 1-10 depending on the conversation"
+        "trait": "Name of trait",
+        "score": "Score from 1-10"
       }
     ],
     "PhilosophyAndViews": [
       {
         "title": "Philosophy and View Title",
-        "description": "Ex: The overarching worldview or ideology that shapes how {creatorname} perceives the world and communicates advice. It includes {creatorname}'s understanding of human nature, society, personal growth, and the purpose of life. This framework influences their responses, offering a unique lens through which they interpret challenges, opportunities, and human behavior. Examples could include stoicism, self-empowerment, or an emphasis on pragmatic realism. Their philosophy also determines how they approach different topics, from success and relationships to hardship and failure, always reflecting their core worldview."
+        "description": "The overarching worldview or ideology..."
       }
     ]
   },
   "Communication": {
     "CommunicationInstructions": [
       {
-        "pacing": "The speed and rhythm of {creatorname}'s speech or responses. It could be fast and energetic when discussing exciting topics, or slower and more thoughtful when explaining complex ideas.",
-        "tone": "The emotional quality or attitude {creatorname} conveys through their words. This can range from assertive and challenging to supportive and motivational, shaping the overall feel of the conversation.",
-        "intonation": "The rise and fall of {creatorname}'s voice, used to emphasize key points, express emotion, and keep the audience engaged. It helps convey the intensity and focus of their message.",
+        "pacing": "The speed and rhythm of {creatorname}'s speech...",
+        "tone": "The emotional quality or attitude...",
+        "intonation": "The rise and fall of {creatorname}'s voice...",
         "sample": {
-          "scenario" : "Communication scenario",
-          "prompt": "prompt here",
+          "scenario": "Communication scenario",
+          "prompt": "Prompt here",
           "response": "Response here"
         }
       }
@@ -292,97 +294,101 @@ Common questions: Anticipate questions the reader might ask about the content.
     ],
     "SampleCommunication": {
       "Greeting": "Hi there! How can I assist you today?",
-      "IssueAcknowledgement": "I completely understand how frustrating that must be, and I’m here to help."
+      "IssueAcknowledgement": "I completely understand..."
     },
     "Demeanor": [
       {
         "title": "Demeanor Title",
-        "description": "Ex: The overall attitude or mood that {creatorname} maintains during conversations. This could be bold, assertive, challenging, or motivational, depending on the context of the conversation in the transcript and the {creatorname} character."
+        "description": "The overall attitude or mood..."
       }
     ],
     "InterpersonalSkills": [
       {
         "title": "Interpersonal Skills Title",
-        "description": "Ex: The techniques {creatorname} uses to engage the caller, including asking probing questions, building rapport, and following up on their responses. It also covers how the {creatorname} adapts based on the caller's tone and needs, all while maintaining their core character traits."
+        "description": "The techniques {creatorname} uses..."
       }
     ],
     "CommunicationStyle": [
       {
         "title": "Communication Style Title",
-        "description": "Ex: The specific manner in which {creatorname} speaks, including the language, tone, and delivery. This includes whether they’re direct, blunt, sarcastic, or encouraging, and how they adjust their style depending on the flow of the conversation."
+        "description": "The specific manner in which {creatorname} speaks..."
       }
     ],
     "InteractionExamples": [
       {
         "Scenario": "Interaction Scenario",
         "question": "Question here",
-        "answer": "Ex: Answer from the conversation"
+        "answer": "Answer here"
       }
     ],
     "ShortPhrases": [
       {
         "title": "Short phrase title",
-        "description": "Ex: A collection of punchy, impactful phrases the {creatorname} can use to drive points home or punctuate dialogue. These should reflect the {creatorname} attitude and personality (e.g., Confidence Boost: 'You’ve got this, bro!')."
+        "description": "A collection of punchy, impactful phrases..."
       }
     ],
     "KeyQuotes": [
       {
-        "Memorable and impactful statements from {creatorname} that encapsulate their philosophy, values, or advice. These quotes serve as concise expressions of core beliefs or strategies and can be referenced frequently in conversations to reinforce important ideas. They are often powerful, thought-provoking, and easy to remember, leaving a lasting impression on the audience."
+        "Memorable and impactful statements..."
       }
     ]
   },
   "AdditionalContent": {
     "MainPoints": [
       {
-        "title": "main point title",
-        "description": "Ex: Identify and list the main points with a summary of the essential information or central argument."
+        "title": "Main Point Title",
+        "description": "Summary of the essential information..."
       }
     ],
     "KeyTopics": [
       {
-        "title": "key topic title",
-        "description": "List the primary subjects or topics covered in the conversation."
+        "title": "Key Topic Title",
+        "description": "Primary subjects or topics covered..."
       }
     ],
     "Lessons": [
       {
-        "title": "key lesson title",
-        "description": "Highlight the key lessons or takeaways communicated in the conversation for the listeners."
+        "title": "Key Lesson Title",
+        "description": "Highlight the key lessons or takeaways..."
       }
     ],
     "KeyMessage": [
       {
-        "title": "key message title",
-        "description": "Summarize the core message that the {creatorname} wants to convey."
+        "title": "Key Message Title",
+        "description": "Summarize the core message that {creatorname} wants to convey."
       }
     ],
     "SpeakersPerspective": [
       {
-        "title": "speaker perspective title",
-        "description": "Ex: Provide the {creatorname}'s unique viewpoint on the topic."
+        "title": "Speaker Perspective Title",
+        "description": "Provide {creatorname}'s unique viewpoint on the topic..."
       }
     ],
     "PersonalStories": [
       {
-        "title": "personal story title",
-        "description": "Ex: Identify any personal anecdotes or stories shared by {creatorname}."
+        "title": "Personal Story Title",
+        "description": "Identify any personal anecdotes or stories..."
       }
     ],
     "CommonQuestions": [
       {
-        "title": "common question title",
-        "description": "Ex: Anticipate typical questions that listeners might ask {creatorname} based on the content."
+        "title": "Common Question Title",
+        "description": "Anticipate typical questions that listeners might ask..."
       }
     ]
   }
 }
-Instruction:
-         Make sure the output text is only json object. No extra description or any sentences
-         or words. Only Json object so that we can parse it and use it in our code base.
 
-         Escape internal double quotes inside strings with \".
- Adjust minor punctuation and sentence completion (like the phrase "moves have been made but it's over, yeah, game's over").
- Ensure all sections follow proper JSON syntax and formatting rules.
- Don't show [null] just [] for empty arrays
-`,
+Additional Instructions:
+    Ensure the output is valid JSON, adhering strictly to this structure. No additional text, comments, or explanations should be included outside the JSON structure.
+    Handle empty fields gracefully: If there is no value for a field, use an empty string "" for strings, or an empty array [] for lists, and an empty object {} for objects.
+    Ensure completeness: Make sure the entire JSON structure is generated, properly formatted, and valid.
+    Internal double quotes should be escaped using \" within strings.
+    Adjust minor punctuation and sentence completion where needed.
+    Ensure all sections follow proper JSON syntax and formatting rules.
+    Do not include [null] values. If no data is available for a list, use [].
+    Response must be completed within 4000 tokens. If the document is too long, split the document into multiple sections and generate separate JSON outputs for each section.
+    Ensure that the JSON can be parsed using JavaScript’s JSON.parse(string) function.
+
+  `,
 };

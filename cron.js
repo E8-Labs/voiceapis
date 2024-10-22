@@ -2,13 +2,16 @@ import nodeCron from "node-cron";
 import db from "./src/models/index.js";
 import { GetACall } from "./src/controllers/call.controller.js";
 import { ChargeCustomer } from "./src/services/stripe.js";
-import { fetchVideoCaptionsAndProcessWithPrompt } from "./src/controllers/socialauth.controller.js";
+// import { fetchVideoCaptionsAndProcessWithPrompt } from "./src/controllers/socialauth.controller.js";
 
 import { ScrapWebUrl } from "./src/controllers/scraping.controller.js";
 
 // import { KbProcessingCron } from "./src/controllers/buildai.controller.js";
-import { ProcessDocumentAndTextKb } from "./src/services/kbservice.js";
-import { LabelVideoTranscript } from "./src/services/kbservice.js";
+import {
+  ProcessDocumentAndTextKb,
+  fetchVideoCaptionsAndProcessWithPrompt,
+} from "./src/services/kbservice.js";
+// import { LabelVideoTranscript } from "./src/services/kbservice.js";
 
 // async function rechargeUsersAccounts() {
 //   let users = await db.User.findAll({
@@ -177,33 +180,36 @@ import { LabelVideoTranscript } from "./src/services/kbservice.js";
 
 //Youtube Video Summary Generation Cron
 
-async function ProcessLabelledTranscript() {
-  console.log("Cron Fetch Youtube Summary");
-  let videos = await db.YouTubeVideo.findAll({
-    where: {
-      summary: {
-        [db.Sequelize.Op.is]: null,
-      },
-    },
-  });
+// async function ProcessLabelledTranscript() {
+//   console.log("Cron Fetch Youtube Summary");
+//   let videos = await db.YouTubeVideo.findAll({
+//     where: {
+//       summary: {
+//         [db.Sequelize.Op.is]: null,
+//       },
+//     },
+//   });
 
-  if (videos) {
-    console.log("Videos Found :", videos.length);
-    for (let i = 0; i < videos.length; i++) {
-      let v = videos[i];
-      let user = await db.User.findByPk(v.userId);
-      fetchVideoCaptionsAndProcessWithPrompt(v.videoId, user, v);
-    }
-  }
+//   if (videos) {
+//     console.log("Videos Found :", videos.length);
+//     for (let i = 0; i < videos.length; i++) {
+//       let v = videos[i];
+//       let user = await db.User.findByPk(v.userId);
+//       fetchVideoCaptionsAndProcessWithPrompt(v.videoId, user, v);
+//     }
+//   }
 
-  let videosNotLabelled;
-}
-const YoutubeSummaryCronJob = nodeCron.schedule(
-  "*/1 * * * *",
-  ProcessLabelledTranscript
-);
-YoutubeSummaryCronJob.start();
-// ProcessLabelledTranscript();
+//   let videosNotLabelled;
+// }
+
+//Youtube Kb Cron - Yes
+// const YoutubeSummaryCronJob = nodeCron.schedule(
+//   "*/1 * * * *",
+//   ProcessLabelledTranscript
+// );
+// YoutubeSummaryCronJob.start();
+
+ProcessLabelledTranscript();
 // async function FindAndLabelYoutubeVideos() {
 //   console.log("Cron Fetch Youtube Labeled Transcript");
 //   let videos = await db.YouTubeVideo.findAll({
@@ -232,6 +238,8 @@ YoutubeSummaryCronJob.start();
 
 //   let videosNotLabelled;
 // }
+
+//Youtube Kb Cron - No
 // const YoutubeLabelCronJob = nodeCron.schedule(
 //   "*/2 * * * *",
 //   FindAndLabelYoutubeVideos
@@ -279,5 +287,7 @@ YoutubeSummaryCronJob.start();
 // );
 // WebScrapperCronJob.start();
 
-const KbCron = nodeCron.schedule("*/30 * * * * *", ProcessDocumentAndTextKb);
-KbCron.start();
+//Document Kb Cron - Yes
+// const KbCron = nodeCron.schedule("*/1 * * * * *", ProcessDocumentAndTextKb);
+// KbCron.start();
+// ProcessDocumentAndTextKb();

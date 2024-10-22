@@ -34,7 +34,7 @@ const indexName = "voice-context";
 })();
 
 export async function CallOpenAi(data) {
-  const model = "gpt-4o"; // You specified gpt-4, or it can be "gpt-4-turbo"
+  const model = "gpt-4-turbo"; // You specified gpt-4, or it can be "gpt-4-turbo"
   const apiUrl = "https://api.openai.com/v1/chat/completions";
   const pricePer1000Tokens = 0.03;
   try {
@@ -50,7 +50,7 @@ export async function CallOpenAi(data) {
       body: JSON.stringify({
         model: model,
         messages: messages,
-        max_tokens: 1000, // Limit the number of tokens for the response (adjust as needed)
+        max_tokens: 4000, // Limit the number of tokens for the response (adjust as needed)
       }),
     });
 

@@ -29,6 +29,7 @@ import UserPhilosophyAndViews from "./ai/philosophyviews.model.js";
 import PhrasesAndQuotes from "./ai/phrasesandquotes.model.js";
 import DonotDiscuss from "./ai/donotdiscuss.model.js";
 import CommunicationInstructions from "./ai/communicationinstructions.model.js";
+import MainPoints from "./ai/mainpoints.model.js";
 
 const sequelize = new Sequelize(
   dbConfig.MYSQL_DB,
@@ -140,6 +141,9 @@ models["CommunicationInstructions"] = db.CommunicationInstructions;
 
 db.DonotDiscuss = DonotDiscuss(sequelize, Sequelize);
 models["DonotDiscuss"] = db.DonotDiscuss;
+
+db.MainPoints = MainPoints(sequelize, Sequelize);
+models["MainPoints"] = db.MainPoints;
 
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {

@@ -13,6 +13,14 @@ const PersonalityTrait = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       defaultValue: "ai", // "ai", "manual"
     },
+    kbType: {
+      type: Sequelize.STRING,
+      defaultValue: "", //video, kb
+    },
+    kbId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    },
     userId: {
       type: Sequelize.INTEGER,
       allowNull: true,

@@ -1,8 +1,16 @@
 import axios from "axios";
+import db from "../models/index.js";
 import { constants } from "../../constants/constants.js";
 import { KbTypes } from "../models/ai/kbtype.model.js";
 import { CallOpenAi } from "./gptService.js";
 import { addToVectorDb } from "./pindeconedb.js";
+
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { MainPointsTypes } from "../models/ai/mainpointstypes.js";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // export async function LabelVideoTranscript(transcript, user, video) {
 //   const model = "gpt-4-turbo"; // GPT-4 Turbo model
@@ -131,20 +139,22 @@ import { addToVectorDb } from "./pindeconedb.js";
 //   }
 // }
 
-export function getDataWithUserIdAdded(user, data) {
+export function getDataWithUserIdAdded(user, data, kbtype, kbid) {
   const updatedData = data.map((item, index) => {
     return {
       ...item, // Spread the existing user object
       userId: user.id, // Add a new key 'userId' with a value (you can customize this)
+      kbType: kbtype,
+      kbId: kbid,
     };
   });
   return updatedData;
 }
 
-export async function AddPersonalBeliefsAndValue(json, user) {
+export async function AddPersonalBeliefsAndValue(json, user, kbtype, kbid) {
   let traits = json.PersonaCharacteristics.PersonalValues;
 
-  const updatedTraits = getDataWithUserIdAdded(user, traits);
+  const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
 
   console.log("Personal Value ", updatedTraits);
   if (updatedTraits) {
@@ -162,7 +172,7 @@ export async function AddPersonalBeliefsAndValue(json, user) {
   }
 
   let beliefs = json.PersonaCharacteristics.PersonalBeliefs;
-  const updatedBeliefs = getDataWithUserIdAdded(user, beliefs);
+  const updatedBeliefs = getDataWithUserIdAdded(user, beliefs, kbtype, kbid);
 
   console.log("Personal Value ", updatedBeliefs);
   if (updatedBeliefs) {
@@ -180,9 +190,9 @@ export async function AddPersonalBeliefsAndValue(json, user) {
   }
 }
 
-export async function AddTraits(json, user) {
+export async function AddTraits(json, user, kbtype, kbid) {
   let traits = json.PersonaCharacteristics.PersonalityTraits;
-  const updatedTraits = getDataWithUserIdAdded(user, traits);
+  const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
 
   console.log("Personality Traits ", updatedTraits);
   if (updatedTraits) {
@@ -199,9 +209,9 @@ export async function AddTraits(json, user) {
     console.log("No traits found");
   }
 }
-export async function AddFrameworks(json, user) {
+export async function AddFrameworks(json, user, kbtype, kbid) {
   let traits = json.Communication.FrameworksAndTechniques;
-  const updatedTraits = getDataWithUserIdAdded(user, traits);
+  const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
 
   console.log("Personality Traits ", updatedTraits);
   if (updatedTraits) {
@@ -219,9 +229,9 @@ export async function AddFrameworks(json, user) {
   }
 }
 
-export async function AddIntractionExample(json, user) {
+export async function AddIntractionExample(json, user, kbtype, kbid) {
   let traits = json.Communication.InteractionExamples;
-  const updatedTraits = getDataWithUserIdAdded(user, traits);
+  const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
 
   console.log("Intraction Examples ", updatedTraits);
   if (updatedTraits) {
@@ -239,31 +249,268 @@ export async function AddIntractionExample(json, user) {
   }
 }
 
-export async function AddAllData(json, user) {
+export async function AddCommunicationInstructions(json, user, kbtype, kbid) {
+  let traits = json.Communication.CommunicationInstructions;
+  let t = traits.map((item) => {
+    return {
+      pacing: item.pacing,
+      tone: item.tone,
+      intonation: item.intonation,
+      scenario: item.sample.scenario,
+      prompt: item.sample.prompt,
+      response: item.sample.response,
+    };
+  });
+  const updatedTraits = getDataWithUserIdAdded(user, t, kbtype, kbid);
+
+  console.log("Communication Instructions  ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.CommunicationInstructions.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("Instruction Ex added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No Instruction Ex found");
+  }
+}
+
+export async function AddPhrasesAndQuotes(json, user, kbtype, kbid) {
+  let traits = json.Communication.ShortPhrases;
+  const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
+
+  console.log("ShortPhrases  ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.PhrasesAndQuotes.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("ShortPhrases Ex added successfully!");
+    } catch (error) {
+      console.error("Error inserting ShortPhrases:", error);
+    }
+  } else {
+    console.log("No ShortPhrases Ex found");
+  }
+}
+export async function AddUserPhilosophyAndViews(json, user, kbtype, kbid) {
+  let traits = json.PersonaCharacteristics.PhilosophyAndViews;
+  const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
+
+  console.log("PhilosophyAndViews  ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.UserPhilosophyAndViews.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("PhilosophyAndViews Ex added successfully!");
+    } catch (error) {
+      console.error("Error inserting PhilosophyAndViews:", error);
+    }
+  } else {
+    console.log("No PhilosophyAndViews Ex found");
+  }
+}
+
+export function getDataWithUserIdAddedMainPoints(
+  user,
+  data,
+  kbtype,
+  kbid,
+  type
+) {
+  const updatedData = data.map((item, index) => {
+    return {
+      ...item, // Spread the existing user object
+      userId: user.id, // Add a new key 'userId' with a value (you can customize this)
+      kbType: kbtype,
+      kbId: kbid,
+      type: type,
+    };
+  });
+  return updatedData;
+}
+
+export async function AddMainPoints(json, user, kbtype, kbid) {
+  try {
+    let traits = json.AdditionalContent.MainPoints;
+    const updatedTraits = getDataWithUserIdAddedMainPoints(
+      user,
+      traits,
+      kbtype,
+      kbid,
+      MainPointsTypes.MainPoints
+    );
+
+    console.log("MainPoints  ", updatedTraits);
+    await db.MainPoints.bulkCreate(updatedTraits, {
+      updateOnDuplicate: ["title"],
+    });
+    console.log("MainPoints Ex added successfully!");
+  } catch (error) {
+    console.error("Error inserting MainPoints:", error);
+  }
+
+  try {
+    let traits = json.AdditionalContent.Lessons;
+    const updatedTraits = getDataWithUserIdAddedMainPoints(
+      user,
+      traits,
+      kbtype,
+      kbid,
+      MainPointsTypes.Lessons
+    );
+    console.log("Lessons  ", updatedTraits);
+    await db.MainPoints.bulkCreate(updatedTraits, {
+      updateOnDuplicate: ["title"],
+    });
+    console.log("Lessons Ex added successfully!");
+  } catch (error) {
+    console.error("Error inserting Lessons:", error);
+  }
+
+  try {
+    let traits = json.AdditionalContent.KeyTopics;
+    const updatedTraits = getDataWithUserIdAddedMainPoints(
+      user,
+      traits,
+      kbtype,
+      kbid,
+      MainPointsTypes.KeyTopics
+    );
+    console.log("KeyTopics  ", updatedTraits);
+    await db.MainPoints.bulkCreate(updatedTraits, {
+      updateOnDuplicate: ["title"],
+    });
+    console.log("KeyTopics Ex added successfully!");
+  } catch (error) {
+    console.error("Error inserting KeyTopics:", error);
+  }
+
+  try {
+    let traits = json.AdditionalContent.KeyMessage;
+    const updatedTraits = getDataWithUserIdAddedMainPoints(
+      user,
+      traits,
+      kbtype,
+      kbid,
+      MainPointsTypes.KeyMessages
+    );
+    console.log("KeyMessages  ", updatedTraits);
+    await db.MainPoints.bulkCreate(updatedTraits, {
+      updateOnDuplicate: ["title"],
+    });
+    console.log("KeyMessages Ex added successfully!");
+  } catch (error) {
+    console.error("Error inserting KeyMessages:", error);
+  }
+
+  try {
+    let traits = json.AdditionalContent.SpeakersPerspective;
+    const updatedTraits = getDataWithUserIdAddedMainPoints(
+      user,
+      traits,
+      kbtype,
+      kbid,
+      MainPointsTypes.SpeakersPerspective
+    );
+    console.log("SpeakersPerspective  ", updatedTraits);
+    await db.MainPoints.bulkCreate(updatedTraits, {
+      updateOnDuplicate: ["title"],
+    });
+    console.log("SpeakersPerspective Ex added successfully!");
+  } catch (error) {
+    console.error("Error inserting SpeakersPerspective:", error);
+  }
+
+  try {
+    let traits = json.AdditionalContent.CommonQuestions;
+    const updatedTraits = getDataWithUserIdAddedMainPoints(
+      user,
+      traits,
+      kbtype,
+      kbid,
+      MainPointsTypes.CommonQuestions
+    );
+    console.log("CommonQuestions  ", updatedTraits);
+    await db.MainPoints.bulkCreate(updatedTraits, {
+      updateOnDuplicate: ["title"],
+    });
+    console.log("CommonQuestions Ex added successfully!");
+  } catch (error) {
+    console.error("Error inserting CommonQuestions:", error);
+  }
+
+  try {
+    let traits = json.AdditionalContent.PersonalStories;
+    const updatedTraits = getDataWithUserIdAddedMainPoints(
+      user,
+      traits,
+      kbtype,
+      kbid,
+      MainPointsTypes.PersonalStories
+    );
+    console.log("PersonalStories  ", updatedTraits);
+    await db.MainPoints.bulkCreate(updatedTraits, {
+      updateOnDuplicate: ["title"],
+    });
+    console.log("PersonalStories Ex added successfully!");
+  } catch (error) {
+    console.error("Error inserting PersonalStories:", error);
+  }
+}
+
+export async function AddAllData(json, user, kbtype = "", kbid = null) {
   console.log("Json to add ", json);
+
+  await AddMainPoints(json, user, kbtype, kbid);
   try {
     console.log("Adding Traits");
-    await AddTraits(json, user);
+    await AddTraits(json, user, kbtype, kbid);
   } catch (error) {
     console.log("Error Adding Traits", error);
   }
   try {
     console.log("Adding Frameworks");
-    await AddFrameworks(json, user);
+    await AddFrameworks(json, user, kbtype, kbid);
   } catch (error) {
     console.log("Error Adding Frame", error);
   }
   try {
     console.log("Adding Beliefs");
-    await AddPersonalBeliefsAndValue(json, user);
+    await AddPersonalBeliefsAndValue(json, user, kbtype, kbid);
   } catch (error) {
     console.log("Error Adding Beliefs And Values", error);
   }
   try {
     console.log("Adding Intractions");
-    await AddIntractionExample(json, user);
+    await AddIntractionExample(json, user, kbtype, kbid);
   } catch (error) {
     console.log("Error Adding Intractions", error);
+  }
+  try {
+    console.log("Adding Com Instruc");
+    await AddCommunicationInstructions(json, user), kbtype, kbid;
+  } catch (error) {
+    console.log("Error Adding Com Instr", error);
+  }
+  try {
+    console.log("Adding Phrases");
+    await AddPhrasesAndQuotes(json, user, kbtype, kbid);
+  } catch (error) {
+    console.log("Error Adding Phrases", error);
+  }
+  try {
+    console.log("Adding UserPhilosophyAndViews");
+    await AddUserPhilosophyAndViews(json, user, kbtype, kbid);
+  } catch (error) {
+    console.log("Error Adding UserPhilosophyAndViews", error);
   }
 }
 
@@ -502,7 +749,7 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
           console.log("Already added to vdb");
         }
         //add the personality traits to the db table
-        await AddAllData(json, user);
+        await AddAllData(json, user, "video", video?.id ?? null);
       } catch (error) {
         console.log("error while scraping data from json");
         console.log(error);
@@ -588,6 +835,45 @@ export async function processVideoTranscript(transcript, user, video) {
 }
 
 //Document And Text Processing
+
+// Utility function to check and auto-fix common JSON formatting issues
+function fixMalformedJson(jsonString) {
+  try {
+    return JSON.parse(jsonString); // First attempt to parse as-is
+  } catch (error) {
+    // Handle common JSON issues
+    console.log("Malformed JSON detected. Attempting to fix...");
+
+    // Try to fix common issues like missing commas or closing braces
+    jsonString = jsonString
+      .replace(/}\s*{/g, "},{") // Fix cases of missing commas between objects
+      .replace(/,\s*]}/g, "]}") // Remove extra commas before closing brackets
+      .replace(/,\s*}/g, "}"); // Remove extra commas before closing braces
+
+    // Check for proper closing braces or brackets
+    let openBrackets = (jsonString.match(/{/g) || []).length;
+    let closeBrackets = (jsonString.match(/}/g) || []).length;
+    if (openBrackets > closeBrackets) {
+      jsonString += "}".repeat(openBrackets - closeBrackets); // Add missing closing braces
+    }
+
+    let openArrayBrackets = (jsonString.match(/\[/g) || []).length;
+    let closeArrayBrackets = (jsonString.match(/]/g) || []).length;
+    if (openArrayBrackets > closeArrayBrackets) {
+      jsonString += "]".repeat(openArrayBrackets - closeArrayBrackets); // Add missing closing array brackets
+    }
+
+    // Retry parsing after fixing common issues
+    try {
+      return JSON.parse(jsonString);
+    } catch (error) {
+      console.error("Failed to auto-fix JSON:", error.message);
+      return null; // Return null if unable to fix
+    }
+  }
+}
+
+// Main function to process and merge JSON chunks
 export async function ProcessDocumentAndTextKb() {
   console.log("Kb processing start cron");
   let kbs = await db.KnowledgeBase.findAll({
@@ -596,81 +882,184 @@ export async function ProcessDocumentAndTextKb() {
     },
   });
 
-  if (kbs) {
+  if (kbs && kbs.length > 0) {
     console.log("Found Kb ", kbs.length);
     for (let i = 0; i < kbs.length; i++) {
       let kb = kbs[i];
-
       let user = await db.User.findByPk(kb.userId);
       let kbPrompt = constants.KBPrompt;
 
       let type = kb.type;
       if (type == KbTypes.Document) {
-        kbPrompt = kbPrompt.replace(/{document_name}/g, kb.name);
-        kbPrompt = kbPrompt.replace(/{creatorname}/g, user.username);
-        kbPrompt = kbPrompt.replace(/{document_description}/g, kb.description);
-        kbPrompt = kbPrompt.replace(/{document_text}/g, kb.content); //document_text
+        kbPrompt = kbPrompt.replace(/{document_name}/g, kb.name || "Document");
+        kbPrompt = kbPrompt.replace(/{creatorname}/g, user.username || "User");
+        kbPrompt = kbPrompt.replace(
+          /{document_description}/g,
+          kb.description || "No description"
+        );
       }
 
-      let result = await CallOpenAi(prompt);
-      if (result.status) {
-        let content = result.message;
-        content = content.replace(new RegExp("```json", "g"), "");
-        content = content.replace(new RegExp("```", "g"), "");
-        content = content.replace(new RegExp("\n", "g"), "");
-        kb.processedData = content;
-        kb.processed = true;
-        let saved = await kb.save();
-        try {
-          let json = JSON.parse(content);
-          let metaData = null;
-          if (json) {
-            try {
-              const metaData = {
-                MainPoints: json.AdditionalContent?.MainPoints ?? "",
-                KeyTopics: json.AdditionalContent?.KeyTopics ?? "",
-                FrameworksModels:
-                  json.AdditionalContent?.FrameworksModels ?? "",
-                documentDbId: kb?.id ?? "",
-                documentTitle: kb?.name ?? "",
-              };
-              if (!kb.addedToDb) {
-                let added = await addToVectorDb(
-                  transcript, //json.LabeledTranscript,
-                  user,
-                  "Document",
-                  metaData
-                );
-                if (added) {
-                  console.log("Added to vector db");
-                  kb.addedToDb = true;
-                  await kb.save();
-                  // return res.send({ message: "Added", status: true, data: added });
-                }
-              } else {
-                console.log("Already added to vdb");
-              }
-              //add the personality traits to the db table
-              await AddAllData(json, user);
-            } catch (error) {
-              console.log("error while scraping data from json");
-              console.log(error);
-            }
+      console.log("Starting processing for Kb:", kb.name || "Unnamed KB");
+
+      // Convert content into words array
+      let words = kb.content.split(/\s+/); // Split by spaces into words
+      let wordChunkSize = 5000; // Chunk size based on word count
+      let chunks = [];
+      let processedData = [];
+
+      // Split content into word-based chunks
+      for (let start = 0; start < words.length; start += wordChunkSize) {
+        chunks.push(words.slice(start, start + wordChunkSize).join(" ")); // Create a chunk with 6000 words
+      }
+
+      // Process each chunk with OpenAI API and collect responses
+      for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+        let chunkContent = chunks[chunkIndex];
+        let kbPromptIteration = kbPrompt.replace(
+          /{document_text}/g,
+          chunkContent
+        );
+
+        let result = await CallOpenAi(kbPromptIteration);
+        if (result.status) {
+          let content = result.message;
+          content = content.replace(new RegExp("```json", "g"), "");
+          content = content.replace(new RegExp("```", "g"), "");
+          content = content.replace(new RegExp("\n", "g"), "");
+
+          console.log(`Json for chunk ${chunkIndex} : `, content);
+
+          // Validate and fix malformed JSON before writing it to a file
+          let fixedJson = fixMalformedJson(content);
+
+          if (fixedJson) {
+            // Write the response to a file
+            let chunkFilePath = path.join(
+              __dirname,
+              `chunk_${kb.id}_${chunkIndex + 1}.json`
+            );
+            fs.writeFileSync(
+              chunkFilePath,
+              JSON.stringify(fixedJson, null, 2),
+              "utf8"
+            );
+            console.log(
+              `Chunk ${chunkIndex + 1} written to file: ${chunkFilePath}`
+            );
+
+            processedData.push(fixedJson); // Collect the parsed JSON data from each chunk
+            console.log("Processed chunk", chunkIndex + 1, "of", chunks.length);
+          } else {
+            console.log("Failed to process chunk due to malformed JSON.");
+            continue; // Move on to the next chunk
           }
-        } catch (error) {
-          console.log("Error parsing json");
-          console.log(error);
+        } else {
+          console.log(
+            "Kb processing error on chunk",
+            chunkIndex + 1,
+            result.error
+          );
+          break; // Exit on OpenAI API failure
         }
-        let aiProfile = await db.AIProfile.create({
+      }
+
+      // If all chunks are processed successfully, merge the results
+      if (processedData.length === chunks.length) {
+        console.log("All chunks processed successfully, merging data...");
+
+        // Merge all the JSON objects from different chunks
+        let unifiedJson = mergeAllJsonChunks(processedData);
+
+        // Optionally store this unified JSON data
+        kb.processedData = JSON.stringify(unifiedJson);
+        kb.processed = true;
+        await kb.save();
+
+        // Handle metadata (you can customize based on your requirements)
+        let metaData = {
+          MainPoints: unifiedJson.AdditionalContent?.MainPoints ?? [],
+          KeyTopics: unifiedJson.AdditionalContent?.KeyTopics ?? [],
+          FrameworksModels:
+            unifiedJson.AdditionalContent?.FrameworksModels ?? [],
+          documentDbId: kb?.id ?? "",
+          documentTitle: kb?.name ?? "",
+        };
+
+        if (!kb.addedToDb) {
+          let added = await addToVectorDb(
+            kb.content,
+            user,
+            "Document",
+            metaData
+          );
+          if (added) {
+            console.log("Added to vector db");
+            kb.addedToDb = true;
+            await kb.save();
+          }
+        } else {
+          console.log("Already added to vdb");
+        }
+
+        await AddAllData(unifiedJson, user, "kb", kb.id); // Optionally add all data
+
+        await db.AIProfile.create({
           userId: kb.userId,
-          profileData: content,
+          profileData: JSON.stringify(unifiedJson),
         });
-        console.log("Kb updated and processed", content);
+
+        console.log("Kb updated and fully processed", unifiedJson);
       } else {
-        console.log("Kb processing error", result.error);
+        console.log("Could not fully process all chunks.");
       }
     }
   } else {
     console.log("No Kbs to process");
   }
+}
+
+// Function to merge all JSON chunks
+function mergeAllJsonChunks(chunks) {
+  let finalJson = {};
+
+  // Iterate through all chunks and merge them
+  for (let i = 0; i < chunks.length; i++) {
+    finalJson = mergeJsonChunks(finalJson, chunks[i]);
+  }
+
+  return finalJson;
+}
+
+// Function to attempt JSON parsing with fallback for partial/malformed JSON
+function tryParseJson(str) {
+  try {
+    return JSON.parse(str);
+  } catch (error) {
+    console.log("JSON parse error:", error.message);
+    // Attempt to fix or handle incomplete JSON here if possible
+    // Example: detect if a JSON object is incomplete and continue parsing later
+    return null; // Return null if unable to parse
+  }
+}
+
+// Function to merge two JSON objects (for merging chunk responses)
+function mergeJsonChunks(chunk1, chunk2) {
+  let merged = { ...chunk1 };
+
+  for (let key in chunk2) {
+    if (chunk2.hasOwnProperty(key)) {
+      if (Array.isArray(chunk2[key])) {
+        // Merge arrays by concatenating
+        merged[key] = (merged[key] || []).concat(chunk2[key]);
+      } else if (typeof chunk2[key] === "object" && chunk2[key] !== null) {
+        // Recursively merge objects
+        merged[key] = mergeJsonChunks(merged[key] || {}, chunk2[key]);
+      } else {
+        // Override primitive values
+        merged[key] = chunk2[key];
+      }
+    }
+  }
+
+  return merged;
 }
