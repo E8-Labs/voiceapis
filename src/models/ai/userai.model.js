@@ -5,11 +5,11 @@ const UserAi = (sequelize, Sequelize) => {
       defaultValue: "",
     },
     action: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT("medium"),
       defaultValue: "",
     },
     tagline: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT("medium"),
       defaultValue: "",
     },
 
@@ -18,7 +18,7 @@ const UserAi = (sequelize, Sequelize) => {
       allowNull: true,
     },
     greeting: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(200),
     },
     possibleUserQuery: {
       type: Sequelize.STRING, //"caller", "creator"
@@ -95,7 +95,7 @@ const UserAi = (sequelize, Sequelize) => {
     },
     aiObjective: {
       //from dashboard
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT("medium"),
       defaultValue: "",
     },
   });
