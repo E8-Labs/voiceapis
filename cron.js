@@ -203,13 +203,13 @@ async function ProcessLabelledTranscript() {
 }
 
 //Youtube Kb Cron - Yes
-// const YoutubeSummaryCronJob = nodeCron.schedule(
-//   "*/1 * * * *",
-//   ProcessLabelledTranscript
-// );
-// YoutubeSummaryCronJob.start();
+const YoutubeSummaryCronJob = nodeCron.schedule(
+  "*/2 * * * *",
+  ProcessLabelledTranscript
+);
+YoutubeSummaryCronJob.start();
 
-ProcessLabelledTranscript();
+// ProcessLabelledTranscript();
 // async function FindAndLabelYoutubeVideos() {
 //   console.log("Cron Fetch Youtube Labeled Transcript");
 //   let videos = await db.YouTubeVideo.findAll({
@@ -288,6 +288,6 @@ ProcessLabelledTranscript();
 // WebScrapperCronJob.start();
 
 //Document Kb Cron - Yes
-// const KbCron = nodeCron.schedule("*/1 * * * * *", ProcessDocumentAndTextKb);
-// KbCron.start();
+const KbCron = nodeCron.schedule("*/4 * * * * *", ProcessDocumentAndTextKb);
+KbCron.start();
 // ProcessDocumentAndTextKb();
