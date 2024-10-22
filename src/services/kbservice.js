@@ -719,10 +719,11 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
   //   trans = video.LabeledTranscript;
   // }
   let summary = await processVideoTranscript(trans, user, video);
-  video.summary = summary.summary || "";
-  let saved1 = await video.save();
+
   try {
     let json = JSON.parse(summary.summary);
+    video.summary = summary.summary || "";
+    let saved1 = await video.save();
     let metaData = null;
     if (json) {
       try {
