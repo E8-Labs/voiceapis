@@ -217,7 +217,7 @@ export const BuildAiScript = async (req, res) => {
 
         //console.log("URLS in request", {fb_url, insta_url, youtube_url, discord_url, twitter_url})
         let audio = null;
-        if (req.files.media) {
+        if (req.files && req.files.media) {
           let file = req.files.media[0];
 
           const mediaBuffer = file.buffer;
