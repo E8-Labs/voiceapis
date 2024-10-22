@@ -91,6 +91,10 @@ const UserAi = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       defaultValue: "",
     },
+    profession: {
+      //from dashboard
+      type: Sequelize.STRING(500),
+    },
     aiObjective: {
       //from dashboard
       type: Sequelize.TEXT("medium"),

@@ -192,7 +192,7 @@ export const BuildAiScript = async (req, res) => {
         price,
         isFree,
         goalType,
-        productToSell,
+        productsToSell, // an array. Not needed
         webinarUrl,
         goalTitle,
         goalUrl,
@@ -257,6 +257,7 @@ export const BuildAiScript = async (req, res) => {
           }
         }
 
+        let dbProducts = [];
         if (products && products.length > 0) {
           for (let i = 0; i < products.length; i++) {
             let p = products[i];
@@ -274,14 +275,22 @@ export const BuildAiScript = async (req, res) => {
               stripeProductId: stripeProduct.productId,
               stripePriceId: stripeProduct.priceId,
               stripePaymentLink: stripeProduct.paymentLink,
+              isSelling: p.isSelling,
             });
+            dbProducts.push(productCreated);
 
-            if (p.name == productToSell) {
-              createdAI.productToSell = productCreated.id;
-              await createdAI.save();
-            }
+            // if (p.name == productToSell) {
+            //   createdAI.productToSell = productCreated.id;
+            //   await createdAI.save();
+            // }
           }
         }
+
+        // for(let i = 0; i < dbProducts.length; i++){
+        //   let p = dbProducts[i]
+        //   if(p.name == )
+        // }
+
         res.send({ status: true, message: "Ai updated", data: createdAI });
       } else {
         res.send({
