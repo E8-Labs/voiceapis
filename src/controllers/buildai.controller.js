@@ -122,7 +122,7 @@ export const BuildYourAi = async (req, res) => {
       let userId = authData.user.id;
       let user = await db.User.findByPk(userId);
       let {
-        name,
+        name, // this should be the ai name
         action,
         tagline,
         fb_url,
@@ -159,8 +159,9 @@ export const BuildYourAi = async (req, res) => {
         }
       }
 
-      user.username = name;
-      let userSaved = await user.save();
+      //ai name should not update the username|unique url
+      // user.username = name;
+      // let userSaved = await user.save();
       let createdAI = await db.UserAi.create({
         name: name,
         action: action,
@@ -405,10 +406,10 @@ export const UpdateYourAi = async (req, res) => {
         },
       });
 
-      if (createdAI) {
-        user.username = name;
-        let savedUser = await user.save();
-      }
+      // if (createdAI) {
+      //   user.username = name;
+      //   let savedUser = await user.save();
+      // }
 
       let questions = req.body.kycQuestions;
       if (questions && questions.length > 0) {
