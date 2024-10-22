@@ -288,6 +288,6 @@ YoutubeSummaryCronJob.start();
 // WebScrapperCronJob.start();
 
 //Document Kb Cron - Yes
-const KbCron = nodeCron.schedule("*/4 * * * * *", ProcessDocumentAndTextKb);
+const KbCron = nodeCron.schedule("*/4 * * * *", ProcessDocumentAndTextKb);
 KbCron.start();
 // ProcessDocumentAndTextKb();
