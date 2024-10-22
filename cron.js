@@ -180,27 +180,27 @@ import {
 
 //Youtube Video Summary Generation Cron
 
-// async function ProcessLabelledTranscript() {
-//   console.log("Cron Fetch Youtube Summary");
-//   let videos = await db.YouTubeVideo.findAll({
-//     where: {
-//       summary: {
-//         [db.Sequelize.Op.is]: null,
-//       },
-//     },
-//   });
+async function ProcessLabelledTranscript() {
+  console.log("Cron Fetch Youtube Summary");
+  let videos = await db.YouTubeVideo.findAll({
+    where: {
+      summary: {
+        [db.Sequelize.Op.is]: null,
+      },
+    },
+  });
 
-//   if (videos) {
-//     console.log("Videos Found :", videos.length);
-//     for (let i = 0; i < videos.length; i++) {
-//       let v = videos[i];
-//       let user = await db.User.findByPk(v.userId);
-//       fetchVideoCaptionsAndProcessWithPrompt(v.videoId, user, v);
-//     }
-//   }
+  if (videos) {
+    console.log("Videos Found :", videos.length);
+    for (let i = 0; i < videos.length; i++) {
+      let v = videos[i];
+      let user = await db.User.findByPk(v.userId);
+      fetchVideoCaptionsAndProcessWithPrompt(v.videoId, user, v);
+    }
+  }
 
-//   let videosNotLabelled;
-// }
+  let videosNotLabelled;
+}
 
 //Youtube Kb Cron - Yes
 // const YoutubeSummaryCronJob = nodeCron.schedule(
