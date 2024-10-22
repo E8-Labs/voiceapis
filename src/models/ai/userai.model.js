@@ -6,11 +6,9 @@ const UserAi = (sequelize, Sequelize) => {
     },
     action: {
       type: Sequelize.TEXT("medium"),
-      defaultValue: "",
     },
     tagline: {
       type: Sequelize.TEXT("medium"),
-      defaultValue: "",
     },
 
     audio: {
@@ -96,7 +94,6 @@ const UserAi = (sequelize, Sequelize) => {
     aiObjective: {
       //from dashboard
       type: Sequelize.TEXT("medium"),
-      defaultValue: "",
     },
   });
 
