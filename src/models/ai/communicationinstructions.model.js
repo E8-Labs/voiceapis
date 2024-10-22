@@ -5,6 +5,30 @@ const CommunicationInstructions = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       defaultValue: "", //optional
     },
+    pacing: {
+      type: Sequelize.STRING,
+      defaultValue: "", //optional
+    },
+    tone: {
+      type: Sequelize.STRING,
+      defaultValue: "", //optional
+    },
+    intonation: {
+      type: Sequelize.STRING,
+      defaultValue: "", //optional
+    },
+    scenario: {
+      type: Sequelize.STRING,
+      defaultValue: "", //optional
+    },
+    prompt: {
+      type: Sequelize.STRING,
+      defaultValue: "", //optional
+    },
+    response: {
+      type: Sequelize.STRING,
+      defaultValue: "", //optional
+    },
     description: {
       type: Sequelize.STRING,
       defaultValue: "",
@@ -12,6 +36,14 @@ const CommunicationInstructions = (sequelize, Sequelize) => {
     type: {
       type: Sequelize.STRING,
       defaultValue: "ai", // "ai", "manual"
+    },
+    kbType: {
+      type: Sequelize.STRING,
+      defaultValue: "", //video, kb
+    },
+    kbId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
     },
     userId: {
       type: Sequelize.INTEGER,

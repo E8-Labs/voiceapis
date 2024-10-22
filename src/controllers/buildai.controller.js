@@ -192,7 +192,7 @@ export const BuildAiScript = async (req, res) => {
         price,
         isFree,
         goalType,
-        productToSell,
+        productsToSell, // an array. Not needed
         webinarUrl,
         goalTitle,
         goalUrl,
@@ -217,7 +217,7 @@ export const BuildAiScript = async (req, res) => {
 
         //console.log("URLS in request", {fb_url, insta_url, youtube_url, discord_url, twitter_url})
         let audio = null;
-        if (req.files.media) {
+        if (req.files && req.files.media) {
           let file = req.files.media[0];
 
           const mediaBuffer = file.buffer;
@@ -257,6 +257,7 @@ export const BuildAiScript = async (req, res) => {
           }
         }
 
+        let dbProducts = [];
         if (products && products.length > 0) {
           for (let i = 0; i < products.length; i++) {
             let p = products[i];
@@ -274,14 +275,22 @@ export const BuildAiScript = async (req, res) => {
               stripeProductId: stripeProduct.productId,
               stripePriceId: stripeProduct.priceId,
               stripePaymentLink: stripeProduct.paymentLink,
+              isSelling: p.isSelling,
             });
+            dbProducts.push(productCreated);
 
-            if (p.name == productToSell) {
-              createdAI.productToSell = productCreated.id;
-              await createdAI.save();
-            }
+            // if (p.name == productToSell) {
+            //   createdAI.productToSell = productCreated.id;
+            //   await createdAI.save();
+            // }
           }
         }
+
+        // for(let i = 0; i < dbProducts.length; i++){
+        //   let p = dbProducts[i]
+        //   if(p.name == )
+        // }
+
         res.send({ status: true, message: "Ai updated", data: createdAI });
       } else {
         res.send({
@@ -488,6 +497,7 @@ export async function AddKnowledgebase(req, res) {
     let type = req.body.type;
     let description = req.body.description;
     let content = req.body.content; // Default content from request body
+    let name = req.body.name || ""; //Name of document
     let pdf = null;
 
     if (req.files && req.files.media) {
@@ -549,6 +559,7 @@ export async function AddKnowledgebase(req, res) {
         documentUrl: pdf,
         description: description,
         userId: userId,
+        name: name,
       });
 
       if (kbcreated) {
@@ -1324,107 +1335,4 @@ export async function UpdateCommunicationInstruction(req, res) {
     let ai = await GetAiForUser(userId);
     return res.send({ status: true, message: "Listing saved", data: ai });
   });
-}
-
-export async function KbProcessingCron() {
-  console.log("Kb processing start cron");
-  let kbs = await db.KnowledgeBase.findAll({
-    where: {
-      processed: false,
-    },
-  });
-
-  if (kbs) {
-    console.log("Found Kb ", kbs.length);
-    for (let i = 0; i < kbs.length; i++) {
-      let kb = kbs[i];
-      let prompt = `Take in the text provided and process it to fetch the following information in a json format. JSON format
-        is provided below with the structure and keys required to extract from the text.
-        
-        Here is the text: ${kb.content}
-        
-        Here is the JSON Format we need. 
-        {
-    "PersonaCharacteristics": {
-        "Profession": "Customer Support Representative",
-        "PersonalBackgroundAndValues": {
-            "Education": "Bachelor's in Communication",
-            "Hobbies": ["Reading", "Traveling", "Volunteering"],
-            "CoreValues": ["Empathy", "Integrity", "Responsibility"]
-        },
-        "PersonalityTraits": {
-            "Primary": "Empathetic",
-            "Secondary": ["Patient", "Optimistic", "Detail-oriented"]
-        },
-        "PhilosophyAndViews": {
-            "CustomerServicePhilosophy": "Always prioritize the customer's needs, while balancing company goals.",
-            "Worldview": "Believes in making meaningful connections and providing value in every interaction."
-        }
-    },
-    "Communication": {
-        "CommunicationInstructions": {
-            "Tone": "Friendly, Calm, Supportive",
-            "Instructions": "Always acknowledge the customer's concerns first, and ask clarifying questions before providing a solution."
-        },
-        "SampleCommunication": {
-            "Greeting": "Hi there! How can I assist you today?",
-            "IssueAcknowledgement": "I completely understand how frustrating that must be, and I’m here to help."
-        },
-        "Demeanor": "Calm, friendly, and patient, especially during stressful situations.",
-        "InterpersonalSkills": ["Active listening", "Conflict resolution", "Empathy"],
-        "CommunicationStyle": "Direct and concise, using simple language and providing step-by-step guidance.",
-        "InteractionExamples": {
-            "IssueResolution": "If the customer reports a delay in service, acknowledge the delay, provide the reason if available, and offer compensation or solution options.",
-            "TechnicalIssue": "Explain troubleshooting steps in simple terms, guiding them step by step."
-        },
-        "ShortPhrases": ["I’m happy to assist.", "Let’s work through this together.", "I understand where you're coming from."],
-        "HowToExplainComplexConcepts": "Break down the concept into smaller steps, using analogies where necessary, and check for understanding frequently."
-    },
-    "SpecificStrategiesAndTechniques": {
-        "ProductAndServices": "Explain the benefits of using the product, offer demonstrations, and address common pain points.",
-        "ObjectionHandling": "Use empathy to validate concerns, provide relevant solutions, and offer alternative benefits."
-    },
-    "GetTools": {
-        "KnowledgeBase": "Access to the internal database with FAQs and troubleshooting guides.",
-        "GetAvailability": "Check system availability or resource availability for the customer.",
-        "CreateBooking": "Schedule appointments or callbacks directly from the system.",
-        "GetConversationData": "Retrieve previous conversation logs for context."
-    },
-    "ImportantThingsToApplyDuringTheCall": {
-        "GeneralGuidelines": ["Be empathetic", "Maintain professionalism", "Stay solution-focused", "Document important points clearly"]
-    },
-    "ObjectiveOfTheAiDuringTheCall": "The AI aims to resolve the customer's query efficiently, while ensuring a positive experience and reducing the need for follow-up calls.",
-    "CallInstructions": {
-        "Greeting": "Start with a warm, personalized greeting.",
-        "ProblemIdentification": "Ask open-ended questions to understand the issue thoroughly.",
-        "SolutionOffering": "Provide a clear solution or alternative options, and verify that the customer is satisfied.",
-        "Closing": "End the call by summarizing the steps taken and reassuring the customer that their issue has been addressed."
-    }
-}
-      Instruction:
-        Make sure the output text is only json object. No extra description or any senetences 
-        or words. Only Json object so that we can parse it and use it in our code base.`;
-
-      let result = await CallOpenAi(prompt);
-      if (result.status) {
-        let content = result.message;
-        content = content.replace(new RegExp("```json", "g"), "");
-        content = content.replace(new RegExp("```", "g"), "");
-        content = content.replace(new RegExp("\n", "g"), "");
-        kb.processedData = content;
-        kb.processed = true;
-        let saved = await kb.save();
-
-        let aiProfile = await db.AIProfile.create({
-          userId: kb.userId,
-          profileData: content,
-        });
-        console.log("Kb updated and processed", content);
-      } else {
-        console.log("Kb processing error", result.error);
-      }
-    }
-  } else {
-    console.log("No Kbs to process");
-  }
 }

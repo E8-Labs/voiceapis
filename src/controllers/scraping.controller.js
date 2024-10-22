@@ -273,33 +273,27 @@ export const AddKnowledgeBase = async (req, res) => {
 const getDatingAdviceFromTristan = async (text, user) => {
   // we decide which index to go to
 
-  let context = await findVectorData(text, user, "kb-index-processed"); // string context
-  let rawContext = await findVectorData(text, user, "kb-index-transcript");
+  // let context = await findVectorData(text, user, "kb-index-processed"); // string context
+  let context = await findVectorData(text, user, "kb-index-transcript");
 
-  return context + rawContext;
+  return context;
 };
 
 export async function ChatTristan(req, res) {
   let message = req.body.message;
   let chatId = req.body.chatId;
 
-  let assistant = await db.User.findByPk(7);
+  let assistant = await db.User.findByPk(6);
   // console.log("Transcript ", transcript);
   const model = "gpt-4o"; // You specified gpt-4, or it can be "gpt-4-turbo"
   const apiUrl = "https://api.openai.com/v1/chat/completions";
 
   // Pricing details for GPT-4
 
-  let BasePrompt = `Get the business advice for customer from alex. Call this whenever you need to know the business or sales advice, 
-        for example when a user asks 'How can I improve my sales tactics to be more effective?' OR 'Can you give advice
-         on closing a sale effectively?' OR 'How do you balance emotional appeal with logical arguments in your sales 
-         process?' OR 'Strategies to improve business' OR 'Sales approach to different types of customers' OR
-           OR 'deal with a potential customer who seems interested but hesitan' OR 'sales pitches less about the sale 
-           and more about the relationship?' 'Grow business' OR 'Grow Sales', 'Engage Customers' OR 'Hiring the right team' OR similar broad 
-           spectrum of things related to business etc`;
+  let BasePrompt = `You're andrew tate. Users ask for day to day advice or Talk about anything religion, convtoversies or anything. Respond in first person.`;
 
-  BasePrompt = `If users ask about business, 13 Years of No BS Business Advice in 79 Mins, How to Sell Better than 99% Of People, 
-  life events, personal stories, then access or use this knowledge base.`;
+  BasePrompt = `You're andrew tate. Users ask you for day to day advice or Talk about anything religion, convtoversies or anything. Respond in first person. 
+  If users ask about politics, Palestine & Israel issue or Donald trump shooting, personal stories, then access or use this knowledge base.`;
   const tools = [
     {
       type: "function",
@@ -311,7 +305,8 @@ export async function ChatTristan(req, res) {
           properties: {
             user_question: {
               type: "string",
-              description: "The customer's question about business or sales.",
+              description:
+                "The customer's question about politics or any question about world affairs.",
             },
           },
           required: ["user_question"],
@@ -329,10 +324,7 @@ export async function ChatTristan(req, res) {
   const messages = [
     {
       role: "system",
-      content: `You're a helpful business coach and motivational speaker. 
-        So help the user regarding their business related queries. 
-        Motivate them if they're feeling down.  Make sure you follow
-         the tone of the speaker from the context given.`,
+      content: BasePrompt,
     },
     {
       role: "user",
@@ -413,12 +405,11 @@ async function callOpenAi(message, data) {
       { role: "system", content: data },
       {
         role: "system",
-        content: `You're a helpful business coach and motivational speaker. So help the user regarding 
-          their business related queries. Motivate them if they're feeling down. Make sure you 
-          follow the tone of the speaker from the context given. Keep the answer short and to the point. 
-          Complete the answer in max 250 tokens or as less as you can. Also mention the tone of the speaker 
+        content: `You're andrew tate. Users ask you for day to day advice or Talk about anything religion, convtoversies or anything. Respond in first person. 
+  If users ask about politics, Palestine & Israel issue or Donald trump shooting, personal stories, then access or use this knowledge base
+  . Also mention the tone of the speaker 
           from the given context and tell if this was ai response or derived from context. Make it look more like
-          the context provided. Use as less rephrasing as you can. Provide a json format response like 
+          the context provided. Use as less as 5% rephrasing. Provide a json format response like 
           {response: "here goes detailed response", tone: "Tone of speaker", rephrased: "Percentage of rephrasal "}`,
       },
       { role: "user", content: message },

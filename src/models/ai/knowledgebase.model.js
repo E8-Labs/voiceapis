@@ -9,6 +9,18 @@ const KnowledgeBase = (sequelize, Sequelize) => {
       // defaultValue: "",
       allowNull: true,
     },
+    name: {
+      // name of the document
+      type: Sequelize.STRING,
+      // defaultValue: "",
+      allowNull: true,
+    },
+    subject: {
+      // subject of the url
+      type: Sequelize.STRING,
+      // defaultValue: "",
+      allowNull: true,
+    },
     processedData: {
       type: Sequelize.TEXT("medium"),
       allowNull: true,
@@ -31,6 +43,10 @@ const KnowledgeBase = (sequelize, Sequelize) => {
       },
     },
     processed: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
+    addedToDb: {
       type: Sequelize.BOOLEAN,
       defaultValue: false,
     },

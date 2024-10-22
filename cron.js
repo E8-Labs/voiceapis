@@ -2,12 +2,16 @@ import nodeCron from "node-cron";
 import db from "./src/models/index.js";
 import { GetACall } from "./src/controllers/call.controller.js";
 import { ChargeCustomer } from "./src/services/stripe.js";
-import { fetchVideoCaptionsAndProcessWithPrompt } from "./src/controllers/socialauth.controller.js";
+// import { fetchVideoCaptionsAndProcessWithPrompt } from "./src/controllers/socialauth.controller.js";
 
 import { ScrapWebUrl } from "./src/controllers/scraping.controller.js";
 
-import { KbProcessingCron } from "./src/controllers/buildai.controller.js";
-import { LabelVideoTranscript } from "./src/services/kbservice.js";
+// import { KbProcessingCron } from "./src/controllers/buildai.controller.js";
+import {
+  ProcessDocumentAndTextKb,
+  fetchVideoCaptionsAndProcessWithPrompt,
+} from "./src/services/kbservice.js";
+// import { LabelVideoTranscript } from "./src/services/kbservice.js";
 
 // async function rechargeUsersAccounts() {
 //   let users = await db.User.findAll({
@@ -176,62 +180,73 @@ import { LabelVideoTranscript } from "./src/services/kbservice.js";
 
 //Youtube Video Summary Generation Cron
 
-const YoutubeSummaryCronJob = nodeCron.schedule(
-  "*/1 * * * *",
-  async function () {
-    console.log("Cron Fetch Youtube Summary");
-    let videos = await db.YouTubeVideo.findAll({
-      where: {
-        summary: {
-          [db.Sequelize.Op.is]: null,
-        },
-      },
-    });
-
-    if (videos) {
-      console.log("Videos Found :", videos.length);
-      for (let i = 0; i < videos.length; i++) {
-        let v = videos[i];
-        let user = await db.User.findByPk(v.userId);
-        fetchVideoCaptionsAndProcessWithPrompt(v.videoId, user, v);
-      }
-    }
-
-    let videosNotLabelled;
-  }
-);
-// YoutubeSummaryCronJob.start();
-
-const YoutubeLabelCronJob = nodeCron.schedule("*/1 * * * *", async function () {
-  console.log("Cron Fetch Youtube Labeled Transcript");
+async function ProcessLabelledTranscript() {
+  console.log("Cron Fetch Youtube Summary");
   let videos = await db.YouTubeVideo.findAll({
     where: {
-      labeledTranscript: {
+      summary: {
         [db.Sequelize.Op.is]: null,
       },
     },
   });
 
   if (videos) {
-    console.log("Videos Not Labelled Found :", videos.length);
+    console.log("Videos Found :", videos.length);
     for (let i = 0; i < videos.length; i++) {
       let v = videos[i];
       let user = await db.User.findByPk(v.userId);
-      if (v.caption != null && v.caption != "") {
-        let labeled = await LabelVideoTranscript(v.caption, user, v);
-        if (labeled && labeled.labeledTranscript) {
-          v.labeledTranscript = labeled.labeledTranscript;
-          let saved = await v.save();
-          console.log("Video labeled and saved");
-        }
-      }
+      fetchVideoCaptionsAndProcessWithPrompt(v.videoId, user, v);
     }
   }
 
   let videosNotLabelled;
-});
-YoutubeLabelCronJob.start();
+}
 
+//Youtube Kb Cron - Yes
+const YoutubeSummaryCronJob = nodeCron.schedule(
+  "*/2 * * * *",
+  ProcessLabelledTranscript
+);
+YoutubeSummaryCronJob.start();
+
+// ProcessLabelledTranscript();
+// async function FindAndLabelYoutubeVideos() {
+//   console.log("Cron Fetch Youtube Labeled Transcript");
+//   let videos = await db.YouTubeVideo.findAll({
+//     where: {
+//       labeledTranscript: {
+//         [db.Sequelize.Op.is]: null,
+//       },
+//     },
+//   });
+
+//   if (videos) {
+//     console.log("Videos Not Labelled Found :", videos.length);
+//     for (let i = 0; i < videos.length; i++) {
+//       let v = videos[i];
+//       let user = await db.User.findByPk(v.userId);
+//       if (v.caption != null && v.caption != "") {
+//         let labeled = await LabelVideoTranscript(v.caption, user, v);
+//         if (labeled && labeled.labeledTranscript) {
+//           v.labeledTranscript = labeled.labeledTranscript;
+//           let saved = await v.save();
+//           console.log("Video labeled and saved");
+//         }
+//       }
+//     }
+//   }
+
+//   let videosNotLabelled;
+// }
+
+//Youtube Kb Cron - No
+// const YoutubeLabelCronJob = nodeCron.schedule(
+//   "*/2 * * * *",
+//   FindAndLabelYoutubeVideos
+// );
+// YoutubeLabelCronJob.start();
+
+// FindAndLabelYoutubeVideos();
 // const WebScrapperCronJob = nodeCron.schedule(
 //   "*/30 * * * * *",
 //   async function () {
@@ -272,5 +287,7 @@ YoutubeLabelCronJob.start();
 // );
 // WebScrapperCronJob.start();
 
-// const KbCron = nodeCron.schedule("*/30 * * * * *", KbProcessingCron);
-// KbCron.start();
+//Document Kb Cron - Yes
+const KbCron = nodeCron.schedule("*/4 * * * *", ProcessDocumentAndTextKb);
+KbCron.start();
+// ProcessDocumentAndTextKb();

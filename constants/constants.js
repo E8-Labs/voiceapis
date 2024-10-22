@@ -3,22 +3,10 @@ export const constants = {
  Your objective is to follow the three steps precisely.
 
 
-Step 1: This transcript is about the video titled "{titleofvideo}" by {creatorname}. There may be one or more speakers in this transcript.
-- Label the speakers accurately as Speaker 1 (name), Speaker 2 (name), etc. You must **identify and assign the names of the speakers** based on clues from the transcript. If the transcript clearly states the names of the speakers, use those names.
+This transcript is about the video titled "{titleofvideo}" by {creatorname}. There may be one or more speakers in this transcript.
 
 
-- Be mindful of the context, especially questions and answers, to distinguish between speakers.
-- For example, if {creatorname} is speaking, label them as "{creatorname}" instead of Speaker 1. If another speaker is the interviewer (or asks the majority of questions), label them with their name, e.g., "Piers Morgan."
- **Guidelines for labeling:**
-- If a speaker is identified by name in the transcript (e.g., "Piers, what do you think?"), use their name.
-- If the speaker is {creatorname}, label them as "{creatorname}" (not Speaker 1).
-- For additional speakers whose names are not provided, label them as Speaker 3, Speaker 4, etc.
-
-
-If the transcript provides no name for a speaker, but context strongly suggests who it might be (e.g., the host or interviewer), use logical inference to label them. Otherwise, keep the speaker as Speaker 2, Speaker 3, etc.
-
-
- Step 2: Using the entire transcript provided, identify and extract the following elements in the JSON structure:
+ Step 1: Using the entire transcript provided, identify and extract the following elements in the JSON structure:
  you may find instances where more than one apply so define and list all that relevant to that section:
  Main Points: Summarize the essential information or central argument.
  Key Topics: List the primary subjects or topics covered.
@@ -50,8 +38,7 @@ KeyQuotes: Memorable and impactful statements from {creatorname} that encapsulat
   Follow this JSON Format strictly as an example.
         
           {
-  "LabeledTranscript": "The transcript after identifying labelling speakers in the transcript. Label the full transcript after identifying the speakers",
-  "Creator": "Speaker who is {creatorname} i.e., if Speaker 1 is {creatorname}, then speaker 1; else speaker 2 or 3 or 4, etc.",
+  
   "PersonaCharacteristics": {
     "Profession": "Customer Support Representative",
     "PersonalBackground": "The creator’s personal history, including where they come from, their challenges, and key life experiences that shape their philosophy and character. It adds depth to their advice and responses by providing relatable, real-world examples.",
@@ -185,43 +172,37 @@ KeyQuotes: Memorable and impactful statements from {creatorname} that encapsulat
     ]
   }
 }
-
- 
  4- Instruction:
          Make sure the output text is only json object. No extra description or any sentences
          or words. Only Json object so that we can parse it and use it in our code base.
-
-
-
-
-
-
 
          Escape internal double quotes inside strings with \".
  Adjust minor punctuation and sentence completion (like the phrase "moves have been made but it's over, yeah, game's over").
  Ensure all sections follow proper JSON syntax and formatting rules.
  Don't show [null] just [] for empty arrays
 
-  
-  
   `,
-  YoutubeLabellingPrompt: ` 
- Your objective is to follow the following instructions precisely.
+  YoutubeLabellingPrompt: `Your objective is to label the transcript for the video titled "{titleofvideo}" by {creatorname}. There may be multiple speakers in the transcript. Follow these instructions precisely:
 
-Step 1: This transcript is about the video titled "{titleofvideo}" by {creatorname}. There may be one or more speakers in this transcript.
-- Label the speakers accurately as Speaker 1 (name), Speaker 2 (name), etc. You must **identify and assign the names of the speakers** based on clues from the transcript. If the transcript clearly states the names of the speakers, use those names.
+1. **Identify and Label Speakers**:
+   - Label the speakers as **Speaker 1 (name)**, **Speaker 2 (name)**, etc. If the transcript clearly provides the names of the speakers, use their actual names instead of generic labels.
+   - Be mindful of the context (especially questions and answers) to accurately distinguish between speakers. For example, if {creatorname} is speaking, label them as "{creatorname}" instead of "Speaker 1".
+   - If another speaker (e.g., an interviewer) is frequently asking questions, label them with their name (e.g., "Piers Morgan").
 
+2. **Guidelines for Labeling**:
+   - If a speaker is directly addressed or identified by name in the transcript (e.g., "Piers, what do you think?"), use their name.
+   - If the speaker is {creatorname}, always label them as "{creatorname}".
+   - For additional speakers whose names are not provided, label them as Speaker 3, Speaker 4, etc.
+   
+3. **Inference for Unnamed Speakers**:
+   - If the transcript does not provide a name for a speaker, but the context suggests who it might be (e.g., the host or interviewer), use logical inference to label them.
+   - Otherwise, retain the label as Speaker 2, Speaker 3, etc.
 
-- Be mindful of the context, especially questions and answers, to distinguish between speakers.
-- For example, if {creatorname} is speaking, label them as "{creatorname}" instead of Speaker 1. If another speaker is the interviewer (or asks the majority of questions), label them with their name, e.g., "Piers Morgan."
- **Guidelines for labeling:**
-- If a speaker is identified by name in the transcript (e.g., "Piers, what do you think?"), use their name.
-- If the speaker is {creatorname}, label them as "{creatorname}" (not Speaker 1).
-- For additional speakers whose names are not provided, label them as Speaker 3, Speaker 4, etc.
+4. **Continuation**:
+   - If the transcript is long and cannot be labeled entirely in one response, continue from where you left off. Ensure the entire transcript is labeled in full, without leaving any gaps or missed speakers.
 
-If the transcript provides no name for a speaker, but context strongly suggests who it might be (e.g., the host or interviewer), use logical inference to label them. Otherwise, keep the speaker as Speaker 2, Speaker 3, etc.
-
-  `,
+Make sure the output is properly structured, with each speaker clearly labeled and each part of the conversation properly attributed.
+`,
 
   CallSummaryPrompt: `You'll be summarizing the transcript between {model_name} AI and {caller_name}. Keep the summary in 
         plain simple words. Bullet list the key details, main topics and actiaonable steps that we discussed.
@@ -241,4 +222,173 @@ If the transcript provides no name for a speaker, but context strongly suggests 
   4. Purpose and Usage:
   * This summary will be used to house and reference all the different calls and conversations between {model_name} AI and {caller_name}.
   * It is crucial that the summary is detailed and comprehensive to support future interactions, allowing for seamless continuity in conversations.`,
+  KBPrompt: `Your goal is to process documents shared by users in various formats: .txt, .doc, .docx, .rtf, .pdf, .ppt, .pptx, .xls, .xlsx, and .csv. Break them into meaningful sections or chunks and generate conversational prompt/response pairs based on the key points, frameworks, lessons, and common questions readers may ask. Before starting, gather the document name and description to understand its context and ensure accurate, meaningful responses.
+
+## Step 1: Document Overview
+Use the following details:
+- **Document Name**: {document_name}
+- **Description**: {document_description}
+- **Content Of Document**: {document_text}
+
+Extract Key Elements:
+- **Main Points**: Summarize the core message of each section.
+- **Key Topics**: Identify important subjects or themes.
+- **Frameworks**: Note any models, strategies, or frameworks introduced.
+- **Lessons**: Highlight the main lessons or takeaways.
+- **Message**: Summarize the overall message of the section.
+- **Common Questions**: Anticipate questions the reader might ask about the content.
+
+## Step 2: Define the Ultimate AI Twin
+Based on the transcript, let's define the ultimate AI twin for {creatorname}. Please define the following, if applicable; otherwise, skip. Follow this **strict JSON format**. Ensure **no extra text, explanations, or comments are added** beyond the required JSON structure.
+
+### JSON Structure Example:
+
+
+{
+  "PersonaCharacteristics": {
+    "Profession": "Customer Support Representative",
+    "PersonalBackground": "The creator’s personal history...",
+    "PersonalValues": [
+      {
+        "title": "Personal Value Title",
+        "description": "Ex: Core principles and philosophies..."
+      }
+    ],
+    "PersonalBeliefs": [
+      {
+        "title": "Persona Beliefs Title",
+        "description": "Ex: Core principles and philosophies..."
+      }
+    ],
+    "PersonalityTraits": [
+      {
+        "trait": "Name of trait",
+        "score": "Score from 1-10"
+      }
+    ],
+    "PhilosophyAndViews": [
+      {
+        "title": "Philosophy and View Title",
+        "description": "The overarching worldview or ideology..."
+      }
+    ]
+  },
+  "Communication": {
+    "CommunicationInstructions": [
+      {
+        "pacing": "The speed and rhythm of {creatorname}'s speech...",
+        "tone": "The emotional quality or attitude...",
+        "intonation": "The rise and fall of {creatorname}'s voice...",
+        "sample": {
+          "scenario": "Communication scenario",
+          "prompt": "Prompt here",
+          "response": "Response here"
+        }
+      }
+    ],
+    "FrameworksAndTechniques": [
+      {
+        "title": "Title of framework",
+        "description": "Explanation"
+      }
+    ],
+    "SampleCommunication": {
+      "Greeting": "Hi there! How can I assist you today?",
+      "IssueAcknowledgement": "I completely understand..."
+    },
+    "Demeanor": [
+      {
+        "title": "Demeanor Title",
+        "description": "The overall attitude or mood..."
+      }
+    ],
+    "InterpersonalSkills": [
+      {
+        "title": "Interpersonal Skills Title",
+        "description": "The techniques {creatorname} uses..."
+      }
+    ],
+    "CommunicationStyle": [
+      {
+        "title": "Communication Style Title",
+        "description": "The specific manner in which {creatorname} speaks..."
+      }
+    ],
+    "InteractionExamples": [
+      {
+        "Scenario": "Interaction Scenario",
+        "question": "Question here",
+        "answer": "Answer here"
+      }
+    ],
+    "ShortPhrases": [
+      {
+        "title": "Short phrase title",
+        "description": "A collection of punchy, impactful phrases..."
+      }
+    ],
+    "KeyQuotes": [
+      {
+        "Memorable and impactful statements..."
+      }
+    ]
+  },
+  "AdditionalContent": {
+    "MainPoints": [
+      {
+        "title": "Main Point Title",
+        "description": "Summary of the essential information..."
+      }
+    ],
+    "KeyTopics": [
+      {
+        "title": "Key Topic Title",
+        "description": "Primary subjects or topics covered..."
+      }
+    ],
+    "Lessons": [
+      {
+        "title": "Key Lesson Title",
+        "description": "Highlight the key lessons or takeaways..."
+      }
+    ],
+    "KeyMessage": [
+      {
+        "title": "Key Message Title",
+        "description": "Summarize the core message that {creatorname} wants to convey."
+      }
+    ],
+    "SpeakersPerspective": [
+      {
+        "title": "Speaker Perspective Title",
+        "description": "Provide {creatorname}'s unique viewpoint on the topic..."
+      }
+    ],
+    "PersonalStories": [
+      {
+        "title": "Personal Story Title",
+        "description": "Identify any personal anecdotes or stories..."
+      }
+    ],
+    "CommonQuestions": [
+      {
+        "title": "Common Question Title",
+        "description": "Anticipate typical questions that listeners might ask..."
+      }
+    ]
+  }
+}
+
+Additional Instructions:
+    Ensure the output is valid JSON, adhering strictly to this structure. No additional text, comments, or explanations should be included outside the JSON structure.
+    Handle empty fields gracefully: If there is no value for a field, use an empty string "" for strings, or an empty array [] for lists, and an empty object {} for objects.
+    Ensure completeness: Make sure the entire JSON structure is generated, properly formatted, and valid.
+    Internal double quotes should be escaped using \" within strings.
+    Adjust minor punctuation and sentence completion where needed.
+    Ensure all sections follow proper JSON syntax and formatting rules.
+    Do not include [null] values. If no data is available for a list, use [].
+    Response must be completed within 4000 tokens. If the document is too long, split the document into multiple sections and generate separate JSON outputs for each section.
+    Ensure that the JSON can be parsed using JavaScript’s JSON.parse(string) function.
+
+  `,
 };
