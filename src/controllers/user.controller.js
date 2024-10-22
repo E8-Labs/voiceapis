@@ -137,9 +137,6 @@ export const UpdateUserToCreator = async (req, res) => {
   });
 };
 
-
-
-
 export const UpdateProfile = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
@@ -149,29 +146,30 @@ export const UpdateProfile = async (req, res) => {
 
       let user = await db.User.findByPk(userId);
 
-      let username = req.body.username || user.username;
+      let username = req.body.username || user.username; // unique url for creator
       let name = req.body.name || user.name;
       let email = req.body.email || user.email;
       let city = req.body.city || user.city;
       let state = req.body.state || user.state;
 
       let verified = req.body.phoneVerified || user.phoneVerified;
-      if(typeof req.body.phoneVerified != 'undefined' && user.phoneVerified == false && req.body.phoneVerified == true){
-        if(user.model_id){
+      if (
+        typeof req.body.phoneVerified != "undefined" &&
+        user.phoneVerified == false &&
+        req.body.phoneVerified == true
+      ) {
+        if (user.model_id) {
           //initiate call
           let assistant = await db.Assistant.findOne({
-            where:{
-              userId: user.model_id
-            }
-          })
-          if(assistant && assistant.allowTrial){
-            let call = await MakeACall(user.id, user.model_id)
+            where: {
+              userId: user.model_id,
+            },
+          });
+          if (assistant && assistant.allowTrial) {
+            let call = await MakeACall(user.id, user.model_id);
+          } else {
+            console.log('"Found Assistant. Doesnt Allow Trial"');
           }
-          else{
-            console.log('"Found Assistant. Doesnt Allow Trial"')
-          }
-          
-          
         }
       }
 
@@ -333,7 +331,7 @@ export const RegisterOrLogin = async (req, res) => {
       //         }
       //     },
       // })
-      
+
       user.phoneVerified = true;
       let saed = await user.save();
 
@@ -352,7 +350,7 @@ export const RegisterOrLogin = async (req, res) => {
     }
   } else {
     // console.log("Db code is ", dbCode)
-    console.log("User email is ", email)
+    console.log("User email is ", email);
 
     if (!login) {
       // if(!dbCode){
@@ -389,8 +387,7 @@ export const RegisterOrLogin = async (req, res) => {
       //   else{
       //     console.log('"Found Assistant. Doesnt Allow Trial"')
       //   }
-        
-        
+
       // }
       let signedData = await SignUser(user);
       // await db.PhoneVerificationCodeModel.destroy({
@@ -419,7 +416,7 @@ export const CheckPhoneExists = async (req, res) => {
   let phone = req.body.phone;
   phone = phone.replace(/\+/g, "");
   // let code = req.body.code;
-console.log('Phone Number', phone)
+  console.log("Phone Number", phone);
   let user = await db.User.findOne({
     where: {
       phone: {
@@ -427,7 +424,7 @@ console.log('Phone Number', phone)
       },
     },
   });
-  console.log('User With Phone Number', user)
+  console.log("User With Phone Number", user);
 
   if (user) {
     res.send({ status: false, data: null, message: "Phone already taken" });
@@ -440,7 +437,6 @@ console.log('Phone Number', phone)
 export const GetMyProfile = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
-      ;
       let user = await db.User.findOne({
         where: {
           id: authData.user.id,
@@ -458,9 +454,8 @@ export const GetMyProfile = async (req, res) => {
       } else {
         res.send({ status: false, data: null, message: "No such user" });
       }
-    }
-    else{
-        res.send({ status: false, data: null, message: "Unauthenticated user" });
+    } else {
+      res.send({ status: false, data: null, message: "Unauthenticated user" });
     }
   });
 };
@@ -727,77 +722,68 @@ export const sendSMS = async (to, body) => {
   // }
 };
 
-
-
-
 //Admin related
 
-export const GetCreatorsX = async(req, res)=>{
+export const GetCreatorsX = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let creators = await db.User.findAll({
         where: {
-          role: 'creatorx'
-        }
-      })
+          role: "creatorx",
+        },
+      });
 
-
-      let resource = await UserProfileFullResource(creators)
+      let resource = await UserProfileFullResource(creators);
 
       res.send({ status: true, data: resource, message: "User profile" });
-    }
-    else{
+    } else {
       res.send({ status: false, data: null, message: "Unauthenticated user" });
     }
-
-  })
-}
-export const UpdateCreatorAI = async(req, res)=>{
+  });
+};
+export const UpdateCreatorAI = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userId = authData.user.id;
       let user = await db.User.findByPk(userId);
       let creatorId = req.body.creatorId;
       let prompt = req.body.prompt;
-      console.log("Got the data update Creator X", {creatorId, prompt})
+      console.log("Got the data update Creator X", { creatorId, prompt });
 
       let creator = await db.User.findOne({
         where: {
-          id: creatorId
-        }
+          id: creatorId,
+        },
       });
-      if(creator){
-        console.log("Here is creator")
+      if (creator) {
+        console.log("Here is creator");
         let assistant = await db.Assistant.findOne({
-          where:{
-            userId: creatorId
-          }
-        })
+          where: {
+            userId: creatorId,
+          },
+        });
 
-        if(assistant){
-          console.log("Here is assistant")
+        if (assistant) {
+          console.log("Here is assistant");
           assistant.prompt = prompt;
           let saved = await assistant.save();
-          let resource = await UserProfileFullResource(creator)
+          let resource = await UserProfileFullResource(creator);
           res.send({ status: true, data: resource, message: "Prompt updated" });
-        }
-        else{
-          console.log("Here is new assistant")
+        } else {
+          console.log("Here is new assistant");
           let assistant = await db.Assistant.create({
             name: creator.name,
             phone: creator.phone,
-            prompt: prompt
-          })
-          let resource = await UserProfileFullResource(creator)
+            prompt: prompt,
+          });
+          let resource = await UserProfileFullResource(creator);
           res.send({ status: true, data: resource, message: "Prompt updated" });
         }
-      }
-      else{
+      } else {
         res.send({ status: false, data: null, message: "No such creator" });
       }
-    }
-    else{
+    } else {
       res.send({ status: false, data: null, message: "Unauthenticated user" });
     }
-  })
-}
+  });
+};

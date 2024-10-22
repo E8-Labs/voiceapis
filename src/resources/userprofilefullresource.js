@@ -57,7 +57,7 @@ async function getUserData(user, currentUser = null) {
   ////console.log('MyCalculation', totalEarned)
 
   // totalEarned = await calculateTotalEarned(user.id)
-  let earningData = await calculateEarningsForCreator(user.id)
+  let earningData = await calculateEarningsForCreator(user.id);
   //console.log("Total earned ", earningData)
   totalEarned = earningData.totalEarned;
   ////console.log('GPTCalculation', totalEarned)
@@ -83,14 +83,12 @@ async function getUserData(user, currentUser = null) {
     plan = await UserSubscriptionResource(sub);
   }
 
-
-  let cards = await loadCards(user)
-  
+  let cards = await loadCards(user);
 
   const UserFullResource = {
     id: user.id,
     name: user.name,
-    username: user.username,
+    username: user.username, // unique url for creator
     profile_image: user.profile_image,
     full_profile_image: user.full_profile_image,
     email: user.email,
@@ -103,12 +101,11 @@ async function getUserData(user, currentUser = null) {
     earned: totalEarned,
     plan: plan,
     ai: ai,
-    payment_added: (cards && cards.length > 0) ? true : false
+    payment_added: cards && cards.length > 0 ? true : false,
   };
 
   return UserFullResource;
 }
-
 
 const calculateEarningsForCreator = async (modelId) => {
   try {
@@ -116,7 +113,7 @@ const calculateEarningsForCreator = async (modelId) => {
     const callsForCreator = await db.CallModel.findAll({
       where: { modelId },
       include: [
-        { model: db.User, as: 'caller', attributes: ['id', 'name'] }, // Assuming 'caller' alias refers to the user who called
+        { model: db.User, as: "caller", attributes: ["id", "name"] }, // Assuming 'caller' alias refers to the user who called
       ],
     });
 
@@ -131,13 +128,15 @@ const calculateEarningsForCreator = async (modelId) => {
     const userMinutesMap = {};
 
     // Fetch the rate per minute for the creator from UserAi
-    const creatorAiData = await db.UserAi.findOne({ where: { userId: modelId } });
+    const creatorAiData = await db.UserAi.findOne({
+      where: { userId: modelId },
+    });
     const ratePerMinute = creatorAiData ? creatorAiData.price : 0;
 
     // Process each call and calculate minutes (convert seconds to minutes)
     for (let call of callsForCreator) {
       const { userId, duration, caller } = call;
-      
+
       // Convert duration from seconds to minutes
       const minutes = parseFloat(duration) / 60;
 
@@ -159,7 +158,10 @@ const calculateEarningsForCreator = async (modelId) => {
       const remainingFreeMinutes = Math.max(5 - freeMinutesUsed, 0);
 
       // Calculate the paid minutes for this specific call
-      const paidMinutesForThisCall = Math.max(minutes - remainingFreeMinutes, 0);
+      const paidMinutesForThisCall = Math.max(
+        minutes - remainingFreeMinutes,
+        0
+      );
 
       // If the call wasn't charged (because it was within the free minutes), store its details
       if (paidMinutesForThisCall === 0) {
@@ -180,17 +182,12 @@ const calculateEarningsForCreator = async (modelId) => {
       totalMinutes: totalMinutesForCreator,
       totalEarned: totalEarningsForCreator,
       ratePerMinute,
-      nonChargedCalls,  // Overview of calls that were not charged
+      nonChargedCalls, // Overview of calls that were not charged
     };
   } catch (error) {
-    console.error('Error calculating earnings:', error);
+    console.error("Error calculating earnings:", error);
     throw error;
   }
 };
-
-
-
-
-
 
 export default UserProfileFullResource;
