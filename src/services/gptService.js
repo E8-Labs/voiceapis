@@ -58,7 +58,7 @@ export async function CallOpenAi(data) {
     const result = await response.json();
 
     // Extract tokens used and summary from the response
-    console.log("GPT Response ", JSON.stringify(result));
+    // console.log("GPT Response ", JSON.stringify(result));
     const mess = result.choices[0].message;
     let summary = mess.content;
     const tokensUsed = result.usage.total_tokens;

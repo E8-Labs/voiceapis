@@ -34,6 +34,12 @@ import {
   AddDonotDiscuss,
   UpdateDonotDiscuss,
   DeleteDonotDiscuss,
+  AddCallStrategy,
+  DeleteCallStrategy,
+  UpdateCallStrategy,
+  AddObjectionHandling,
+  DeleteObjectionHandling,
+  UpdateObjectionHandling,
 } from "../controllers/buildai.controller.js";
 
 import { verifyJwtToken } from "../middleware/jwtmiddleware.js";
@@ -167,6 +173,39 @@ AiRouter.post(
   verifyJwtToken,
   uploadFiles,
   UpdateUserBelief
+);
+
+AiRouter.post("/addCallStrategy", verifyJwtToken, uploadFiles, AddCallStrategy);
+AiRouter.post(
+  "/deleteCallStrategy",
+  verifyJwtToken,
+  uploadFiles,
+  DeleteCallStrategy
+);
+AiRouter.post(
+  "/updateCallStrategy",
+  verifyJwtToken,
+  uploadFiles,
+  UpdateCallStrategy
+);
+
+AiRouter.post(
+  "/addObjectionHandling",
+  verifyJwtToken,
+  uploadFiles,
+  AddObjectionHandling
+);
+AiRouter.post(
+  "/deleteObjectionHandling",
+  verifyJwtToken,
+  uploadFiles,
+  DeleteObjectionHandling
+);
+AiRouter.post(
+  "/updateObjectionHandling",
+  verifyJwtToken,
+  uploadFiles,
+  UpdateObjectionHandling
 );
 
 export default AiRouter;

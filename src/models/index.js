@@ -30,6 +30,8 @@ import PhrasesAndQuotes from "./ai/phrasesandquotes.model.js";
 import DonotDiscuss from "./ai/donotdiscuss.model.js";
 import CommunicationInstructions from "./ai/communicationinstructions.model.js";
 import MainPoints from "./ai/mainpoints.model.js";
+import ObjectionHandling from "./ai/objectionhandling.model.js";
+import CallStrategy from "./ai/CallStrategy.model.js";
 
 const sequelize = new Sequelize(
   dbConfig.MYSQL_DB,
@@ -69,6 +71,8 @@ db.CallModel.belongsTo(db.User, { foreignKey: "userId", as: "caller" }); // A ca
 
 db.Assistant = Assistant(sequelize, Sequelize);
 models["Assistant"] = db.Assistant;
+db.User.hasMany(db.Assistant, { foreignKey: "userId" });
+db.Assistant.belongsTo(db.User, { foreignKey: "userId" });
 
 db.PhoneVerificationCodeModel = PhoneVerificationCodeModel(
   sequelize,
@@ -142,8 +146,14 @@ models["CommunicationInstructions"] = db.CommunicationInstructions;
 db.DonotDiscuss = DonotDiscuss(sequelize, Sequelize);
 models["DonotDiscuss"] = db.DonotDiscuss;
 
+db.ObjectionHandling = ObjectionHandling(sequelize, Sequelize);
+models["ObjectionHandling"] = db.ObjectionHandling;
+
 db.MainPoints = MainPoints(sequelize, Sequelize);
 models["MainPoints"] = db.MainPoints;
+
+db.CallStrategy = CallStrategy(sequelize, Sequelize);
+models["CallStrategy"] = db.CallStrategy;
 
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {
