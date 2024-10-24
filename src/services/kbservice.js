@@ -298,6 +298,47 @@ export async function AddPhrasesAndQuotes(json, user, kbtype, kbid) {
     console.log("No ShortPhrases Ex found");
   }
 }
+
+export async function AddObjectionHandling(json, user, kbtype, kbid) {
+  let traits = json.ObjectionHandling;
+  const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
+
+  console.log("ObjectionHandling  ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.ObjectionHandling.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["objectionType"],
+      });
+      console.log("ObjectionHandling Ex added successfully!");
+    } catch (error) {
+      console.error("Error inserting ObjectionHandling:", error);
+    }
+  } else {
+    console.log("No ObjectionHandling Ex found");
+  }
+}
+
+export async function AddCallStrategy(json, user, kbtype, kbid) {
+  let traits = json.CallStrategy;
+  const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
+
+  console.log("ObjectionHandling  ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.CallStrategy.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("CallStrategy Ex added successfully!");
+    } catch (error) {
+      console.error("Error inserting CallStrategy:", error);
+    }
+  } else {
+    console.log("No CallStrategy Ex found");
+  }
+}
+
 export async function AddUserPhilosophyAndViews(json, user, kbtype, kbid) {
   let traits = json.PersonaCharacteristics.PhilosophyAndViews;
   const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
@@ -937,7 +978,7 @@ export async function ProcessDocumentAndTextKb() {
             // Write the response to a file
             let chunkFilePath = path.join(
               __dirname,
-              `chunk_${kb.id}_${chunkIndex + 1}.json`
+              `/Files/chunk_${kb.id}_${chunkIndex + 1}.json`
             );
             fs.writeFileSync(
               chunkFilePath,

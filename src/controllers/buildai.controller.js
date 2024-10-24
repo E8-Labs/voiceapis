@@ -1337,3 +1337,181 @@ export async function UpdateCommunicationInstruction(req, res) {
     return res.send({ status: true, message: "Listing saved", data: ai });
   });
 }
+
+export async function AddCallStrategy(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { title, description } = req.body;
+    let added = await db.CallStrategy.create({
+      title: title,
+      description: description,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "CallStrategy added",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "CallStrategy not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteCallStrategy(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.CallStrategy.findByPk(id);
+    let del = await db.CallStrategy.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "CallStrategy deleted",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "CallStrategy not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateCallStrategy(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.CallStrategy.findByPk(id);
+
+    if (req.body.title) {
+      trait.title = req.body.title;
+    }
+    if (req.body.description) {
+      trait.description = req.body.description;
+    }
+
+    let saved = await trait.save();
+    let ai = await GetAiForUser(userId);
+    return res.send({ status: true, message: "CallStrategy saved", data: ai });
+  });
+}
+
+export async function AddObjectionHandling(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { prompt, response, objectinType } = req.body;
+    let added = await db.ObjectionHandling.create({
+      prompt: prompt,
+      response: response,
+      objectinType: objectinType,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "ObjectionHandling added",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "ObjectionHandling not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteObjectionHandling(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.ObjectionHandling.findByPk(id);
+    let del = await db.ObjectionHandling.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "ObjectionHandling deleted",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "ObjectionHandling not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateObjectionHandling(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.ObjectionHandling.findByPk(id);
+
+    if (req.body.prompt) {
+      trait.prompt = req.body.prompt;
+    }
+    if (req.body.response) {
+      trait.response = req.body.response;
+    }
+    if (req.body.objectinType) {
+      trait.objectinType = req.body.objectinType;
+    }
+
+    let saved = await trait.save();
+    let ai = await GetAiForUser(userId);
+    return res.send({
+      status: true,
+      message: "ObjectionHandling saved",
+      data: ai,
+    });
+  });
+}
