@@ -478,7 +478,8 @@ export const UpdateYourAi = async (req, res) => {
         }
       }
 
-      res.send({ status: true, message: "Ai Updated", data: createdAI });
+      let ai = await GetAiForUser(user.id);
+      res.send({ status: true, message: "Ai Updated", data: ai });
     } else {
       res.send({ status: false, message: "Unauthenticated User" });
     }
