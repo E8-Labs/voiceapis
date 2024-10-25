@@ -16,12 +16,13 @@ import { GetUsersHavingNoObjectiveAndProfession } from "./src/services/OneTimeCr
 import { CheckIfGeneratePromptFirstTime } from "./src/services/MasterPromptService.js";
 // import { LabelVideoTranscript } from "./src/services/kbservice.js";
 
+//Running? No
 // async function rechargeUsersAccounts() {
 //   let users = await db.User.findAll({
 //     where: {
 //       seconds_available: {
 //         [db.Sequelize.Op.lte]: 120,
-//       },
+//       },ve
 //     },
 //   });
 //   //console.log(`${users.length} Users have less than 2 minutes`);
@@ -52,8 +53,12 @@ import { CheckIfGeneratePromptFirstTime } from "./src/services/MasterPromptServi
 //     }
 //   }
 // }
+// const jobUserTopup = nodeCron.schedule("*/2 * * * *", rechargeUsersAccounts);
+// jobUserTopup.start();
 
 //calls that were not charged for some reason - Yes
+
+//Running - Yes
 async function getCompletedCallsNotCharged() {
   //console.log("Running cron job Completed Calls");
   try {
@@ -132,15 +137,11 @@ async function getCompletedCallsNotCharged() {
     //console.log("Error ", error);
   }
 }
-
 const jobCharges = nodeCron.schedule(
   "*/30 * * * * *",
   getCompletedCallsNotCharged
 );
 // jobCharges.start();
-
-// const jobUserTopup = nodeCron.schedule("*/2 * * * *", rechargeUsersAccounts);
-// jobUserTopup.start();
 
 // const webScrapperJob = nodeCron.schedule("*/15 * * * * *", ScrapWebUrl);
 // webScrapperJob.start();

@@ -85,6 +85,18 @@ const GetAiForUser = async (userId) => {
       userId: userId,
     },
   });
+
+  let CallStrategy = await db.CallStrategy.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+
+  let ObjectionHandling = await db.ObjectionHandling.findAll({
+    where: {
+      userId: userId,
+    },
+  });
   return {
     ai: ai,
     Philosophies: Philosophies,
@@ -99,6 +111,8 @@ const GetAiForUser = async (userId) => {
     values: Values,
     frameworks: Frameworks,
     intractions: intractions,
+    callStrategy: CallStrategy,
+    objectionHandling: ObjectionHandling,
   };
 };
 export const MyAi = async (req, res) => {
