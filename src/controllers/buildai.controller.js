@@ -351,7 +351,7 @@ export const UpdateYourAi = async (req, res) => {
 
       //console.log("URLS in request", {fb_url, insta_url, youtube_url, discord_url, twitter_url})
       let audio = null;
-      if (req.files.media) {
+      if (req.files && req.files.media) {
         console.log("Audio in update AI");
         let file = req.files.media[0];
 
