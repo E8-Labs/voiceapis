@@ -46,6 +46,12 @@ import {
   AddInterpersonalSkills,
   UpdateInterpersonalSkills,
   DeleteInterpersonalSkills,
+  UpdateProductFaqs,
+  DeleteProductFaqs,
+  AddProductFaqs,
+  AddCommunicationCommonFaqs,
+  UpdateCommunicationCommonFaqs,
+  DeleteCommunicationCommonFaqs,
 } from "../controllers/buildai.controller.js";
 
 import { verifyJwtToken } from "../middleware/jwtmiddleware.js";
@@ -235,6 +241,39 @@ AiRouter.post(
   verifyJwtToken,
   uploadFiles,
   UpdateInterpersonalSkills
+);
+
+AiRouter.post("/addProductFaqs", verifyJwtToken, uploadFiles, AddProductFaqs);
+AiRouter.post(
+  "/deleteProductFaqs",
+  verifyJwtToken,
+  uploadFiles,
+  DeleteProductFaqs
+);
+AiRouter.post(
+  "/updateProductFaqs",
+  verifyJwtToken,
+  uploadFiles,
+  UpdateProductFaqs
+);
+
+AiRouter.post(
+  "/addCommonFaqs",
+  verifyJwtToken,
+  uploadFiles,
+  AddCommunicationCommonFaqs
+);
+AiRouter.post(
+  "/deleteCommonFaqs",
+  verifyJwtToken,
+  uploadFiles,
+  DeleteCommunicationCommonFaqs
+);
+AiRouter.post(
+  "/updateCommonFaqs",
+  verifyJwtToken,
+  uploadFiles,
+  UpdateCommunicationCommonFaqs
 );
 
 export default AiRouter;
