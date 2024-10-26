@@ -157,7 +157,10 @@ async function ProcessLabelledTranscript() {
         [db.Sequelize.Op.is]: null,
       },
       caption: {
-        [db.Sequelize.Op.ne]: "error",
+        [db.Sequelize.Op.or]: [
+          { [db.Sequelize.Op.is]: null },
+          { [db.Sequelize.Op.ne]: "error" },
+        ],
       },
     },
   });
