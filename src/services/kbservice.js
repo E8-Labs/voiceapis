@@ -734,9 +734,9 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
     let config = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://www.searchapi.io/api/v1/search?api_key=cYNn3AVjaS2eVN9yz75YbCCf&engine=youtube_transcripts&video_id=${videoId}`,
+      url: `https://www.searchapi.io/api/v1/search?api_key=${process.env.YoutubeSearchApiKey}&engine=youtube_transcripts&video_id=${videoId}`,
       headers: {
-        Authorization: "Bearer cYNn3AVjaS2eVN9yz75YbCCf",
+        Authorization: `Bearer ${YoutubeSearchApiKey}`,
       },
       data: data,
     };
