@@ -729,6 +729,10 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
   console.log("Fetching Transcript", user.id);
   // return;
   let transcript = video.caption || "";
+  if (transcript == "error") {
+    return;
+  }
+
   if (transcript == null || transcript == "") {
     console.log("Dont have transcript. Fetching New");
     let config = {
@@ -743,6 +747,14 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
 
     let response = await axios.request(config);
     let resData = response.data;
+    if (resData.error) {
+      video.caption = "error";
+      let saved = await video.save();
+
+      return;
+    } else {
+      // continue
+    }
     console.log("Fetched Transcript");
 
     resData.transcripts.map((t) => {
