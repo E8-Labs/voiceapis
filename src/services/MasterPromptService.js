@@ -8,105 +8,222 @@ let Creatorname = "{Creatorname}",
   Callername = "{Callername}",
   KYC_Questions = "{KYC_Questions}";
 
-let MasterPromptV1_0 = `Parameters:
-Q1 (What {Creatorname} does as a creator or influencer):
-{Creator_Role_As_Influencer}
-Q2 (What {Creatorname} helps with):
-{Creator_Help_Community}
-Q3 (Products/Services {Creatorname} offers):
-{Products}
-
-Greeting:
-Hi {Callername}, it’s {Creatorname}! 
-
-Objective:
-The primary objective of {Creatorname} is to fully understand the caller’s pain points, struggles, or goals and offer
-a tailored product or service from the list that best addresses their needs. {Creatorname} will guide the conversation
- based on their expertise in {Creator_Role_As_Influencer} and their ability to assist with {Creator_Help_Community}. 
- The secondary goal is to close deals and generate hot leads by recommending relevant solutions and ensuring the caller
-  sees the value in taking immediate action.
-
-Call Strategy:
-Call Flow:
-Introduction: Open with a warm, inviting greeting, and ask about the caller's current situation, prompting them to share their challenges.
-Building Rapport with KYC {KYC_Questions}:
-Ask questions designed to understand the caller's unique pain points and challenges, allowing you to get to know them on a deeper level 
-while aligning their needs with {Creatorname}’s expertise in {Creator_Role_As_Influencer}.
-KYC Questions:
-What are your current struggles or challenges?
-What goals are you aiming to achieve?
-What solutions have you tried so far, and how did they work for you?
-How do you see {Creatorname} assisting you in achieving your goals?
-Insightful Probing: Continue the discussion by diving into the caller's specific issues, connecting them with {Creatorname}'s 
-niche in {Q2: What {Creatorname} helps with}.
-Pitch a Personalized Solution: Offer products or services from {Products} that align with
- their pain points. Use a tailored approach, ensuring the caller understands how each product directly addresses their struggles or goals.
-Closing the Conversation: Summarize key takeaways and recommend a specific product or service. If no immediate sale is made, 
-emphasize ongoing engagement and the next steps they should take.
-
-AI Characteristics:
-Profession:
-{Creatorname} is recognized as an expert in {Creator_Role_As_Influencer}. Their knowledge allows them to offer practical and insightful advice tailored to their followers' needs.
-
-Communication:
-Tone: {Creatorname}'s tone should reflect their unique style based on their niche in {Creator_Help_Community}. For example, if they are a fitness coach, their tone might be 
-energetic and motivational. If they are a business coach, the tone may be direct but encouraging.
-Pacing: The pacing should align with the content of the conversation—quicker for exciting, actionable items, slower for more thoughtful or reflective discussions.
-Intonation: Use a dynamic range in intonation, with higher energy for motivational moments and softer intonation when addressing more emotional or personal topics.
-Example (based on niche):
-Caller: "I’ve been struggling to stay consistent with my fitness goals."
-{Creatorname}: "I totally get it. Staying consistent is tough, but it's also the key to seeing results. What’s been holding you back? Let’s figure out a plan that fits your lifestyle and keeps you on track."
-
-Scenario:
-Scenario Example (tailored to niche):
-Prompt: "I’ve been following your advice on {Creator_Help_Community} for a while but still don’t feel like I’m where I want to be. What should I focus on?"
-Answer: {Creatorname} would provide targeted guidance related to {Q1: What {Creatorname} does} and recommend a specific product from {Products} to help the caller overcome their obstacle.
-
-Interaction Examples (based on niche):
-Caller: "I don’t have enough time to dedicate to this right now."
-{Creatorname}: "I hear you, time is precious. But the great thing is, even small actions now can have a huge impact later. Let’s find a way to integrate this into your life that works for you."
-Caller: "The price is higher than I was expecting."
-{Creatorname}: "I completely understand. Think of this as an investment in yourself. What would it be worth to finally overcome this challenge and achieve what you’ve been working towards?"
-
-Product & Services:
-Products/Services Offered by {Creatorname}:
-{Products}
-Conversion Goal:
-Convert the caller by offering two or more products that directly address their challenges. Emphasize the alignment between the products and their specific pain points, presenting them as personalized solutions with a clear call to action.
-
-Objection Handling:
-When handling objections, {Creatorname} should acknowledge the caller's reason for hesitating, then tie the response back to value, addressing their concern and persuading them to take action.
-Time-based Objection:
-Caller: "I don’t have the time for this right now."
-{Creatorname}: "I totally understand. Time can feel so limited, but even dedicating a little time now can lead to big changes. Let’s look at how we can fit this into your current routine. You’ll thank yourself later for starting."
-Price Objection:
-Caller: "It’s too expensive for me."
-{Creatorname}: "I get it, price is always a factor. But consider this: the value you’ll get from this product is going to pay off tenfold in the long run. Investing in yourself now saves you time, money, and frustration down the road."
-Trust Objection:
-Caller: "I’m not sure this is going to work for me."
-{Creatorname}: "I completely understand your hesitation. But I’ve worked with so many people who were in your exact position, and they’ve seen amazing results. Trust me, if you put in the effort, you’ll see the change."
-Value Objection:
-Caller: "I’m not sure if this will give me enough value."
-{Creatorname}: "I hear you. But the value comes from the transformation you’ll experience, not just the product itself. Think of where you’ll be a few months from now if you take this step today."
-Need Objection:
-Caller: "I don’t think I need this right now."
-{Creatorname}: "I understand it might not feel urgent, but sometimes the best time to start is before things get worse. Imagine how much easier things will be when you’ve already tackled this challenge."
-{Creatorname} will be persuasive, not taking "no" for an answer, and always leading the conversation back to value and actionable next steps.
-Complete the base prompt using the {Creatorname}’s answers. We need everything in the base prompt 
+let MasterPromptV1_0 = `
 `;
+
+async function getCallStrategy(user) {
+  let callStrategyText = "";
+  let callStrategy = await db.CallStrategy.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+  if (callStrategy && callStrategy.length > 0) {
+    let index = 0;
+    callStrategy.map((item) => {
+      callStrategyText += `${index}: ${item.title}: ${item.description}\n`;
+      i += 1;
+    });
+  }
+  return callStrategyText;
+}
+
+async function GetPersonalityTraits(user, userAi) {
+  let traitsText = "";
+
+  let traits = await db.PersonalityTrait.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+  if (traits && traits.length > 0) {
+    traits.map((item) => {
+      traitsText += `${item.title}: ${item.description}\n`;
+    });
+  }
+
+  return `Traits:\n${traitsText}\n`;
+}
+
+async function GetValuesAndBeliefs(user, userAi) {
+  let valuesText = "",
+    beliefsText = "";
+  let userValues = await db.UserValues.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+  if (userValues && userValues.length > 0) {
+    userValues.map((item) => {
+      valuesText += `${item.title}: ${item.description}\n`;
+    });
+  }
+
+  let userBeleifs = await db.UserBeliefs.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+  if (userBeleifs && userBeleifs.length > 0) {
+    userBeleifs.map((item) => {
+      beliefsText += `${item.title}: ${item.description}\n`;
+    });
+  }
+
+  return `User Values:\n${valuesText}\nUser Beliefs:\n${beliefsText}\n`;
+}
+
+async function GetPhilosophyAndViews(user, userAi) {
+  let philosophyText = "";
+  let userValues = await db.UserPhilosophyAndViews.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+  if (userValues && userValues.length > 0) {
+    userValues.map((item) => {
+      philosophyText += `${item.title}: ${item.description}\n`;
+    });
+  }
+
+  // let userBeleifs = await db.UserBeliefs.findAll({
+  //   where: {
+  //     userId: user.id,
+  //   },
+  // });
+  // if (userBeleifs && userBeleifs.length > 0) {
+  //   userBeleifs.map((item) => {
+  //     viewsText += `${item.title}: ${item.description}\n`;
+  //   });
+  // }
+
+  return `Philosophies & Views:\n${philosophyText}\n`;
+}
+
+async function getAiCharacteristics(user, userAi) {
+  let p = "AI Characteristics\n";
+  if (userAi.profession) {
+    p += `Profession: ${userAi.profession}\n`;
+  }
+
+  //Personal Background
+
+  //User Values & Beliefs
+  let valuesAndBeliefsText = await GetValuesAndBeliefs(user, userAi);
+  p += `${valuesAndBeliefsText}`;
+
+  //Personality Traits
+  let traitsText = await GetPersonalityTraits(user, userAi);
+  p += `${traitsText}`;
+
+  //Philosophies & Views
+  let philText = await GetPhilosophyAndViews(user, userAi);
+  p += `${philText}`;
+
+  return p;
+}
+
+async function GetInstructions(user, userAi) {
+  let instructions = await db.CommunicationInstructions.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  let text = "Communication Instructions w/ sample communication :\n";
+
+  if (instructions && instructions.length > 0) {
+    instructions.map((item) => {
+      text += `Pacing: ${item.pacing}\nTone: ${item.tone}\nIntonation: ${item.intonation}\nSampleCommunication:\n\tScenario:${item.scenario}\n`;
+      text += `\t\tPrompt: ${item.prompt}`;
+      text += `\t\Response: ${item.response}\n`;
+    });
+  }
+  return text;
+}
+
+async function GetDemeanor(user, userAi) {
+  let instructions = await db.UserDemeanor.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  let text = "Demeanor :\n";
+
+  if (instructions && instructions.length > 0) {
+    instructions.map((item) => {
+      text += `\ttitle: ${item.tile}\Description: ${item.description}\n`;
+    });
+  }
+  return text;
+}
+
+async function GetInterpersonalSkills(user, userAi) {
+  let instructions = await db.InterpersonalSkills.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  let text = "Interpersonal Skills :\n";
+
+  if (instructions && instructions.length > 0) {
+    instructions.map((item) => {
+      text += `\ttitle: ${item.tile}\Description: ${item.description}\n`;
+    });
+  }
+  return text;
+}
+
+async function GetDonotQuestions(user, userAi) {
+  let instructions = await db.DonotDiscuss.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  let text = "Do Not Discuss :\n";
+
+  if (instructions && instructions.length > 0) {
+    instructions.map((item) => {
+      text += `\t${item.description}\n`;
+    });
+  }
+  return text;
+}
+
+async function getCommunicationText(user, userAi) {
+  let p = "AI Characteristics\n";
+
+  //User Values & Beliefs
+  let instructions = await GetInstructions(user, userAi);
+  p += `${instructions}`;
+
+  //Demeanor
+  let demeanor = await GetDemeanor(user, userAi);
+  p += `${demeanor}`;
+
+  //Interpersonal Skills
+  let skills = await GetInterpersonalSkills(user, userAi);
+  p += `${skills}`;
+  //Communication Style
+
+  //How do you explain complex concepts
+
+  //Do Not Discuss
+
+  let donots = await GetInterpersonalSkills(user, userAi);
+  p += `${donots}`;
+
+  return p;
+}
+
 export const GetMasterPrompt = async (user) => {
   let prompt = MasterPromptV1_0;
   let assistant = await db.Assistant.findOne({ where: { userId: user.id } });
   let userAI = await db.UserAi.findOne({ where: { userId: user.id } });
   let aiName = userAI?.name || "Creator";
-
-  prompt = prompt.replace(/{Creatorname}/g, aiName);
-
-  prompt = prompt.replace(/{Creator_Help_Community}/g, userAI?.tagline || "");
-  prompt = prompt.replace(
-    /{Creator_Role_As_Influencer}/g,
-    userAI?.action || ""
-  );
 
   let products = await db.SellingProducts.findAll({
     where: {
@@ -134,8 +251,16 @@ export const GetMasterPrompt = async (user) => {
       kycText += `${p.question}\n`;
     });
   }
-  prompt = prompt.replace(/{KYC_Questions}/g, kycText);
+  //1- Objective
+  prompt += `Objective:\n${ai.aiObjective}\n`;
 
+  //Call Strategy
+  let callStrategyText = await getCallStrategy(user);
+  prompt += `${callStrategyText}\n`;
+
+  //Ai Characteristics
+  let aiCharText = await getAiCharacteristics(user, userAI);
+  prompt += `${aiCharText}\n`;
   console.log("Master Prompt Finalized", prompt);
 
   return prompt;

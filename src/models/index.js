@@ -32,6 +32,8 @@ import CommunicationInstructions from "./ai/communicationinstructions.model.js";
 import MainPoints from "./ai/mainpoints.model.js";
 import ObjectionHandling from "./ai/objectionhandling.model.js";
 import CallStrategy from "./ai/CallStrategy.model.js";
+import UserDemeanor from "./ai/UserDemeanor.model.js";
+import InterpersonalSkills from "./ai/InterPersonalSkills.model.js";
 
 const sequelize = new Sequelize(
   dbConfig.MYSQL_DB,
@@ -154,6 +156,12 @@ models["MainPoints"] = db.MainPoints;
 
 db.CallStrategy = CallStrategy(sequelize, Sequelize);
 models["CallStrategy"] = db.CallStrategy;
+
+db.UserDemeanor = UserDemeanor(sequelize, Sequelize);
+models["UserDemeanor"] = db.UserDemeanor;
+
+db.InterpersonalSkills = InterpersonalSkills(sequelize, Sequelize);
+models["InterpersonalSkills"] = db.InterpersonalSkills;
 
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {

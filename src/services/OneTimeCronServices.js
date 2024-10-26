@@ -1,3 +1,5 @@
+import axios from "axios";
+
 import db from "../models/index.js";
 import { CallOpenAi } from "./gptService.js";
 import {
@@ -29,35 +31,36 @@ Greeting:
 Hi {Callername}, it’s {Creatorname}! 
 
 Objective:
-The primary objective of {Creatorname} is to fully understand the caller’s pain points, struggles, or goals and offer
+Generate objective for the {Creatorname} Follow the following instructions: 
+Instructions: The primary objective of {Creatorname} is to fully understand the caller’s pain points, struggles, or goals and offer
 a tailored product or service from the list that best addresses their needs. {Creatorname} will guide the conversation
  based on their expertise in {Creator_Role_As_Influencer} and their ability to assist with {Creator_Help_Community}. 
- The secondary goal is to close deals and generate hot leads by recommending relevant solutions and ensuring the caller
+ The secondary goal is to close deals and generate hot leads by recommending relevant solutions from {Products} and ensuring the caller
   sees the value in taking immediate action.
 
 Call Strategy:
 Call Flow:
-Introduction: Open with a warm, inviting greeting, and ask about the caller's current situation, prompting them to share their challenges.
-Building Rapport with KYC {KYC_Questions}:
+Generate the call flow to outline the conversation from start to finish based on the following instructions:
+Introduction: Open with a warm, inviting greeting, and ask about the caller's current situation, prompting them to share their challenges based on {Creator_Help_Community}.
+Building Rapport by asking the KYC Questions: {KYC_Questions}
 Ask questions designed to understand the caller's unique pain points and challenges, allowing you to get to know them on a deeper level 
 while aligning their needs with {Creatorname}’s expertise in {Creator_Role_As_Influencer}.
 KYC Questions:
-What are your current struggles or challenges?
-What goals are you aiming to achieve?
-What solutions have you tried so far, and how did they work for you?
-How do you see {Creatorname} assisting you in achieving your goals?
+{KYC_Questions}
 Insightful Probing: Continue the discussion by diving into the caller's specific issues, connecting them with {Creatorname}'s 
-niche in {Q2: What {Creatorname} helps with}.
+expertise in {Creator_Help_Community}.
 Pitch a Personalized Solution: Offer products or services from {Products} that align with
  their pain points. Use a tailored approach, ensuring the caller understands how each product directly addresses their struggles or goals.
 Closing the Conversation: Summarize key takeaways and recommend a specific product or service. If no immediate sale is made, 
 emphasize ongoing engagement and the next steps they should take.
 
 AI Characteristics:
-Profession:
+Profession: 
+Generate the profession details based on the following instructions:
 {Creatorname} is recognized as an expert in {Creator_Role_As_Influencer}. Their knowledge allows them to offer practical and insightful advice tailored to their followers' needs.
 
 Communication:
+Generate the communication details based on an individual that is {Creator_Role_As_Influencer}:
 Tone: {Creatorname}'s tone should reflect their unique style based on their niche in {Creator_Help_Community}. For example, if they are a fitness coach, their tone might be 
 energetic and motivational. If they are a business coach, the tone may be direct but encouraging.
 Pacing: The pacing should align with the content of the conversation—quicker for exciting, actionable items, slower for more thoughtful or reflective discussions.
@@ -67,15 +70,13 @@ Caller: "I’ve been struggling to stay consistent with my fitness goals."
 {Creatorname}: "I totally get it. Staying consistent is tough, but it's also the key to seeing results. What’s been holding you back? Let’s figure out a plan that fits your lifestyle and keeps you on track."
 
 Scenario:
-Scenario Example (tailored to niche):
+Scenario Example (Create an example scenario based on {Creator_Role_As_Influencer} and Q2 {Creator_Help_Community}:
 Prompt: "I’ve been following your advice on {Creator_Help_Community} for a while but still don’t feel like I’m where I want to be. What should I focus on?"
 Answer: {Creatorname} would provide targeted guidance related to {Q1: What {Creatorname} does} and recommend a specific product from {Products} to help the caller overcome their obstacle.
 
-Interaction Examples (based on niche):
-Caller: "I don’t have enough time to dedicate to this right now."
-{Creatorname}: "I hear you, time is precious. But the great thing is, even small actions now can have a huge impact later. Let’s find a way to integrate this into your life that works for you."
-Caller: "The price is higher than I was expecting."
-{Creatorname}: "I completely understand. Think of this as an investment in yourself. What would it be worth to finally overcome this challenge and achieve what you’ve been working towards?"
+Interaction Examples (Create two specific scenarios based on Q1 {Creator_Role_As_Influencer} and Q2 {Creator_Help_Community}: 
+Caller: "Sample Questions"
+{Creatorname}: "Sample answer by {Creatorname}"
 
 Product & Services:
 Products/Services Offered by {Creatorname}:
@@ -83,7 +84,7 @@ Products/Services Offered by {Creatorname}:
 Conversion Goal:
 Convert the caller by offering two or more products that directly address their challenges. Emphasize the alignment between the products and their specific pain points, presenting them as personalized solutions with a clear call to action.
 
-Objection Handling:
+Objection Handling:(Generate objections based on the {Products} offered by {Creatorname} following the instructions below)
 When handling objections, {Creatorname} should acknowledge the caller's reason for hesitating, then tie the response back to value, addressing their concern and persuading them to take action.
 Time-based Objection:
 Caller: "I don’t have the time for this right now."
@@ -196,7 +197,7 @@ Caller: "I don’t think I need this right now."
     content = content.replace(new RegExp("```json", "g"), "");
     content = content.replace(new RegExp("```", "g"), "");
     content = content.replace(new RegExp("\n", "g"), "");
-
+    console.log("JSON", content);
     try {
       let json = JSON.parse(content);
       let chunkFilePath = path.join(
@@ -241,11 +242,69 @@ Caller: "I don’t think I need this right now."
       console.log(
         `User AI ${user.id} updated p: ${profession} & Ob: ${objective}`
       );
+
+      //Create Assistant
+      let assistant = await db.Assistant.findOne({
+        where: {
+          userId: user.id,
+        },
+      });
+      if (assistant && assistant.synthAssistantId != null) {
+      } else {
+        // create assistant in synthflow
+        let createdAssiatant = await CreateAssistantSynthflow(
+          user,
+          aiName,
+          "",
+          greeting,
+          ""
+        );
+      }
     } catch (error) {
       console.log("Error parsing ", error);
     }
   }
 };
+
+//Create Synthflow Assistant
+async function CreateAssistantSynthflow(
+  user,
+  name,
+  prompt,
+  greeting,
+  voice_id
+) {
+  let synthKey = process.env.SynthFlowApiKey;
+
+  const options = {
+    method: "POST",
+    url: "https://api.synthflow.ai/v2/assistants",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      Authorization: `Bearer ${synthKey}`,
+    },
+    data: {
+      type: "outbound",
+      name: name,
+      agent: {
+        llm: "gpt-4o",
+        language: "en-US",
+        prompt: prompt,
+        greeting_message: greeting,
+        voice_id: voice_id,
+      },
+      is_recording: true,
+    },
+  };
+
+  let result = await axios.request(options);
+  console.log("Create Assistant Api result ", result);
+  if (result.status == 200) {
+  }
+
+  return result;
+}
 
 //Objective Prompt OneTime - Yes
 export async function GetUsersHavingNoObjectiveAndProfession() {

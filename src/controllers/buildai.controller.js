@@ -1530,3 +1530,179 @@ export async function UpdateObjectionHandling(req, res) {
     });
   });
 }
+
+//Demeanor
+export async function AddDemeanor(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { title, description } = req.body;
+    let added = await db.UserDemeanor.create({
+      title: title,
+      description: description,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "Demeanor added",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Demeanor not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteDemeanor(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.UserDemeanor.findByPk(id);
+    let del = await db.UserDemeanor.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "UserDemeanor deleted",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "UserDemeanor not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateDemeanor(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.UserDemeanor.findByPk(id);
+
+    if (req.body.title) {
+      trait.title = req.body.title;
+    }
+    if (req.body.description) {
+      trait.description = req.body.description;
+    }
+
+    let saved = await trait.save();
+    let ai = await GetAiForUser(userId);
+    return res.send({ status: true, message: "UserDemeanor saved", data: ai });
+  });
+}
+
+//Interpersonal Skills
+export async function AddInterpersonalSkills(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { title, description } = req.body;
+    let added = await db.InterpersonalSkills.create({
+      title: title,
+      description: description,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "InterpersonalSkills added",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "InterpersonalSkills not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteInterpersonalSkills(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.InterpersonalSkills.findByPk(id);
+    let del = await db.InterpersonalSkills.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "InterpersonalSkills deleted",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "InterpersonalSkills not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateInterpersonalSkills(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.InterpersonalSkills.findByPk(id);
+
+    if (req.body.title) {
+      trait.title = req.body.title;
+    }
+    if (req.body.description) {
+      trait.description = req.body.description;
+    }
+
+    let saved = await trait.save();
+    let ai = await GetAiForUser(userId);
+    return res.send({
+      status: true,
+      message: "InterpersonalSkills saved",
+      data: ai,
+    });
+  });
+}

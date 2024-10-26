@@ -40,6 +40,12 @@ import {
   AddObjectionHandling,
   DeleteObjectionHandling,
   UpdateObjectionHandling,
+  AddDemeanor,
+  UpdateDemeanor,
+  DeleteDemeanor,
+  AddInterpersonalSkills,
+  UpdateInterpersonalSkills,
+  DeleteInterpersonalSkills,
 } from "../controllers/buildai.controller.js";
 
 import { verifyJwtToken } from "../middleware/jwtmiddleware.js";
@@ -206,6 +212,29 @@ AiRouter.post(
   verifyJwtToken,
   uploadFiles,
   UpdateObjectionHandling
+);
+
+AiRouter.post("/addDemeanor", verifyJwtToken, uploadFiles, AddDemeanor);
+AiRouter.post("/deleteDemeanor", verifyJwtToken, uploadFiles, DeleteDemeanor);
+AiRouter.post("/updateDemeanor", verifyJwtToken, uploadFiles, UpdateDemeanor);
+
+AiRouter.post(
+  "/addInterpersonalSkills",
+  verifyJwtToken,
+  uploadFiles,
+  AddInterpersonalSkills
+);
+AiRouter.post(
+  "/deleteInterpersonalSkills",
+  verifyJwtToken,
+  uploadFiles,
+  DeleteInterpersonalSkills
+);
+AiRouter.post(
+  "/updateInterpersonalSkills",
+  verifyJwtToken,
+  uploadFiles,
+  UpdateInterpersonalSkills
 );
 
 export default AiRouter;
