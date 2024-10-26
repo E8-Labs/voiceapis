@@ -141,7 +141,7 @@ const jobCharges = nodeCron.schedule(
   "*/30 * * * * *",
   getCompletedCallsNotCharged
 );
-// jobCharges.start();
+jobCharges.start();
 
 // const webScrapperJob = nodeCron.schedule("*/15 * * * * *", ScrapWebUrl);
 // webScrapperJob.start();
@@ -175,7 +175,7 @@ const YoutubeSummaryCronJob = nodeCron.schedule(
   "*/2 * * * *",
   ProcessLabelledTranscript
 );
-// YoutubeSummaryCronJob.start();
+YoutubeSummaryCronJob.start();
 
 // ProcessLabelledTranscript();
 // async function FindAndLabelYoutubeVideos() {
@@ -257,15 +257,15 @@ const YoutubeSummaryCronJob = nodeCron.schedule(
 
 //Document Kb Cron - Yes
 const KbCron = nodeCron.schedule("*/4 * * * *", ProcessDocumentAndTextKb);
-// KbCron.start();
+KbCron.start();
 // ProcessDocumentAndTextKb();
 
 const ObjectiveCron = nodeCron.schedule(
   "*/5 * * * *",
   GetUsersHavingNoObjectiveAndProfession
 );
-// ObjectiveCron.start();
-GetUsersHavingNoObjectiveAndProfession();
+ObjectiveCron.start();
+// GetUsersHavingNoObjectiveAndProfession();
 
 //Cron job to run and generate the Master Prompt First Time
 // const masterPromptCron = nodeCron.schedule(
