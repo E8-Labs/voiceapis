@@ -61,7 +61,7 @@ import { CheckIfGeneratePromptFirstTime } from "./src/services/MasterPromptServi
 
 //Running - Yes
 async function getCompletedCallsNotCharged() {
-  //console.log("Running cron job Completed Calls");
+  console.log("Running cron job Completed Calls");
   try {
     let calls = await db.CallModel.findAll({
       where: {
@@ -173,7 +173,7 @@ async function ProcessLabelledTranscript() {
 
 //Youtube Kb Cron - Yes
 const YoutubeSummaryCronJob = nodeCron.schedule(
-  "*/2 * * * *",
+  "*/5 * * * *",
   ProcessLabelledTranscript
 );
 YoutubeSummaryCronJob.start();

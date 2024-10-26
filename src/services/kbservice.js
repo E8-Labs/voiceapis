@@ -728,7 +728,7 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
 
   console.log("Fetching Transcript", user.id);
   // return;
-  let transcript = video.caption;
+  let transcript = video.caption || "";
   if (transcript == null || transcript == "") {
     console.log("Dont have transcript. Fetching New");
     let config = {
@@ -743,10 +743,10 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
 
     let response = await axios.request(config);
     let resData = response.data;
-    // console.log("Fetched Transcript", response);
+    console.log("Fetched Transcript");
 
     resData.transcripts.map((t) => {
-      transcript += t.text;
+      transcript += t.text ? t.text : "";
     });
   } else {
     console.log("Already have transcript. Using that.");
@@ -756,6 +756,9 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
 
   //add the transcript to vdb
   let trans = transcript;
+  if (trans == null || trans == "") {
+    return;
+  }
   // if (video.LabeledTranscript) {
   //   trans = video.LabeledTranscript;
   // }

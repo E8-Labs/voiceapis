@@ -299,7 +299,7 @@ async function CreateAssistantSynthflow(
   };
 
   let result = await axios.request(options);
-  console.log("Create Assistant Api result ", result);
+  // console.log("Create Assistant Api result ", result);
   if (result.status == 200) {
   }
 
