@@ -1706,3 +1706,183 @@ export async function UpdateInterpersonalSkills(req, res) {
     });
   });
 }
+
+//Product FAQs
+export async function AddProductFaqs(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { question, answer } = req.body;
+    let added = await db.ProductFaqs.create({
+      question: question,
+      answer: answer,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "ProductFaqs added",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "ProductFaqs not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteProductFaqs(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.ProductFaqs.findByPk(id);
+    let del = await db.ProductFaqs.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "ProductFaqs deleted",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "ProductFaqs not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateProductFaqs(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.ProductFaqs.findByPk(id);
+
+    if (req.body.question) {
+      trait.question = req.body.question;
+    }
+    if (req.body.answer) {
+      trait.answer = req.body.answer;
+    }
+
+    let saved = await trait.save();
+    let ai = await GetAiForUser(userId);
+    return res.send({
+      status: true,
+      message: "Product FAQs saved",
+      data: ai,
+    });
+  });
+}
+
+//Common questions | Communication FAQs
+export async function AddCommunicationCommonFaqs(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { question, answer } = req.body;
+    let added = await db.CommunicationCommonFaqs.create({
+      question: question,
+      answer: answer,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "CommonQuestion added",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "CommonQuestion not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteCommunicationCommonFaqs(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.CommunicationCommonFaqs.findByPk(id);
+    let del = await db.CommunicationCommonFaqs.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "ProductFaqs deleted",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "ProductFaqs not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateCommunicationCommonFaqs(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.CommunicationCommonFaqs.findByPk(id);
+
+    if (req.body.question) {
+      trait.question = req.body.question;
+    }
+    if (req.body.answer) {
+      trait.answer = req.body.answer;
+    }
+
+    let saved = await trait.save();
+    let ai = await GetAiForUser(userId);
+    return res.send({
+      status: true,
+      message: "CommunicationCommonFaqs saved",
+      data: ai,
+    });
+  });
+}
