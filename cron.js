@@ -5,7 +5,8 @@ import { ChargeCustomer } from "./src/services/stripe.js";
 // import { fetchVideoCaptionsAndProcessWithPrompt } from "./src/controllers/socialauth.controller.js";
 
 import { ScrapWebUrl } from "./src/controllers/scraping.controller.js";
-
+import dotenv from "dotenv";
+dotenv.config();
 // import { KbProcessingCron } from "./src/controllers/buildai.controller.js";
 import {
   ProcessDocumentAndTextKb,
