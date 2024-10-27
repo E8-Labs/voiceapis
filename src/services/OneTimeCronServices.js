@@ -252,13 +252,13 @@ Caller: "I don’t think I need this right now."
       if (assistant && assistant.synthAssistantId != null) {
       } else {
         // create assistant in synthflow
-        let createdAssiatant = await CreateAssistantSynthflow(
-          user,
-          aiName,
-          "",
-          greeting,
-          ""
-        );
+        // let createdAssiatant = await CreateAssistantSynthflow(
+        //   user,
+        //   aiName,
+        //   "",
+        //   greeting,
+        //   ""
+        // );
       }
     } catch (error) {
       console.log("Error parsing ", error);
@@ -299,7 +299,7 @@ async function CreateAssistantSynthflow(
   };
 
   let result = await axios.request(options);
-  console.log("Create Assistant Api result ", result);
+  // console.log("Create Assistant Api result ", result);
   if (result.status == 200) {
   }
 

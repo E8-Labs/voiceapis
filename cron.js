@@ -5,7 +5,8 @@ import { ChargeCustomer } from "./src/services/stripe.js";
 // import { fetchVideoCaptionsAndProcessWithPrompt } from "./src/controllers/socialauth.controller.js";
 
 import { ScrapWebUrl } from "./src/controllers/scraping.controller.js";
-
+import dotenv from "dotenv";
+dotenv.config();
 // import { KbProcessingCron } from "./src/controllers/buildai.controller.js";
 import {
   ProcessDocumentAndTextKb,
@@ -60,7 +61,7 @@ import { CheckIfGeneratePromptFirstTime } from "./src/services/MasterPromptServi
 
 //Running - Yes
 async function getCompletedCallsNotCharged() {
-  //console.log("Running cron job Completed Calls");
+  console.log("Running cron job Completed Calls");
   try {
     let calls = await db.CallModel.findAll({
       where: {
@@ -141,7 +142,7 @@ const jobCharges = nodeCron.schedule(
   "*/30 * * * * *",
   getCompletedCallsNotCharged
 );
-// jobCharges.start();
+jobCharges.start();
 
 // const webScrapperJob = nodeCron.schedule("*/15 * * * * *", ScrapWebUrl);
 // webScrapperJob.start();
@@ -154,6 +155,12 @@ async function ProcessLabelledTranscript() {
     where: {
       summary: {
         [db.Sequelize.Op.is]: null,
+      },
+      caption: {
+        [db.Sequelize.Op.or]: [
+          { [db.Sequelize.Op.is]: null },
+          { [db.Sequelize.Op.ne]: "error" },
+        ],
       },
     },
   });
@@ -172,10 +179,10 @@ async function ProcessLabelledTranscript() {
 
 //Youtube Kb Cron - Yes
 const YoutubeSummaryCronJob = nodeCron.schedule(
-  "*/2 * * * *",
+  "*/5 * * * *",
   ProcessLabelledTranscript
 );
-// YoutubeSummaryCronJob.start();
+YoutubeSummaryCronJob.start();
 
 // ProcessLabelledTranscript();
 // async function FindAndLabelYoutubeVideos() {
@@ -257,15 +264,15 @@ const YoutubeSummaryCronJob = nodeCron.schedule(
 
 //Document Kb Cron - Yes
 const KbCron = nodeCron.schedule("*/4 * * * *", ProcessDocumentAndTextKb);
-// KbCron.start();
+KbCron.start();
 // ProcessDocumentAndTextKb();
 
 const ObjectiveCron = nodeCron.schedule(
   "*/5 * * * *",
   GetUsersHavingNoObjectiveAndProfession
 );
-// ObjectiveCron.start();
-GetUsersHavingNoObjectiveAndProfession();
+ObjectiveCron.start();
+// GetUsersHavingNoObjectiveAndProfession();
 
 //Cron job to run and generate the Master Prompt First Time
 // const masterPromptCron = nodeCron.schedule(

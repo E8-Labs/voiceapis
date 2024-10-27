@@ -237,7 +237,7 @@ export const AddGoogleAuth = async (req, res) => {
         //console.log("Fetching captions");
         // Save videos and captions to the database
         for (const video of videos) {
-          const caption = await fetchVideoCaptions(youtube, video.id.videoId);
+          // const caption = await fetchVideoCaptions(youtube, video.id.videoId);
           //console.log("Captions are ", caption);
           let vid = await db.YouTubeVideo.findOne({
             where: {
@@ -246,7 +246,7 @@ export const AddGoogleAuth = async (req, res) => {
           });
           if (vid) {
             // await vid.destroy()
-            vid.caption = caption || "";
+            // vid.caption = caption || "";
             await vid.save();
           } else {
             await db.YouTubeVideo.create({
@@ -254,7 +254,7 @@ export const AddGoogleAuth = async (req, res) => {
               title: video.snippet.title,
               description: video.snippet.description,
               thumbnailUrl: video.snippet.thumbnails.default.url,
-              caption: caption || null,
+              caption: null,
               userId: user.id,
             });
           }

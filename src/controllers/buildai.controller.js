@@ -97,6 +97,30 @@ const GetAiForUser = async (userId) => {
       userId: userId,
     },
   });
+
+  let ProductFaqs = await db.ProductFaqs.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+
+  let InterpersonalSkills = await db.InterpersonalSkills.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+
+  let Demeanor = await db.UserDemeanor.findAll({
+    where: {
+      userId: userId,
+    },
+  });
+
+  let CommunicatinCommonFaqs = await db.CommunicationCommonFaqs.findAll({
+    where: {
+      userId: userId,
+    },
+  });
   return {
     ai: ai,
     Philosophies: Philosophies,
@@ -113,6 +137,10 @@ const GetAiForUser = async (userId) => {
     intractions: intractions,
     callStrategy: CallStrategy,
     objectionHandling: ObjectionHandling,
+    productFaqs: ProductFaqs,
+    interpersonalSkills: InterpersonalSkills,
+    demeanor: Demeanor,
+    communicatinCommonFaqs: CommunicatinCommonFaqs,
   };
 };
 export const MyAi = async (req, res) => {
