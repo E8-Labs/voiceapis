@@ -1,16 +1,15 @@
 // const { Sequelize } = require(".");
-const PhoneVerificationCodeModel  = (sequelize, Sequelize) => {
-    const PasswordResetCode = sequelize.define("PhoneVerificationCodeModel", {
-      phone: {
-        type: Sequelize.STRING,
-      },
-      code: {
-        type: Sequelize.STRING
-      },
-      
-    })
-      
-    return PasswordResetCode;
-  };
+const PhoneVerificationCodeModel = (sequelize, Sequelize) => {
+  const PasswordResetCode = sequelize.define("PhoneVerificationCodeModel", {
+    phone: {
+      type: Sequelize.STRING(1000),
+    },
+    code: {
+      type: Sequelize.STRING,
+    },
+  });
 
-  export default PhoneVerificationCodeModel;
+  return PasswordResetCode;
+};
+
+export default PhoneVerificationCodeModel;

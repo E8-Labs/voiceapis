@@ -137,7 +137,7 @@ Caller: "I don’t think I need this right now."
     {title: "Ex title", description: "Ex Description"}
   ],
   "ObjectionHandling": [
-    {objectionType: "Ex type defined in above instructions or any other if not mentioned",  prompt: "Ex prompt here", description: "Ex Description here"}
+    {objectionType: "Ex type defined in above instructions or any other if not mentioned",  prompt: "Ex prompt here", response: "Ex Description here"}
   ]
 }
  4- Instruction:

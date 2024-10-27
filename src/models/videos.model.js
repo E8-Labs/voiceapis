@@ -1,11 +1,11 @@
 const YouTubeVideo = (sequelize, Sequelize) => {
   const YouTubeVideo = sequelize.define("YouTubeVideo", {
     videoId: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       allowNull: false,
     },
     title: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       allowNull: false,
     },
     description: {
@@ -13,7 +13,7 @@ const YouTubeVideo = (sequelize, Sequelize) => {
       allowNull: true,
     },
     thumbnailUrl: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       allowNull: true,
     },
     caption: {

@@ -2,19 +2,19 @@
 const InterpersonalSkills = (sequelize, Sequelize) => {
   const Values = sequelize.define("InterpersonalSkills", {
     title: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "", //optional
     },
     description: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     type: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "ai", // "ai", "manual"
     },
     kbType: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "", //video, kb
     },
     kbId: {

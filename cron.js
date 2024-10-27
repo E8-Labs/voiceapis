@@ -280,4 +280,4 @@ ObjectiveCron.start();
 //   CheckIfGeneratePromptFirstTime
 // );
 // // masterPromptCron.start()
-// CheckIfGeneratePromptFirstTime();
+CheckIfGeneratePromptFirstTime();

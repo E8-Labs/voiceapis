@@ -1,19 +1,19 @@
 const Assistant = (sequelize, Sequelize) => {
   const Assistant = sequelize.define("Assistant", {
     name: {
-      type: Sequelize.STRING, //tate, tristan, this should come fro user's username table
+      type: Sequelize.STRING(1000), //tate, tristan, this should come fro user's username table
       // unique: true,
     },
     phone: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
 
     modelId: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
     },
     apikey: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
     },
 
     prompt: {
@@ -40,7 +40,7 @@ const Assistant = (sequelize, Sequelize) => {
       },
     },
     synthAssistantId: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       allowNull: true,
     },
   });

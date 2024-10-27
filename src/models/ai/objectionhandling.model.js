@@ -2,24 +2,24 @@
 const ObjectionHandling = (sequelize, Sequelize) => {
   const FrameworkAndTechnique = sequelize.define("ObjectionHandling", {
     objectionType: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     prompt: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     response: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
 
     type: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "ai", // "ai", "manual"
     },
     kbType: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "", //video, kb
     },
     kbId: {

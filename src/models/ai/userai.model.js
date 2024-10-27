@@ -1,7 +1,7 @@
 const UserAi = (sequelize, Sequelize) => {
   const User = sequelize.define("UserAi", {
     name: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     action: {
@@ -12,14 +12,14 @@ const UserAi = (sequelize, Sequelize) => {
     },
 
     audio: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       allowNull: true,
     },
     greeting: {
       type: Sequelize.STRING(200),
     },
     possibleUserQuery: {
-      type: Sequelize.STRING, //"caller", "creator"
+      type: Sequelize.STRING(1000), //"caller", "creator"
       defaultValue: "",
     },
 
@@ -42,27 +42,27 @@ const UserAi = (sequelize, Sequelize) => {
       },
     },
     fbUrl: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     instaUrl: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     twitterUrl: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     discordUrl: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     youtubeUrl: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     webUrl: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     webUrlScrapedData: {
@@ -71,7 +71,7 @@ const UserAi = (sequelize, Sequelize) => {
     },
     goalType: {
       // product, webinar, other
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     productToSell: {
@@ -80,15 +80,15 @@ const UserAi = (sequelize, Sequelize) => {
       allowNull: true,
     },
     webinarUrl: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     goalTitle: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     goalUrl: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(1000),
       defaultValue: "",
     },
     profession: {
