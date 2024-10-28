@@ -27,11 +27,11 @@ const CommunicationInstructions = (sequelize, Sequelize) => {
     },
     response: {
       type: Sequelize.TEXT("medium"),
-      defaultValue: "", //optional
+      allowNull: true,
     },
     description: {
       type: Sequelize.TEXT("medium"),
-      defaultValue: "",
+      allowNull: true,
     },
     type: {
       type: Sequelize.STRING,

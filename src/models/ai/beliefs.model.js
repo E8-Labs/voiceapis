@@ -7,7 +7,7 @@ const UserBeliefs = (sequelize, Sequelize) => {
     },
     description: {
       type: Sequelize.TEXT("medium"),
-      defaultValue: "",
+      allowNull: true,
     },
     type: {
       type: Sequelize.STRING,

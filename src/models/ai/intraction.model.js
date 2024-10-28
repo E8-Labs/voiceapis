@@ -7,7 +7,7 @@ const IntractionExample = (sequelize, Sequelize) => {
     },
     answer: {
       type: Sequelize.TEXT("medium"),
-      defaultValue: "",
+      allowNull: true,
     },
     type: {
       type: Sequelize.STRING,

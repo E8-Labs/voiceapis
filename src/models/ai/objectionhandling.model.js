@@ -11,7 +11,7 @@ const ObjectionHandling = (sequelize, Sequelize) => {
     },
     response: {
       type: Sequelize.TEXT("medium"),
-      defaultValue: "",
+      allowNull: true,
     },
 
     type: {

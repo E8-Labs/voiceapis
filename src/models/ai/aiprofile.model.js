@@ -3,7 +3,7 @@ const AIProfile = (sequelize, Sequelize) => {
   const User = sequelize.define("AIProfile", {
     profileData: {
       type: Sequelize.TEXT("medium"),
-      defaultValue: "",
+      allowNull: true,
     },
     userId: {
       type: Sequelize.INTEGER,

@@ -39,7 +39,7 @@ const GoogleAuthModel = (sequelize, Sequelize) => {
     },
     description: {
       type: Sequelize.TEXT("medium"),
-      defaultValue: "",
+      allowNull: true,
     },
     location: {
       type: Sequelize.STRING,
