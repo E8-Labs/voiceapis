@@ -1,11 +1,11 @@
 const SellingProducts = (sequelize, Sequelize) => {
   const User = sequelize.define("SellingProducts", {
     name: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     productUrl: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     productPrice: {
@@ -21,15 +21,15 @@ const SellingProducts = (sequelize, Sequelize) => {
       },
     },
     stripeProductId: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     stripePriceId: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     stripePaymentLink: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     isSelling: {

@@ -2,7 +2,7 @@
 const PersonalityTrait = (sequelize, Sequelize) => {
   const PersonalityTrait = sequelize.define("PersonalityTrait", {
     trait: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     score: {
@@ -10,11 +10,11 @@ const PersonalityTrait = (sequelize, Sequelize) => {
       defaultValue: 0,
     },
     type: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "ai", // "ai", "manual"
     },
     kbType: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "", //video, kb
     },
     kbId: {

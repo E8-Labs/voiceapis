@@ -1,7 +1,7 @@
 const KycQuestions = (sequelize, Sequelize) => {
   const User = sequelize.define("KycQuestions", {
     question: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
 

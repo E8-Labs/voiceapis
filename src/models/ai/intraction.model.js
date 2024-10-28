@@ -2,19 +2,19 @@
 const IntractionExample = (sequelize, Sequelize) => {
   const Values = sequelize.define("IntractionExample", {
     question: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     answer: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       defaultValue: "",
     },
     type: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "ai", // "ai", "manual"
     },
     kbType: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "", //video, kb
     },
     kbId: {

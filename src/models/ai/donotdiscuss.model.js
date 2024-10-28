@@ -2,15 +2,15 @@
 const DonotDiscuss = (sequelize, Sequelize) => {
   const Values = sequelize.define("DonotDiscuss", {
     // title: {
-    //   type: Sequelize.TEXT,
+    //   type: Sequelize.STRING,
     //   defaultValue: "", //optional
     // },
     description: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       defaultValue: "",
     },
     type: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "ai", // "ai", "manual"
     },
     userId: {

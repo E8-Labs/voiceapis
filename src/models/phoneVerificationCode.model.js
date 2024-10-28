@@ -2,7 +2,7 @@
 const PhoneVerificationCodeModel = (sequelize, Sequelize) => {
   const PasswordResetCode = sequelize.define("PhoneVerificationCodeModel", {
     phone: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
     },
     code: {
       type: Sequelize.STRING,

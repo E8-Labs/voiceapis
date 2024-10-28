@@ -1,7 +1,7 @@
 const KnowledgeBase = (sequelize, Sequelize) => {
   const User = sequelize.define("KnowledgeBase", {
     type: {
-      type: Sequelize.TEXT, //document, text, url
+      type: Sequelize.STRING, //document, text, url
       defaultValue: "",
     },
     content: {
@@ -11,13 +11,13 @@ const KnowledgeBase = (sequelize, Sequelize) => {
     },
     name: {
       // name of the document
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       // defaultValue: "",
       allowNull: true,
     },
     subject: {
       // subject of the url
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       // defaultValue: "",
       allowNull: true,
     },
@@ -27,11 +27,11 @@ const KnowledgeBase = (sequelize, Sequelize) => {
       // defaultValue: "",
     },
     documentUrl: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     description: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       defaultValue: "",
     },
     userId: {

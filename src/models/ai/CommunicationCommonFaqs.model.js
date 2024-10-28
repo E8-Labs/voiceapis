@@ -2,19 +2,19 @@
 const CommunicationCommonFaqs = (sequelize, Sequelize) => {
   const Values = sequelize.define("CommunicationCommonFaqs", {
     question: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     answer: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     type: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "ai", // "ai", "manual"
     },
     kbType: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "", //video, kb
     },
     kbId: {

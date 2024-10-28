@@ -2,43 +2,43 @@
 const CommunicationInstructions = (sequelize, Sequelize) => {
   const Values = sequelize.define("CommunicationInstructions", {
     title: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "", //optional
     },
     pacing: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "", //optional
     },
     tone: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "", //optional
     },
     intonation: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "", //optional
     },
     scenario: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "", //optional
     },
     prompt: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "", //optional
     },
     response: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       defaultValue: "", //optional
     },
     description: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       defaultValue: "",
     },
     type: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "ai", // "ai", "manual"
     },
     kbType: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "", //video, kb
     },
     kbId: {

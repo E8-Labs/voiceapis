@@ -1,17 +1,17 @@
 const CallModel = (sequelize, Sequelize) => {
   const Model = sequelize.define("CallModel", {
     phone: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       default: "",
       allowNull: false,
     },
     callId: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       default: "",
       allowNull: false,
     },
     model: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       default: "",
       allowNull: false,
     },
@@ -32,37 +32,37 @@ const CallModel = (sequelize, Sequelize) => {
       },
     },
     transcript: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       default: "",
       allowNull: false,
     },
     summary: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       default: "",
       allowNull: false,
     },
     duration: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       default: "",
       allowNull: false,
     },
     status: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       default: "",
       allowNull: false,
     },
     paymentStatus: {
-      type: Sequelize.TEXT, // charged, failed
+      type: Sequelize.STRING, // charged, failed
       default: "",
       allowNull: false,
     },
     chargeDescription: {
-      type: Sequelize.TEXT, // charged, failed
+      type: Sequelize.STRING, // charged, failed
       default: "",
       allowNull: false,
     },
     paymentId: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
       allowNull: false,
     },
@@ -71,7 +71,7 @@ const CallModel = (sequelize, Sequelize) => {
       allowNull: true,
     },
     callData: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       allowNull: true,
     },
     promptTokens: {
@@ -91,7 +91,7 @@ const CallModel = (sequelize, Sequelize) => {
     },
 
     recordingUrl: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
       allowNull: true,
     },

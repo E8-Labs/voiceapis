@@ -22,7 +22,7 @@ const PurchasedProduct = (sequelize, Sequelize) => {
       },
     },
     paymentIntentId: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     livemode: {
@@ -30,11 +30,11 @@ const PurchasedProduct = (sequelize, Sequelize) => {
       default: false,
     },
     status: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       default: "succeeded",
     },
     data: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
   });

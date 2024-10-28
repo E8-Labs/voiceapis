@@ -1,10 +1,10 @@
 const GoogleAuthModel = (sequelize, Sequelize) => {
   const Assistant = sequelize.define("GoogleAuthModel", {
     name: {
-      type: Sequelize.TEXT, //
+      type: Sequelize.STRING, //
     },
     providerAccountId: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
 
@@ -38,7 +38,7 @@ const GoogleAuthModel = (sequelize, Sequelize) => {
       defaultValue: "",
     },
     description: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT("medium"),
       defaultValue: "",
     },
     location: {

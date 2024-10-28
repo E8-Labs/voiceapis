@@ -1,15 +1,15 @@
 const ChatModel = (sequelize, Sequelize) => {
   const Model = sequelize.define("ChatModel", {
     chat_id: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       default: "",
     },
     from: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       default: "user",
     },
     message: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
       allowNull: true,
     },

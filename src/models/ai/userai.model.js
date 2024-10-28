@@ -1,7 +1,7 @@
 const UserAi = (sequelize, Sequelize) => {
   const User = sequelize.define("UserAi", {
     name: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     action: {
@@ -12,14 +12,14 @@ const UserAi = (sequelize, Sequelize) => {
     },
 
     audio: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       allowNull: true,
     },
     greeting: {
       type: Sequelize.STRING(200),
     },
     possibleUserQuery: {
-      type: Sequelize.TEXT, //"caller", "creator"
+      type: Sequelize.STRING, //"caller", "creator"
       defaultValue: "",
     },
 
@@ -42,27 +42,27 @@ const UserAi = (sequelize, Sequelize) => {
       },
     },
     fbUrl: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     instaUrl: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     twitterUrl: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     discordUrl: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     youtubeUrl: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     webUrl: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     webUrlScrapedData: {
@@ -71,7 +71,7 @@ const UserAi = (sequelize, Sequelize) => {
     },
     goalType: {
       // product, webinar, other
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     productToSell: {
@@ -80,15 +80,15 @@ const UserAi = (sequelize, Sequelize) => {
       allowNull: true,
     },
     webinarUrl: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     goalTitle: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     goalUrl: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     profession: {

@@ -1,33 +1,32 @@
 const UserCallSummary = (sequelize, Sequelize) => {
-    const User = sequelize.define("UserCallSummary", {
-      name: {
-        type: Sequelize.TEXT,
-        defaultValue: ''
+  const User = sequelize.define("UserCallSummary", {
+    name: {
+      type: Sequelize.STRING,
+      defaultValue: "",
+    },
+    summary: {
+      type: Sequelize.TEXT("medium"),
+      defaultValue: "",
+    },
+    userId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      references: {
+        model: "Users", // Table name (plural form)
+        key: "id",
       },
-      summary: {
-        type: Sequelize.TEXT,
-        defaultValue: ''
+    },
+    modelId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      references: {
+        model: "Users", // Table name (plural form)
+        key: "id",
       },
-      userId: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'Users', // Table name (plural form)
-          key: 'id'
-        }
-      },
-      modelId: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'Users', // Table name (plural form)
-          key: 'id'
-        }
-      },
-      
-    });
-  
-    return User;
-  };
+    },
+  });
 
-  export default UserCallSummary;
+  return User;
+};
+
+export default UserCallSummary;
