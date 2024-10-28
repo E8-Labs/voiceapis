@@ -1020,20 +1020,6 @@ export async function ProcessDocumentAndTextKb() {
           let fixedJson = fixMalformedJson(content);
 
           if (fixedJson) {
-            // Write the response to a file
-            // let chunkFilePath = path.join(
-            //   __dirname,
-            //   `/Files/chunk_${kb.id}_${chunkIndex + 1}.json`
-            // );
-            // fs.writeFileSync(
-            //   chunkFilePath,
-            //   JSON.stringify(fixedJson, null, 2),
-            //   "utf8"
-            // );
-            console.log(
-              `Chunk ${chunkIndex + 1} written to file: ${chunkFilePath}`
-            );
-
             processedData.push(fixedJson); // Collect the parsed JSON data from each chunk
             console.log("Processed chunk", chunkIndex + 1, "of", chunks.length);
           } else {
