@@ -1,15 +1,15 @@
 const User = (sequelize, Sequelize) => {
   const User = sequelize.define("User", {
     name: {
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "",
     },
     username: {
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "",
     },
     phone: {
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "",
     },
 
@@ -20,29 +20,29 @@ const User = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     role: {
-      type: Sequelize.STRING(1000), //"caller", "creator"
+      type: Sequelize.STRING(255), //"caller", "creator"
       defaultValue: "caller",
     },
 
     profile_image: {
       // we store smaller image for fast loading here
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "",
     },
     full_profile_image: {
       // we store full size image here
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "",
     },
     city: {
       // we store smaller image for fast loading here
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "",
     },
 
     state: {
       // we store smaller image for fast loading here
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "",
     },
     phoneVerified: {

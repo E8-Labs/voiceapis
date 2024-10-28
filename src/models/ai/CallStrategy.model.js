@@ -2,20 +2,20 @@
 const CallStrategy = (sequelize, Sequelize) => {
   const FrameworkAndTechnique = sequelize.define("CallStrategy", {
     title: {
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "",
     },
     description: {
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "",
     },
 
     type: {
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "ai", // "ai", "manual"
     },
     kbType: {
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "", //video, kb
     },
     kbId: {

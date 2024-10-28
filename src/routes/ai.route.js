@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import {
   BuildYourAi,
+  CreateProfessionAndObjectAfterProfileCompletion,
   BuildAiScript,
   AddKnowledgebase,
   UpdateYourAi,
@@ -61,6 +62,11 @@ let AiRouter = express.Router();
 
 AiRouter.post("/buildAi", verifyJwtToken, uploadFiles, BuildYourAi);
 AiRouter.post("/buildAiScript", verifyJwtToken, uploadFiles, BuildAiScript);
+AiRouter.post(
+  "/processObjectiveAndProfession",
+  verifyJwtToken,
+  CreateProfessionAndObjectAfterProfileCompletion
+);
 AiRouter.post(
   "/addKnowledgebase",
   verifyJwtToken,

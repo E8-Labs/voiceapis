@@ -7,12 +7,12 @@ let SubscriptionModel = (sequelize, Sequelize) => {
       type: Sequelize.STRING(8000),
     },
     environment: {
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "Sandbox",
       allowNull: false,
     },
     customerId: {
-      type: Sequelize.STRING(1000),
+      type: Sequelize.STRING(255),
       defaultValue: "",
       allowNull: false,
     },

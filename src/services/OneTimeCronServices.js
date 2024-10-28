@@ -11,6 +11,7 @@ import {
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { WriteToFile } from "./FileService.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // import { use } from "express/lib/application";
@@ -192,6 +193,14 @@ Caller: "I don’t think I need this right now."
   prompt = prompt.replace(/{KYC_Questions}/g, kycText);
 
   let result = await CallOpenAi(prompt);
+  await db.GptCost.create({
+    userId: user.id,
+    itemId: userAi.id,
+    cost: result.cost || 0,
+    input: prompt,
+    output: result.message || "",
+    type: "Cron:CreateObjective",
+  });
   if (result.status) {
     let content = result.message;
     content = content.replace(new RegExp("```json", "g"), "");
@@ -219,12 +228,16 @@ Caller: "I don’t think I need this right now."
         await AddCommunicationInstructions(json, user, "Auto", null);
       } catch (err) {
         console.log("Error adding Com Ins");
+        WriteToFile("Error adding Com Ins");
+        WriteToFile(err);
       }
 
       try {
         await AddIntractionExample(json, user, "Auto", null);
       } catch (err) {
         console.log("Error adding Com Ins");
+        WriteToFile("Error adding  Intr");
+        WriteToFile(err);
       }
 
       //add Call Strategy. Create table
@@ -232,34 +245,43 @@ Caller: "I don’t think I need this right now."
         await AddCallStrategy(json, user, "Auto", null);
       } catch (err) {
         console.log("Error adding AddCallStrategy", err);
+        WriteToFile("Error adding AddCallStrategy");
+        WriteToFile(err);
       }
       //Add Objectionhandling. Create table
       try {
         await AddObjectionHandling(json, user, "Auto", null);
       } catch (err) {
         console.log("Error adding Objection Handling", err);
+        WriteToFile("Error adding Objection Handling");
+        WriteToFile(err);
       }
+      WriteToFile(
+        `User AI ${user.id} updated p: ${profession} & Ob: ${objective}`
+      );
       console.log(
         `User AI ${user.id} updated p: ${profession} & Ob: ${objective}`
       );
 
       //Create Assistant
-      let assistant = await db.Assistant.findOne({
-        where: {
-          userId: user.id,
-        },
-      });
-      if (assistant && assistant.synthAssistantId != null) {
-      } else {
-        // create assistant in synthflow
-        // let createdAssiatant = await CreateAssistantSynthflow(
-        //   user,
-        //   aiName,
-        //   "",
-        //   greeting,
-        //   ""
-        // );
-      }
+      try {
+        let assistant = await db.Assistant.findOne({
+          where: {
+            userId: user.id,
+          },
+        });
+        if (assistant && assistant.synthAssistantId != null) {
+        } else {
+          // create assistant in synthflow
+          // let createdAssiatant = await CreateAssistantSynthflow(
+          //   user,
+          //   aiName,
+          //   "",
+          //   greeting,
+          //   ""
+          // );
+        }
+      } catch (error) {}
     } catch (error) {
       console.log("Error parsing ", error);
     }
@@ -308,41 +330,39 @@ async function CreateAssistantSynthflow(
 
 //Objective Prompt OneTime - Yes
 export async function GetUsersHavingNoObjectiveAndProfession() {
-  const users = await db.User.findAll({
-    include: [
-      {
-        model: db.UserAi,
-        where: {
-          [db.Sequelize.Op.and]: [
-            {
-              [db.Sequelize.Op.or]: [
-                { aiObjective: { [db.Sequelize.Op.is]: null } }, // aiObjective is null
-                { aiObjective: "" }, // or aiObjective is an empty string
-              ],
-            },
-            {
-              [db.Sequelize.Op.or]: [
-                { profession: { [db.Sequelize.Op.is]: null } }, // profession is null
-                { profession: "" }, // or profession is an empty string
-              ],
-            },
+  const userAis = await db.UserAi.findAll({
+    where: {
+      [db.Sequelize.Op.and]: [
+        {
+          [db.Sequelize.Op.or]: [
+            { aiObjective: { [db.Sequelize.Op.is]: null } }, // aiObjective is null
+            { aiObjective: "" }, // or aiObjective is an empty string
           ],
         },
-      },
-    ],
-    where: {
-      role: {
-        [db.Sequelize.Op.like]: "%creator%", // Correct usage of Op.like
-      },
+        {
+          [db.Sequelize.Op.or]: [
+            { profession: { [db.Sequelize.Op.is]: null } }, // profession is null
+            { profession: "" }, // or profession is an empty string
+          ],
+        },
+      ],
     },
+    limit: 15,
   });
-  console.log("Found Users", users.length);
+  console.log("CreateObjective: Found Users", userAis.length);
+  let data = { userAis: userAis };
+  // console.log("JSon is ", JSON.stringify(data));
 
-  for (let i = 0; i < users.length; i++) {
-    let user = users[i];
-    let ai = await db.UserAi.findOne({ where: { userId: user.id } });
-    console.log("Fetching objective for ", user.id);
+  WriteToFile("CreateObjective: Found Users" + userAis.length);
+  for (let i = 0; i < userAis.length; i++) {
+    let ai = userAis[i];
+    let user = await db.User.findOne({ where: { id: ai.userId } });
+
+    // we will check if the user is subscribe or not. If not then won't run the cron job for him.
+    console.log("Fetching objective for ", ai.id);
+    WriteToFile("Fetching objective for " + ai.id);
     let data = await FetchObjectiveAndProfessionOnProfileCompletion(user, ai);
-    console.log("Fetched objective for ", user.id);
+    console.log("Fetched objective for ", ai.id);
+    WriteToFile("Fetched objective for " + ai.id);
   }
 }

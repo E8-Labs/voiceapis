@@ -3,6 +3,7 @@ import JWT from "jsonwebtoken";
 import db from "../models/index.js";
 import mammoth from "mammoth";
 import { CallOpenAi } from "../services/gptService.js";
+import { FetchObjectiveAndProfessionOnProfileCompletion } from "../services/OneTimeCronServices.js";
 
 // import pdfParse from 'pdf-parse';
 
@@ -158,6 +159,40 @@ export const MyAi = async (req, res) => {
     }
   });
 };
+
+export const CreateProfessionAndObjectAfterProfileCompletion = async (
+  req,
+  res
+) => {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (authData) {
+      let userId = authData.user.id;
+      let user = await db.User.findByPk(userId);
+      let ai = await db.UserAi.findOne({
+        where: {
+          userId: user.id,
+        },
+      });
+      if (
+        ai &&
+        (ai.aiObjective == "" || ai.aiObjective == null) &&
+        (ai.profession == "" || ai.profession == null)
+      ) {
+        await FetchObjectiveAndProfessionOnProfileCompletion(user, ai);
+        return res.send({
+          status: true,
+          message: "Completed Objective & Profession retrieval",
+        });
+      } else {
+        return res.send({
+          status: false,
+          message: "Can not run Objective & Profession retrieval now",
+        });
+      }
+    }
+  });
+};
+
 export const BuildYourAi = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {

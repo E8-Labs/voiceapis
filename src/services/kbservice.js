@@ -842,26 +842,27 @@ export async function processVideoTranscript(transcript, user, video) {
     kbPrompt = kbPrompt.replace(/{titleofvideo}/g, video.title);
 
     console.log("prompt ", kbPrompt);
+    let postBody = JSON.stringify({
+      model: model,
+      messages: [
+        {
+          role: "system",
+          content: kbPrompt,
+        },
+        {
+          role: "user",
+          content: `Here is the transcript: ${transcript}`,
+        },
+      ],
+      max_tokens: 4000, // Limit the number of tokens for the response (adjust as needed)
+    });
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.AIKey}`,
       },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          {
-            role: "system",
-            content: kbPrompt,
-          },
-          {
-            role: "user",
-            content: `Here is the transcript: ${transcript}`,
-          },
-        ],
-        max_tokens: 4000, // Limit the number of tokens for the response (adjust as needed)
-      }),
+      body: postBody,
     });
 
     // Parse the response
@@ -877,6 +878,14 @@ export async function processVideoTranscript(transcript, user, video) {
     const tokensUsed = result.usage.total_tokens;
     const cost = (tokensUsed / 1000) * pricePer1000Tokens;
 
+    await db.GptCost.create({
+      userId: user.id,
+      itemId: video.id,
+      cost: cost || 0,
+      input: postBody,
+      output: content,
+      type: "Cron:ProcessVideoTranscript",
+    });
     // Return the summary, token count, and cost in a JSON object
     return {
       summary: summary,
@@ -963,6 +972,7 @@ export async function ProcessDocumentAndTextKb() {
       let wordChunkSize = 5000; // Chunk size based on word count
       let chunks = [];
       let processedData = [];
+      let totalCost = 0;
 
       // Split content into word-based chunks
       for (let start = 0; start < words.length; start += wordChunkSize) {
@@ -979,6 +989,7 @@ export async function ProcessDocumentAndTextKb() {
 
         let result = await CallOpenAi(kbPromptIteration);
         if (result.status) {
+          totalCost += result.cost || 0;
           let content = result.message;
           content = content.replace(new RegExp("```json", "g"), "");
           content = content.replace(new RegExp("```", "g"), "");
@@ -1060,6 +1071,14 @@ export async function ProcessDocumentAndTextKb() {
 
         await AddAllData(unifiedJson, user, "kb", kb.id); // Optionally add all data
 
+        await db.GptCost.create({
+          userId: user.id,
+          itemId: kb.id,
+          cost: totalCost,
+          input: `Chunks- ${chunks.length} \nContent: ${kb.content}`,
+          output: JSON.stringify(unifiedJson),
+          type: "Cron:ProcessDocumentKb",
+        });
         await db.AIProfile.create({
           userId: kb.userId,
           profileData: JSON.stringify(unifiedJson),
