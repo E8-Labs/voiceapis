@@ -1,17 +1,17 @@
 const CallModel = (sequelize, Sequelize) => {
   const Model = sequelize.define("CallModel", {
     phone: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       default: "",
       allowNull: false,
     },
     callId: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       default: "",
       allowNull: false,
     },
     model: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       default: "",
       allowNull: false,
     },
@@ -52,17 +52,17 @@ const CallModel = (sequelize, Sequelize) => {
       allowNull: false,
     },
     paymentStatus: {
-      type: Sequelize.STRING(255), // charged, failed
+      type: Sequelize.TEXT, // charged, failed
       default: "",
       allowNull: false,
     },
     chargeDescription: {
-      type: Sequelize.STRING(255), // charged, failed
+      type: Sequelize.TEXT, // charged, failed
       default: "",
       allowNull: false,
     },
     paymentId: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
       allowNull: false,
     },
@@ -91,7 +91,7 @@ const CallModel = (sequelize, Sequelize) => {
     },
 
     recordingUrl: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
       allowNull: true,
     },

@@ -36,7 +36,8 @@ const indexName = "voice-context";
 export async function CallOpenAi(data) {
   const model = "gpt-4-turbo"; // You specified gpt-4, or it can be "gpt-4-turbo"
   const apiUrl = "https://api.openai.com/v1/chat/completions";
-  const pricePer1000Tokens = 0.03;
+  const pricePer1000Tokens = 0.003;
+  const pricePer1000TokensOutput = 0.004;
   try {
     // Make the request to the OpenAI API
     let messages = [{ role: "system", content: data }];
@@ -62,7 +63,11 @@ export async function CallOpenAi(data) {
     const mess = result.choices[0].message;
     let summary = mess.content;
     const tokensUsed = result.usage.total_tokens;
-    const cost = (tokensUsed / 1000) * pricePer1000Tokens;
+    const promptCost = (result.usage.prompt_tokens / 1000) * pricePer1000Tokens;
+    const completionCost =
+      (result.usage.completion_tokens / 1000) * pricePer1000TokensOutput;
+
+    const cost = promptCost + completionCost; //(tokensUsed / 1000) * pricePer1000Tokens;
 
     // Return the summary, token count, and cost in a JSON object
     return {

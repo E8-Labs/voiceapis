@@ -3,7 +3,7 @@ const GptCostModel = (sequelize, Sequelize) => {
   const GptCostModel = sequelize.define("GptCostModel", {
     type: {
       // cron job
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
     },
     cost: {
       type: Sequelize.DOUBLE,

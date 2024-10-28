@@ -2,20 +2,20 @@
 const FrameworkAndTechnique = (sequelize, Sequelize) => {
   const FrameworkAndTechnique = sequelize.define("FrameworkAndTechnique", {
     title: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     description: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
 
     type: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "ai", // "ai", "manual"
     },
     kbType: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "", //video, kb
     },
     kbId: {

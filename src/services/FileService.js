@@ -7,5 +7,5 @@ const __dirname = path.dirname(__filename);
 
 export async function WriteToFile(string) {
   let chunkFilePath = path.join(__dirname, `/Files/LogFile.txt`);
-  fs.appendFileSync(chunkFilePath, string, "utf8");
+  fs.appendFileSync(chunkFilePath, string + "\n\n", "utf8");
 }

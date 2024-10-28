@@ -2,7 +2,7 @@
 const EmailVerificationCode = (sequelize, Sequelize) => {
   const PasswordResetCode = sequelize.define("EmailVerificationCode", {
     email: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
     },
     code: {
       type: Sequelize.STRING,

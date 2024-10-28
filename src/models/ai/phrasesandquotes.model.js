@@ -2,19 +2,19 @@
 const PhrasesAndQuotes = (sequelize, Sequelize) => {
   const Values = sequelize.define("PhrasesAndQuotes", {
     title: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "", //optional
     },
     description: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     type: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "ai", // "ai", "manual"
     },
     kbType: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "", //video, kb
     },
     kbId: {

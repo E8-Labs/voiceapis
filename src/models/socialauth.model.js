@@ -1,11 +1,11 @@
 const SocialAuthModel = (sequelize, Sequelize) => {
   const Assistant = sequelize.define("SocialAuthModel", {
     name: {
-      type: Sequelize.STRING(255), //tate, tristan, this should come fro user's username table
+      type: Sequelize.TEXT, //tate, tristan, this should come fro user's username table
       // unique: true,
     },
     socialUserId: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
 

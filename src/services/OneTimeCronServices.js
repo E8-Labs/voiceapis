@@ -206,14 +206,14 @@ Caller: "I don’t think I need this right now."
     content = content.replace(new RegExp("```json", "g"), "");
     content = content.replace(new RegExp("```", "g"), "");
     content = content.replace(new RegExp("\n", "g"), "");
-    console.log("JSON", content);
+    // console.log("JSON", content);
     try {
       let json = JSON.parse(content);
-      let chunkFilePath = path.join(
-        __dirname,
-        `/Files/Objective-${user.id}.json`
-      );
-      fs.writeFileSync(chunkFilePath, JSON.stringify(json, null, 2), "utf8");
+      // let chunkFilePath = path.join(
+      //   __dirname,
+      //   `/Files/Objective-${user.id}.json`
+      // );
+      // fs.writeFileSync(chunkFilePath, JSON.stringify(json, null, 2), "utf8");
       let objective = json.PersonaCharacteristics.Objective;
       let profession = json.PersonaCharacteristics.Profession;
       let greeting = json.greeting;
@@ -223,6 +223,31 @@ Caller: "I don’t think I need this right now."
       userAi.greeting = greeting;
 
       let saved = await userAi.save();
+
+      //Create Assistant
+      try {
+        let assistant = await db.Assistant.findOne({
+          where: {
+            userId: user.id,
+          },
+        });
+        if (assistant && assistant.synthAssistantId != null) {
+          // assistant.WebHookForSynthflow;
+          console.log("Already present");
+        } else {
+          console.log("Creating new");
+          // create assistant in synthflow
+          let createdAssiatant = await CreateAssistantSynthflow(
+            user,
+            userAi.name,
+            "",
+            greeting,
+            ""
+          );
+        }
+      } catch (error) {
+        console.log("Error 1 ", error);
+      }
 
       try {
         await AddCommunicationInstructions(json, user, "Auto", null);
@@ -262,26 +287,6 @@ Caller: "I don’t think I need this right now."
       console.log(
         `User AI ${user.id} updated p: ${profession} & Ob: ${objective}`
       );
-
-      //Create Assistant
-      try {
-        let assistant = await db.Assistant.findOne({
-          where: {
-            userId: user.id,
-          },
-        });
-        if (assistant && assistant.synthAssistantId != null) {
-        } else {
-          // create assistant in synthflow
-          // let createdAssiatant = await CreateAssistantSynthflow(
-          //   user,
-          //   aiName,
-          //   "",
-          //   greeting,
-          //   ""
-          // );
-        }
-      } catch (error) {}
     } catch (error) {
       console.log("Error parsing ", error);
     }
@@ -297,7 +302,7 @@ async function CreateAssistantSynthflow(
   voice_id
 ) {
   let synthKey = process.env.SynthFlowApiKey;
-
+  console.log("Inside 1");
   const options = {
     method: "POST",
     url: "https://api.synthflow.ai/v2/assistants",
@@ -314,18 +319,33 @@ async function CreateAssistantSynthflow(
         language: "en-US",
         prompt: prompt,
         greeting_message: greeting,
-        voice_id: voice_id,
+        voice_id: "wefw5e68456wef",
+        external_webhook_url: process.env.WebHookForSynthflow,
       },
       is_recording: true,
     },
   };
+  console.log("Inside 2");
+  try {
+    let result = await axios.request(options);
+    console.log("Inside 3");
+    console.log("Create Assistant Api result ", result);
 
-  let result = await axios.request(options);
-  // console.log("Create Assistant Api result ", result);
-  if (result.status == 200) {
+    if (result.status == 200) {
+      let assistant = await db.Assistant.create({
+        name: name,
+        phone: user.phone,
+        userId: user.id,
+        synthAssistantId: result.data?.response?.model_id || null,
+        webook: process.env.WebHookForSynthflow,
+        prompt: prompt,
+      });
+    }
+    return result;
+  } catch (error) {
+    console.log("Inside error: ", error);
+    return null;
   }
-
-  return result;
 }
 
 //Objective Prompt OneTime - Yes

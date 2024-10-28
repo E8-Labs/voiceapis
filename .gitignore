@@ -3,3 +3,4 @@
 *.env
 /uploads
 /services/voice-ai.json
+/src/services/Files

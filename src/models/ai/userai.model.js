@@ -1,7 +1,7 @@
 const UserAi = (sequelize, Sequelize) => {
   const User = sequelize.define("UserAi", {
     name: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     action: {
@@ -12,14 +12,14 @@ const UserAi = (sequelize, Sequelize) => {
     },
 
     audio: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       allowNull: true,
     },
     greeting: {
       type: Sequelize.STRING(200),
     },
     possibleUserQuery: {
-      type: Sequelize.STRING(255), //"caller", "creator"
+      type: Sequelize.TEXT, //"caller", "creator"
       defaultValue: "",
     },
 
@@ -42,27 +42,27 @@ const UserAi = (sequelize, Sequelize) => {
       },
     },
     fbUrl: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     instaUrl: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     twitterUrl: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     discordUrl: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     youtubeUrl: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     webUrl: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     webUrlScrapedData: {
@@ -71,7 +71,7 @@ const UserAi = (sequelize, Sequelize) => {
     },
     goalType: {
       // product, webinar, other
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     productToSell: {
@@ -80,15 +80,15 @@ const UserAi = (sequelize, Sequelize) => {
       allowNull: true,
     },
     webinarUrl: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     goalTitle: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     goalUrl: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     profession: {

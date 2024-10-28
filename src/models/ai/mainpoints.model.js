@@ -2,19 +2,19 @@
 const MainPoints = (sequelize, Sequelize) => {
   const FrameworkAndTechnique = sequelize.define("MainPoints", {
     title: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     description: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     type: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "", // "main points", "key topics" etc MainPointsTypes
     },
     kbType: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "", //video, kb
     },
     kbId: {

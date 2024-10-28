@@ -2,19 +2,19 @@
 const ProductFaqs = (sequelize, Sequelize) => {
   const Values = sequelize.define("ProductFaqs", {
     question: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     answer: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "",
     },
     type: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "ai", // "ai", "manual"
     },
     kbType: {
-      type: Sequelize.STRING(255),
+      type: Sequelize.TEXT,
       defaultValue: "", //video, kb
     },
     kbId: {

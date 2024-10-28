@@ -15,6 +15,7 @@ import {
 
 import { GetUsersHavingNoObjectiveAndProfession } from "./src/services/OneTimeCronServices.js";
 import { CheckIfGeneratePromptFirstTime } from "./src/services/MasterPromptService.js";
+
 // import { LabelVideoTranscript } from "./src/services/kbservice.js";
 
 //Running? No
@@ -60,6 +61,7 @@ import { CheckIfGeneratePromptFirstTime } from "./src/services/MasterPromptServi
 //calls that were not charged for some reason - Yes
 
 //Running - Yes
+
 async function getCompletedCallsNotCharged() {
   console.log("Running cron job Completed Calls");
   try {
@@ -142,13 +144,12 @@ const jobCharges = nodeCron.schedule(
   "*/30 * * * * *",
   getCompletedCallsNotCharged
 );
-// jobCharges.start();
+jobCharges.start();
 
 // const webScrapperJob = nodeCron.schedule("*/15 * * * * *", ScrapWebUrl);
 // webScrapperJob.start();
 
 //Youtube Video Summary Generation Cron
-
 async function ProcessLabelledTranscript() {
   console.log("Cron Fetch Youtube Summary");
   let videos = await db.YouTubeVideo.findAll({
@@ -182,7 +183,7 @@ const YoutubeSummaryCronJob = nodeCron.schedule(
   "*/5 * * * *",
   ProcessLabelledTranscript
 );
-// YoutubeSummaryCronJob.start();
+YoutubeSummaryCronJob.start();
 
 // ProcessLabelledTranscript();
 // async function FindAndLabelYoutubeVideos() {
@@ -221,63 +222,15 @@ const YoutubeSummaryCronJob = nodeCron.schedule(
 // );
 // YoutubeLabelCronJob.start();
 
-// FindAndLabelYoutubeVideos();
-// const WebScrapperCronJob = nodeCron.schedule(
-//   "*/30 * * * * *",
-//   async function () {
-//     console.log("Cron Fetch Web Summary");
-//     let ai = await db.UserAi.findAll({
-//       where: {
-//         [db.Sequelize.Op.and]: [
-//           {
-//             webUrl: {
-//               [db.Sequelize.Op.ne]: null,
-//             },
-//           },
-//           {
-//             webUrl: {
-//               [db.Sequelize.Op.ne]: "",
-//             },
-//           },
-//           {
-//             webUrlScrapedData: {
-//               [db.Sequelize.Op.is]: null,
-//             },
-//           },
-//         ],
-//       },
-//     });
-
-//     if (ai) {
-//       console.log("Websites Found :", ai.length);
-//       for (let i = 0; i < ai.length; i++) {
-//         let v = ai[i];
-//         let user = await db.User.findByPk(v.userId);
-//         let data = await ScrapWebUrl(user, v.webUrl);
-//       }
-//     } else {
-//       console.log("No sites");
-//     }
-//   }
-// );
-// WebScrapperCronJob.start();
-
 //Document Kb Cron - Yes
 const KbCron = nodeCron.schedule("*/17 * * * *", ProcessDocumentAndTextKb);
 KbCron.start();
 // ProcessDocumentAndTextKb();
 
-const ObjectiveCron = nodeCron.schedule(
-  "*/9 * * * *",
-  GetUsersHavingNoObjectiveAndProfession
-);
-// ObjectiveCron.start();
-GetUsersHavingNoObjectiveAndProfession();
-
-//Cron job to run and generate the Master Prompt First Time
-// const masterPromptCron = nodeCron.schedule(
-//   "*/1 * * * *",
-//   CheckIfGeneratePromptFirstTime
+//Objective Cron - No - We will handle with api
+// const ObjectiveCron = nodeCron.schedule(
+//   "*/9 * * * *",
+//   GetUsersHavingNoObjectiveAndProfession
 // );
-// // masterPromptCron.start()
-// CheckIfGeneratePromptFirstTime();
+// ObjectiveCron.start();
+// GetUsersHavingNoObjectiveAndProfession();
