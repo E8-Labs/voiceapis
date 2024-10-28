@@ -2,6 +2,7 @@ import { loadCards } from "../services/stripe.js";
 import db from "../models/index.js";
 import AssistantLiteResource from "./assistantliteresource.js";
 import UserSubscriptionResource from "./usersubscription.resource.js";
+import { GetAiForUser } from "../controllers/buildai.controller.js";
 
 const Op = db.Sequelize.Op;
 
@@ -85,6 +86,7 @@ async function getUserData(user, currentUser = null) {
 
   let cards = await loadCards(user);
 
+  // let myAi = await GetAiForUser(user.id);
   const UserFullResource = {
     id: user.id,
     name: user.name,

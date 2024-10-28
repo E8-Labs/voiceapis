@@ -17,7 +17,7 @@ import {
 import { create } from "domain";
 import { createProductAndPaymentLink } from "../services/stripe.js";
 
-const GetAiForUser = async (userId) => {
+export const GetAiForUser = async (userId) => {
   let ai = await db.UserAi.findOne({
     where: {
       userId: userId,
@@ -189,6 +189,11 @@ export const CreateProfessionAndObjectAfterProfileCompletion = async (
           message: "Can not run Objective & Profession retrieval now",
         });
       }
+    } else {
+      return res.send({
+        status: false,
+        message: "Unauthenticated user",
+      });
     }
   });
 };
