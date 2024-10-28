@@ -391,4 +391,249 @@ Additional Instructions:
     Ensure that the JSON can be parsed using JavaScript’s JSON.parse(string) function.
 
   `,
+
+  TextPrompt: `##Objective:
+Your goal is to process plain text shared by users, break it into meaningful sections, and generate conversational prompt/response pairs based on the key points, frameworks, lessons, and common questions readers may ask. The user will provide a description of the text and the text itself, which you can reference throughout the process to ensure accurate and relevant responses.
+
+##Step 1: Text Overview
+The user has provided the following details for the text:
+Text Description: {text_description}
+Text: {pasted_text}
+Use the text description to understand the context and purpose of the content. This will guide how you interpret and chunk the text to ensure the responses are relevant.
+
+##Step 2: Process and Chunk the Plain Text
+Since plain text may lack structured headings or sections, you will need to identify natural breaks or logical shifts in the content, such as paragraphs or changes in topic. If there are no clear breaks, divide the text into chunks of around 2000 words.
+For each chunk, extract the following key elements:
+Main points: Summarize the essential information or message for each chunk.
+Key topics: List the primary themes or subjects discussed.
+Frameworks/Models: Identify any strategies or frameworks mentioned.
+Lessons: Highlight key lessons or takeaways.
+Message: Summarize the overall message the text aims to convey.
+Common questions: Predict questions the reader might ask based on the content.
+
+##Step 3: Generate Prompt/Response Pairs
+For each chunk, create conversational prompt/response pairs based on the extracted information. Ensure the responses reflect the text's tone and intent, and adjust the conversational style accordingly:
+Tone: Match the tone of the text (e.g., if the text is educational, keep responses informative; if the text is personal or casual, adjust to a more engaging, conversational tone).
+Intonations and Transitional Words: Use natural elements such as "um," "hmm," and pauses to make responses feel authentic and maintain a smooth conversational flow.
+
+##Example Workflow:
+Prompt: "What is the key takeaway from the first section of this text?"
+Response: "The first section emphasizes the importance of time management in achieving personal success. It highlights how setting clear goals and managing your schedule can drastically improve productivity."
+Prompt: "What are the main frameworks discussed in the text?"
+Response: "The author introduces the Eisenhower Matrix, a decision-making framework for prioritizing tasks based on urgency and importance. It's a key tool for anyone looking to optimize their productivity."
+
+##Step 4: Ensure Contextual Relevance
+Always reference the text description provided by the user to maintain relevance in the responses. Tailor the prompt/response pairs to match the text's context, goal, and subject matter.
+For example, if the text is about business strategy, focus responses on practical, actionable advice. If it’s more theoretical or reflective, adjust to explore ideas and concepts more deeply.
+
+##Step 5: Handling Follow-Up Questions
+For every prompt/response pair, anticipate potential follow-up questions the user might ask based on the content of the text. Use these follow-ups to provide more detailed insights or explanations.
+Example:
+Prompt: "What are the benefits of using the Eisenhower Matrix?"
+Response: "The Eisenhower Matrix helps you prioritize tasks by categorizing them based on urgency and importance. This allows you to focus on high-priority tasks and delegate or eliminate low-priority ones, leading to more effective time management."
+Follow-Up: "Can you give an example of how I could use the Matrix in my daily life?"
+Response: "Absolutely! Imagine you're working on a project and also have emails to respond to. Using the Eisenhower Matrix, you'd categorize answering urgent client emails as high-priority, while tasks like planning for next week’s meeting might be less urgent and can be scheduled for later."
+
+##Important Considerations:
+Clarity and Precision: Ensure that responses are clear, easy to understand, and directly answer the user's question.
+Maintain Consistency: The tone and style of responses should reflect the text’s purpose and audience, whether educational, professional, or casual.
+Human-Like Engagement: Incorporate natural conversational elements like pauses, transitions, and conversational phrases to keep the interaction engaging and realistic.
+##Example Application for Plain Text:
+Let’s assume the user pastes a block of text about time management strategies. Here’s how you might handle it:
+
+Text Description:
+The user provides the following description:
+"A brief guide on time management strategies for professionals."
+
+Pasted Text:
+"Time management is crucial for professionals looking to increase productivity. One popular strategy is the Pomodoro Technique, which involves working in focused intervals of 25 minutes followed by a 5-minute break. This method encourages intense focus and reduces burnout. Additionally, the Eisenhower Matrix helps prioritize tasks by distinguishing between urgent and important tasks, allowing professionals to manage their time more effectively."
+
+##Processing:
+Main Points:
+Importance of time management for professionals.
+Introduction to the Pomodoro Technique and its benefits.
+Explanation of the Eisenhower Matrix and its application for prioritizing tasks.
+Key Topics:
+Time management strategies.
+Productivity frameworks (Pomodoro Technique, Eisenhower Matrix).
+Frameworks:
+Pomodoro Technique.
+Eisenhower Matrix.
+Lessons:
+Using focused work intervals can boost productivity and reduce burnout.
+Prioritizing tasks based on urgency and importance helps professionals manage time better.
+Common Questions:
+"What is the Pomodoro Technique?"
+"How do I use the Eisenhower Matrix in my daily routine?"
+
+##Prompt/Response Pairs:
+Prompt: "Can you explain the Pomodoro Technique mentioned in the text?"
+Response: "Sure! The Pomodoro Technique is a time management method that involves working for 25 minutes straight, followed by a short 5-minute break. After completing four intervals, you take a longer break. It’s a great way to maintain focus without burning out."
+Prompt: "What is the Eisenhower Matrix, and how does it work?"
+Response: "The Eisenhower Matrix is a decision-making framework that helps you prioritize tasks by dividing them into four categories: urgent and important, important but not urgent, urgent but not important, and neither urgent nor important. This helps you focus on what matters most and avoid distractions."
+
+
+
+
+
+Extract Key Elements:
+- **Main Points**: Summarize the core message of each section.
+- **Key Topics**: Identify important subjects or themes.
+- **Frameworks**: Note any models, strategies, or frameworks introduced.
+- **Lessons**: Highlight the main lessons or takeaways.
+- **Message**: Summarize the overall message of the section.
+- **Common Questions**: Anticipate questions the reader might ask about the content.
+
+## Step 2: Define the Ultimate AI Twin
+Based on the transcript, let's define the ultimate AI twin for {creatorname}. Please define the following, if applicable; otherwise, skip. Follow this **strict JSON format**. Ensure **no extra text, explanations, or comments are added** beyond the required JSON structure.
+
+### JSON Structure Example:
+
+
+{
+  "PersonaCharacteristics": {
+    "Profession": "Customer Support Representative",
+    "PersonalBackground": "The creator’s personal history...",
+    "PersonalValues": [
+      {
+        "title": "Personal Value Title",
+        "description": "Ex: Core principles and philosophies..."
+      }
+    ],
+    "PersonalBeliefs": [
+      {
+        "title": "Persona Beliefs Title",
+        "description": "Ex: Core principles and philosophies..."
+      }
+    ],
+    "PersonalityTraits": [
+      {
+        "trait": "Name of trait",
+        "score": "Score from 1-10"
+      }
+    ],
+    "PhilosophyAndViews": [
+      {
+        "title": "Philosophy and View Title",
+        "description": "The overarching worldview or ideology..."
+      }
+    ]
+  },
+  "Communication": {
+    "CommunicationInstructions": [
+      {
+        "pacing": "The speed and rhythm of {creatorname}'s speech...",
+        "tone": "The emotional quality or attitude...",
+        "intonation": "The rise and fall of {creatorname}'s voice...",
+        "sample": {
+          "scenario": "Communication scenario",
+          "prompt": "Prompt here",
+          "response": "Response here"
+        }
+      }
+    ],
+    "FrameworksAndTechniques": [
+      {
+        "title": "Title of framework",
+        "description": "Explanation"
+      }
+    ],
+    "SampleCommunication": {
+      "Greeting": "Hi there! How can I assist you today?",
+      "IssueAcknowledgement": "I completely understand..."
+    },
+    "Demeanor": [
+      {
+        "title": "Demeanor Title",
+        "description": "The overall attitude or mood..."
+      }
+    ],
+    "InterpersonalSkills": [
+      {
+        "title": "Interpersonal Skills Title",
+        "description": "The techniques {creatorname} uses..."
+      }
+    ],
+    "CommunicationStyle": [
+      {
+        "title": "Communication Style Title",
+        "description": "The specific manner in which {creatorname} speaks..."
+      }
+    ],
+    "InteractionExamples": [
+      {
+        "Scenario": "Interaction Scenario",
+        "question": "Question here",
+        "answer": "Answer here"
+      }
+    ],
+    "ShortPhrases": [
+      {
+        "title": "Short phrase title",
+        "description": "A collection of punchy, impactful phrases..."
+      }
+    ],
+    "KeyQuotes": [
+      {
+        "Memorable and impactful statements..."
+      }
+    ]
+  },
+  "AdditionalContent": {
+    "MainPoints": [
+      {
+        "title": "Main Point Title",
+        "description": "Summary of the essential information..."
+      }
+    ],
+    "KeyTopics": [
+      {
+        "title": "Key Topic Title",
+        "description": "Primary subjects or topics covered..."
+      }
+    ],
+    "Lessons": [
+      {
+        "title": "Key Lesson Title",
+        "description": "Highlight the key lessons or takeaways..."
+      }
+    ],
+    "KeyMessage": [
+      {
+        "title": "Key Message Title",
+        "description": "Summarize the core message that {creatorname} wants to convey."
+      }
+    ],
+    "SpeakersPerspective": [
+      {
+        "title": "Speaker Perspective Title",
+        "description": "Provide {creatorname}'s unique viewpoint on the topic..."
+      }
+    ],
+    "PersonalStories": [
+      {
+        "title": "Personal Story Title",
+        "description": "Identify any personal anecdotes or stories..."
+      }
+    ],
+    "CommonQuestions": [
+      {
+        "title": "Common Question Title",
+        "description": "Anticipate typical questions that listeners might ask..."
+      }
+    ]
+  }
+}
+
+Additional Instructions:
+    Ensure the output is valid JSON, adhering strictly to this structure. No additional text, comments, or explanations should be included outside the JSON structure.
+    Handle empty fields gracefully: If there is no value for a field, use an empty string "" for strings, or an empty array [] for lists, and an empty object {} for objects.
+    Ensure completeness: Make sure the entire JSON structure is generated, properly formatted, and valid.
+    Internal double quotes should be escaped using \" within strings.
+    Adjust minor punctuation and sentence completion where needed.
+    Ensure all sections follow proper JSON syntax and formatting rules.
+    Do not include [null] values. If no data is available for a list, use [].
+    Response must be completed within 4000 tokens. If the text is too long, split the text into multiple sections and generate separate JSON outputs for each section.
+    Ensure that the JSON can be parsed using JavaScript’s JSON.parse(string) function.
+`,
 };

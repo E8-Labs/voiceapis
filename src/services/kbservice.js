@@ -784,9 +784,11 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
     if (json) {
       try {
         const metaData = {
-          MainPoints: json.AdditionalContent?.MainPoints ?? "",
-          KeyTopics: json.AdditionalContent?.KeyTopics ?? "",
-          FrameworksModels: json.AdditionalContent?.FrameworksModels ?? "",
+          MainPoints: JSON.stringify(json.AdditionalContent?.MainPoints ?? ""),
+          KeyTopics: JSON.stringify(json.AdditionalContent?.KeyTopics ?? ""),
+          FrameworksModels: JSON.stringify(
+            json.AdditionalContent?.FrameworksModels ?? ""
+          ),
           videoDbId: video?.id ?? "",
           videoTitle: video?.title ?? "",
         };
@@ -815,6 +817,7 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
   } catch (error) {
     console.log("Error parsing json");
     console.log(error);
+    return;
   }
 
   video.caption = transcript;
@@ -963,6 +966,19 @@ export async function ProcessDocumentAndTextKb() {
           /{document_description}/g,
           kb.description || "No description"
         );
+      } else if (type == KbTypes.Text) {
+        if (kb.content == null || kb.content == "") {
+          kb.processed = true;
+          await kb.save();
+          return;
+        }
+        kbPrompt = constants.TextPrompt;
+        kbPrompt = kbPrompt.replace(
+          /{text_description}/g,
+          kb.description || ""
+        );
+        kbPrompt = kbPrompt.replace(/{creatorname}/g, user.username || "User");
+        kbPrompt = kbPrompt.replace(/{pasted_text}/g, kb.content || "no text");
       }
 
       console.log("Starting processing for Kb:", kb.name || "Unnamed KB");
@@ -986,6 +1002,9 @@ export async function ProcessDocumentAndTextKb() {
           /{document_text}/g,
           chunkContent
         );
+        if (kb.type == KbTypes.Text) {
+          kbPromptIteration = kbPrompt.replace(/{pasted_text}/g, chunkContent);
+        }
 
         let result = await CallOpenAi(kbPromptIteration);
         if (result.status) {
@@ -1002,15 +1021,15 @@ export async function ProcessDocumentAndTextKb() {
 
           if (fixedJson) {
             // Write the response to a file
-            let chunkFilePath = path.join(
-              __dirname,
-              `/Files/chunk_${kb.id}_${chunkIndex + 1}.json`
-            );
-            fs.writeFileSync(
-              chunkFilePath,
-              JSON.stringify(fixedJson, null, 2),
-              "utf8"
-            );
+            // let chunkFilePath = path.join(
+            //   __dirname,
+            //   `/Files/chunk_${kb.id}_${chunkIndex + 1}.json`
+            // );
+            // fs.writeFileSync(
+            //   chunkFilePath,
+            //   JSON.stringify(fixedJson, null, 2),
+            //   "utf8"
+            // );
             console.log(
               `Chunk ${chunkIndex + 1} written to file: ${chunkFilePath}`
             );

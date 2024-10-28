@@ -180,7 +180,7 @@ async function ProcessLabelledTranscript() {
 
 //Youtube Kb Cron - Yes
 const YoutubeSummaryCronJob = nodeCron.schedule(
-  "*/5 * * * *",
+  "*/7 * * * *",
   ProcessLabelledTranscript
 );
 YoutubeSummaryCronJob.start();
