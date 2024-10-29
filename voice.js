@@ -9,7 +9,7 @@ import db from "./src/models/index.js";
 import callRouter from "./src/routes/call.route.js";
 import UserRouter from "./src/routes/user.route.js";
 import AiRouter from "./src/routes/ai.route.js";
-import actionRouter from "./src/routes/calendar.route.js";
+import actionRouter from "./src/routes/action.route.js";
 
 dotenv.config();
 
