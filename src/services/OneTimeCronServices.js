@@ -234,13 +234,14 @@ Caller: "I don’t think I need this right now."
         if (assistant && assistant.synthAssistantId != null) {
           // assistant.WebHookForSynthflow;
           console.log("Already present");
+          //update
         } else {
           console.log("Creating new");
           // create assistant in synthflow
           let createdAssiatant = await CreateAssistantSynthflow(
             user,
             userAi.name,
-            "",
+            prompt,
             greeting,
             ""
           );
@@ -314,13 +315,13 @@ async function CreateAssistantSynthflow(
     data: {
       type: "outbound",
       name: name,
+      external_webhook_url: process.env.WebHookForSynthflow,
       agent: {
         llm: "gpt-4o",
         language: "en-US",
         prompt: prompt,
         greeting_message: greeting,
         voice_id: "wefw5e68456wef",
-        external_webhook_url: process.env.WebHookForSynthflow,
       },
       is_recording: true,
     },
