@@ -34,8 +34,9 @@ const PurchasedProduct = (sequelize, Sequelize) => {
       default: "succeeded",
     },
     data: {
-      type: Sequelize.STRING,
-      defaultValue: "",
+      type: Sequelize.TEXT("medium"),
+      allowNull: true,
+      // defaultValue: "",
     },
   });
 
