@@ -17,10 +17,10 @@ const Assistant = (sequelize, Sequelize) => {
     },
 
     prompt: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
     },
     webook: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: "",
     },
     allowTrial: {

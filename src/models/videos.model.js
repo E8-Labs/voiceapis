@@ -9,7 +9,7 @@ const YouTubeVideo = (sequelize, Sequelize) => {
       allowNull: false,
     },
     description: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       allowNull: true,
     },
     thumbnailUrl: {

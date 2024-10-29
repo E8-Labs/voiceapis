@@ -369,11 +369,11 @@ export const RegisterOrLogin = async (req, res) => {
         model_id: modelId,
       });
       let customer = await stripe.createCustomer(user);
-      let assistant = await db.Assistant.create({
-        name: username,
-        phone: phone,
-        userId: user.id,
-      });
+      // let assistant = await db.Assistant.create({
+      //   name: username,
+      //   phone: phone,
+      //   userId: user.id,
+      // });
       // if(modelId){
       //   //initiate call
       //   let assistant = await db.Assistant.findOne({

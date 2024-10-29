@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import {
   BuildYourAi,
+  CreateProfessionAndObjectAfterProfileCompletion,
   BuildAiScript,
   AddKnowledgebase,
   UpdateYourAi,
@@ -52,6 +53,9 @@ import {
   AddCommunicationCommonFaqs,
   UpdateCommunicationCommonFaqs,
   DeleteCommunicationCommonFaqs,
+  AddCommunicationStyle,
+  DeleteCommunicationStyle,
+  UpdateCommunicationStyle,
 } from "../controllers/buildai.controller.js";
 
 import { verifyJwtToken } from "../middleware/jwtmiddleware.js";
@@ -61,6 +65,11 @@ let AiRouter = express.Router();
 
 AiRouter.post("/buildAi", verifyJwtToken, uploadFiles, BuildYourAi);
 AiRouter.post("/buildAiScript", verifyJwtToken, uploadFiles, BuildAiScript);
+AiRouter.post(
+  "/processObjectiveAndProfession",
+  verifyJwtToken,
+  CreateProfessionAndObjectAfterProfileCompletion
+);
 AiRouter.post(
   "/addKnowledgebase",
   verifyJwtToken,
@@ -274,6 +283,25 @@ AiRouter.post(
   verifyJwtToken,
   uploadFiles,
   UpdateCommunicationCommonFaqs
+);
+
+AiRouter.post(
+  "/addCommunicationStyle",
+  verifyJwtToken,
+  uploadFiles,
+  AddCommunicationStyle
+);
+AiRouter.post(
+  "/deleteCommunicationStyle",
+  verifyJwtToken,
+  uploadFiles,
+  DeleteCommunicationStyle
+);
+AiRouter.post(
+  "/updateCommunicationStyle",
+  verifyJwtToken,
+  uploadFiles,
+  UpdateCommunicationStyle
 );
 
 export default AiRouter;

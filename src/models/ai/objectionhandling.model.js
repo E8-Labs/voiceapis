@@ -10,8 +10,8 @@ const ObjectionHandling = (sequelize, Sequelize) => {
       defaultValue: "",
     },
     response: {
-      type: Sequelize.STRING,
-      defaultValue: "",
+      type: Sequelize.TEXT("medium"),
+      allowNull: true,
     },
 
     type: {

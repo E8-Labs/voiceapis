@@ -36,6 +36,8 @@ import UserDemeanor from "./ai/UserDemeanor.model.js";
 import InterpersonalSkills from "./ai/InterPersonalSkills.model.js";
 import ProductFaqs from "./ai/ProductFaqs.model.js";
 import CommunicationCommonFaqs from "./ai/CommunicationCommonFaqs.model.js";
+import GptCostModel from "./gptcost.model.js";
+import CommunicationStyle from "./ai/communicationstyle.model.js";
 
 const sequelize = new Sequelize(
   dbConfig.MYSQL_DB,
@@ -168,8 +170,14 @@ models["InterpersonalSkills"] = db.InterpersonalSkills;
 db.ProductFaqs = ProductFaqs(sequelize, Sequelize);
 models["ProductFaqs"] = db.ProductFaqs;
 
+db.CommunicationStyle = CommunicationStyle(sequelize, Sequelize);
+models["CommunicationStyle"] = db.CommunicationStyle;
+
 db.CommunicationCommonFaqs = CommunicationCommonFaqs(sequelize, Sequelize);
 models["CommunicationCommonFaqs"] = db.CommunicationCommonFaqs;
+
+db.GptCost = GptCostModel(sequelize, Sequelize);
+models["GptCost"] = db.GptCost;
 
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {

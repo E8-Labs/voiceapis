@@ -6,8 +6,8 @@ const UserValues = (sequelize, Sequelize) => {
       defaultValue: "",
     },
     description: {
-      type: Sequelize.STRING,
-      defaultValue: "",
+      type: Sequelize.TEXT("medium"),
+      allowNull: true,
     },
     type: {
       type: Sequelize.STRING,

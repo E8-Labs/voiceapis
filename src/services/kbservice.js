@@ -229,6 +229,28 @@ export async function AddFrameworks(json, user, kbtype, kbid) {
   }
 }
 
+export async function AddCommunicationStyle(json, user, kbtype, kbid) {
+  let traits = json?.Communication?.CommunicationStyle || [];
+  if (traits.length == 0) {
+    return;
+  }
+  const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
+
+  console.log("CommunicationStyle ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.CommunicationStyle.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("CommunicationStyle added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No CommunicationStyle found");
+  }
+}
 export async function AddIntractionExample(json, user, kbtype, kbid) {
   let traits = json.Communication.InteractionExamples;
   const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
@@ -553,6 +575,13 @@ export async function AddAllData(json, user, kbtype = "", kbid = null) {
   } catch (error) {
     console.log("Error Adding UserPhilosophyAndViews", error);
   }
+  //AddCommunicationStyle
+  try {
+    console.log("Adding CommunicationStyle");
+    await AddCommunicationStyle(json, user, kbtype, kbid);
+  } catch (error) {
+    console.log("Error Adding CommunicationStyle", error);
+  }
 }
 
 export async function LabelVideoTranscript(transcript, user, video) {
@@ -784,9 +813,11 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
     if (json) {
       try {
         const metaData = {
-          MainPoints: json.AdditionalContent?.MainPoints ?? "",
-          KeyTopics: json.AdditionalContent?.KeyTopics ?? "",
-          FrameworksModels: json.AdditionalContent?.FrameworksModels ?? "",
+          // MainPoints: JSON.stringify(json.AdditionalContent?.MainPoints ?? ""),
+          // KeyTopics: JSON.stringify(json.AdditionalContent?.KeyTopics ?? ""),
+          // FrameworksModels: JSON.stringify(
+          //   json.AdditionalContent?.FrameworksModels ?? ""
+          // ),
           videoDbId: video?.id ?? "",
           videoTitle: video?.title ?? "",
         };
@@ -815,6 +846,7 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
   } catch (error) {
     console.log("Error parsing json");
     console.log(error);
+    return;
   }
 
   video.caption = transcript;
@@ -842,26 +874,27 @@ export async function processVideoTranscript(transcript, user, video) {
     kbPrompt = kbPrompt.replace(/{titleofvideo}/g, video.title);
 
     console.log("prompt ", kbPrompt);
+    let postBody = JSON.stringify({
+      model: model,
+      messages: [
+        {
+          role: "system",
+          content: kbPrompt,
+        },
+        {
+          role: "user",
+          content: `Here is the transcript: ${transcript}`,
+        },
+      ],
+      max_tokens: 4000, // Limit the number of tokens for the response (adjust as needed)
+    });
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.AIKey}`,
       },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          {
-            role: "system",
-            content: kbPrompt,
-          },
-          {
-            role: "user",
-            content: `Here is the transcript: ${transcript}`,
-          },
-        ],
-        max_tokens: 4000, // Limit the number of tokens for the response (adjust as needed)
-      }),
+      body: postBody,
     });
 
     // Parse the response
@@ -877,6 +910,14 @@ export async function processVideoTranscript(transcript, user, video) {
     const tokensUsed = result.usage.total_tokens;
     const cost = (tokensUsed / 1000) * pricePer1000Tokens;
 
+    await db.GptCost.create({
+      userId: user.id,
+      itemId: video.id,
+      cost: cost || 0,
+      input: postBody,
+      output: content,
+      type: "Cron:ProcessVideoTranscript",
+    });
     // Return the summary, token count, and cost in a JSON object
     return {
       summary: summary,
@@ -948,12 +989,31 @@ export async function ProcessDocumentAndTextKb() {
 
       let type = kb.type;
       if (type == KbTypes.Document) {
+        return;
+      }
+      if (type == KbTypes.Document) {
+        if (kb.content == null || kb.content == "") {
+          return;
+        }
         kbPrompt = kbPrompt.replace(/{document_name}/g, kb.name || "Document");
         kbPrompt = kbPrompt.replace(/{creatorname}/g, user.username || "User");
         kbPrompt = kbPrompt.replace(
           /{document_description}/g,
           kb.description || "No description"
         );
+      } else if (type == KbTypes.Text) {
+        if (kb.content == null || kb.content == "") {
+          kb.processed = true;
+          await kb.save();
+          return;
+        }
+        kbPrompt = constants.TextPrompt;
+        kbPrompt = kbPrompt.replace(
+          /{text_description}/g,
+          kb.description || ""
+        );
+        kbPrompt = kbPrompt.replace(/{creatorname}/g, user.username || "User");
+        kbPrompt = kbPrompt.replace(/{pasted_text}/g, kb.content || "no text");
       }
 
       console.log("Starting processing for Kb:", kb.name || "Unnamed KB");
@@ -963,6 +1023,7 @@ export async function ProcessDocumentAndTextKb() {
       let wordChunkSize = 5000; // Chunk size based on word count
       let chunks = [];
       let processedData = [];
+      let totalCost = 0;
 
       // Split content into word-based chunks
       for (let start = 0; start < words.length; start += wordChunkSize) {
@@ -976,9 +1037,13 @@ export async function ProcessDocumentAndTextKb() {
           /{document_text}/g,
           chunkContent
         );
+        if (kb.type == KbTypes.Text) {
+          kbPromptIteration = kbPrompt.replace(/{pasted_text}/g, chunkContent);
+        }
 
         let result = await CallOpenAi(kbPromptIteration);
         if (result.status) {
+          totalCost += result.cost || 0;
           let content = result.message;
           content = content.replace(new RegExp("```json", "g"), "");
           content = content.replace(new RegExp("```", "g"), "");
@@ -990,20 +1055,6 @@ export async function ProcessDocumentAndTextKb() {
           let fixedJson = fixMalformedJson(content);
 
           if (fixedJson) {
-            // Write the response to a file
-            let chunkFilePath = path.join(
-              __dirname,
-              `/Files/chunk_${kb.id}_${chunkIndex + 1}.json`
-            );
-            fs.writeFileSync(
-              chunkFilePath,
-              JSON.stringify(fixedJson, null, 2),
-              "utf8"
-            );
-            console.log(
-              `Chunk ${chunkIndex + 1} written to file: ${chunkFilePath}`
-            );
-
             processedData.push(fixedJson); // Collect the parsed JSON data from each chunk
             console.log("Processed chunk", chunkIndex + 1, "of", chunks.length);
           } else {
@@ -1034,10 +1085,10 @@ export async function ProcessDocumentAndTextKb() {
 
         // Handle metadata (you can customize based on your requirements)
         let metaData = {
-          MainPoints: unifiedJson.AdditionalContent?.MainPoints ?? [],
-          KeyTopics: unifiedJson.AdditionalContent?.KeyTopics ?? [],
-          FrameworksModels:
-            unifiedJson.AdditionalContent?.FrameworksModels ?? [],
+          // MainPoints: unifiedJson.AdditionalContent?.MainPoints ?? [],
+          // KeyTopics: unifiedJson.AdditionalContent?.KeyTopics ?? [],
+          // FrameworksModels:
+          //   unifiedJson.AdditionalContent?.FrameworksModels ?? [],
           documentDbId: kb?.id ?? "",
           documentTitle: kb?.name ?? "",
         };
@@ -1060,6 +1111,14 @@ export async function ProcessDocumentAndTextKb() {
 
         await AddAllData(unifiedJson, user, "kb", kb.id); // Optionally add all data
 
+        await db.GptCost.create({
+          userId: user.id,
+          itemId: kb.id,
+          cost: totalCost,
+          input: `Chunks- ${chunks.length} \nContent: ${kb.content}`,
+          output: JSON.stringify(unifiedJson),
+          type: "Cron:ProcessDocumentKb",
+        });
         await db.AIProfile.create({
           userId: kb.userId,
           profileData: JSON.stringify(unifiedJson),

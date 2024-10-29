@@ -31,8 +31,8 @@ const KnowledgeBase = (sequelize, Sequelize) => {
       defaultValue: "",
     },
     description: {
-      type: Sequelize.STRING,
-      defaultValue: "",
+      type: Sequelize.TEXT("medium"),
+      allowNull: true,
     },
     userId: {
       type: Sequelize.INTEGER,

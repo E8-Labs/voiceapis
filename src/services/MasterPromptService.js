@@ -12,7 +12,7 @@ let MasterPromptV1_0 = `
 `;
 
 async function getCallStrategy(user) {
-  let callStrategyText = "";
+  let callStrategyText = "Call Strategy:\n";
   let callStrategy = await db.CallStrategy.findAll({
     where: {
       userId: user.id,
@@ -22,7 +22,7 @@ async function getCallStrategy(user) {
     let index = 0;
     callStrategy.map((item) => {
       callStrategyText += `${index}: ${item.title}: ${item.description}\n`;
-      i += 1;
+      index = index + 1;
     });
   }
   return callStrategyText;
@@ -193,8 +193,60 @@ async function GetDonotQuestions(user, userAi) {
   return text;
 }
 
+async function GetIntractionExamples(user, userAi) {
+  let instructions = await db.IntractionExample.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  let text = "Interaction Examples :\n";
+
+  if (instructions && instructions.length > 0) {
+    instructions.map((item) => {
+      text += `\tQuestion: ${item.question}\nAnswer: ${item.answer}\n`;
+    });
+  }
+  return text;
+}
+
+async function GetPhrasesAndQuotes(user, userAi) {
+  let instructions = await db.PhrasesAndQuotes.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  let text = "Phrases & Quotes :\n";
+
+  if (instructions && instructions.length > 0) {
+    instructions.map((item) => {
+      text += `\t${item.description}\n`;
+    });
+  }
+  return text;
+}
+
+//Common Questions = Communication FAQs
+async function GetCommonQuestions(user, userAi) {
+  let instructions = await db.FrameworkAndTechnique.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  let text = "FAQ :\n";
+
+  if (instructions && instructions.length > 0) {
+    instructions.map((item) => {
+      text += `\tQuestion: ${item.question}\nAnswer: ${item.answer}\n`;
+    });
+  }
+  return text;
+}
+
 async function getCommunicationText(user, userAi) {
-  let p = "AI Characteristics\n";
+  let p = "Communication:\n";
 
   //User Values & Beliefs
   let instructions = await GetInstructions(user, userAi);
@@ -212,11 +264,106 @@ async function getCommunicationText(user, userAi) {
   //How do you explain complex concepts
 
   //Do Not Discuss
-
-  let donots = await GetInterpersonalSkills(user, userAi);
+  let donots = await GetDonotQuestions(user, userAi);
   p += `${donots}`;
 
+  //Intraction Examples
+  let intr = await GetIntractionExamples(user, userAi);
+  p += `${intr}`;
+
+  //Phrases & Quotes
+  let phrases = await GetPhrasesAndQuotes(user, userAi);
+  p += `${phrases}`;
+
+  //FAQs
+  let faqs = await GetCommonQuestions(user, userAi);
+  p += `${faqs}`;
+
   return p;
+}
+
+async function GetStrategiesAndTech(user, userAi) {
+  // let p = "Specific Strategies and Techniques\n";
+  let instructions = await db.FrameworkAndTechnique.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  let text = "Specific Strategies and Techniques:\n";
+
+  if (instructions && instructions.length > 0) {
+    instructions.map((item) => {
+      text += `\title: ${item.title}\Description: ${item.description}\n`;
+    });
+  }
+  return text;
+}
+
+async function GetObjectionHandling(user, userAi) {
+  // let p = "Specific Strategies and Techniques\n";
+  let instructions = await db.ObjectionHandling.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  let text = "Objection Handling:\n";
+
+  if (instructions && instructions.length > 0) {
+    instructions.map((item) => {
+      text += `\t${item.objectionType}:\n\t\t Prompt: ${item.prompt}\nResponse: ${item.response}\n`;
+    });
+  }
+  return text;
+}
+
+async function GetProductsServices(user, userAi) {
+  // let p = "Specific Strategies and Techniques\n";
+  let instructions = await db.SellingProducts.findAll({
+    where: {
+      userId: user.id,
+      isSelling: true,
+    },
+  });
+
+  let text = "Products & Services:\n";
+
+  if (instructions && instructions.length > 0) {
+    instructions.map((item) => {
+      text += `\tName: ${item.name}  -  Price: ${item.productPrice}\n`;
+    });
+  }
+
+  let faqs = await db.ProductFaqs.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  text += "\nProduct FAQs\n";
+  if (faqs && faqs.length > 0) {
+    faqs.map((item) => {
+      text += `\tQuestion: ${item.question}\nAnswer: ${item.answer}\n`;
+    });
+  }
+  return text;
+}
+
+async function GetKyc(user, userAi) {
+  let kyc = await db.KycQuestions.findAll({
+    where: {
+      userId: user.id,
+    },
+  });
+  let kycText = "KYC Questions:\n";
+  if (kyc && kyc.length > 0) {
+    kyc.map((p) => {
+      kycText += `${p.question}\n`;
+    });
+  }
+
+  return kycText;
 }
 
 export const GetMasterPrompt = async (user) => {
@@ -225,44 +372,41 @@ export const GetMasterPrompt = async (user) => {
   let userAI = await db.UserAi.findOne({ where: { userId: user.id } });
   let aiName = userAI?.name || "Creator";
 
-  let products = await db.SellingProducts.findAll({
-    where: {
-      userId: user.id,
-      isSelling: true,
-    },
-  });
-  let productsText = "";
-  if (products && products.length > 0) {
-    products.map((p) => {
-      //add the description text as well
-      productsText += `${p.name} - ${p.productPrice}\n`;
-    });
+  if (!userAI) {
+    console.log("User doesn't have ai added");
+    return;
   }
-  prompt = prompt.replace(/{Products}/g, productsText);
 
-  let kyc = await db.KycQuestions.findAll({
-    where: {
-      userId: user.id,
-    },
-  });
-  let kycText = "";
-  if (kyc && kyc.length > 0) {
-    kyc.map((p) => {
-      kycText += `${p.question}\n`;
-    });
-  }
   //1- Objective
-  prompt += `Objective:\n${ai.aiObjective}\n`;
+  prompt += `Objective:\n${userAI.aiObjective}\n`;
 
   //Call Strategy
   let callStrategyText = await getCallStrategy(user);
   prompt += `${callStrategyText}\n`;
 
+  let kyc = await GetKyc(user, userAI);
+  prompt += `${kyc}\n`;
+
   //Ai Characteristics
   let aiCharText = await getAiCharacteristics(user, userAI);
   prompt += `${aiCharText}\n`;
-  console.log("Master Prompt Finalized", prompt);
 
+  //Communication Text
+  let comText = await getCommunicationText(user, userAI);
+  prompt += `${comText}\n`;
+
+  //Strategies Text
+  let strategies = await GetStrategiesAndTech(user, userAI);
+  prompt += `${strategies}\n`;
+
+  //Product & Services
+  let productsText = await GetProductsServices(user, userAI);
+  prompt += `${productsText}\n`;
+  //Objection Handling Text
+  let objHandling = await GetObjectionHandling(user, userAI);
+  prompt += `${objHandling}\n`;
+
+  console.log("Master Prompt Finalized", prompt);
   return prompt;
 };
 

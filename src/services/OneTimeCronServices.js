@@ -11,6 +11,7 @@ import {
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { WriteToFile } from "./FileService.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // import { use } from "express/lib/application";
@@ -137,7 +138,7 @@ Caller: "I don’t think I need this right now."
     {title: "Ex title", description: "Ex Description"}
   ],
   "ObjectionHandling": [
-    {objectionType: "Ex type defined in above instructions or any other if not mentioned",  prompt: "Ex prompt here", description: "Ex Description here"}
+    {objectionType: "Ex type defined in above instructions or any other if not mentioned",  prompt: "Ex prompt here", response: "Ex Description here"}
   ]
 }
  4- Instruction:
@@ -192,19 +193,27 @@ Caller: "I don’t think I need this right now."
   prompt = prompt.replace(/{KYC_Questions}/g, kycText);
 
   let result = await CallOpenAi(prompt);
+  await db.GptCost.create({
+    userId: user.id,
+    itemId: userAi.id,
+    cost: result.cost || 0,
+    input: prompt,
+    output: result.message || "",
+    type: "Cron:CreateObjective",
+  });
   if (result.status) {
     let content = result.message;
     content = content.replace(new RegExp("```json", "g"), "");
     content = content.replace(new RegExp("```", "g"), "");
     content = content.replace(new RegExp("\n", "g"), "");
-    console.log("JSON", content);
+    // console.log("JSON", content);
     try {
       let json = JSON.parse(content);
-      let chunkFilePath = path.join(
-        __dirname,
-        `/Files/Objective-${user.id}.json`
-      );
-      fs.writeFileSync(chunkFilePath, JSON.stringify(json, null, 2), "utf8");
+      // let chunkFilePath = path.join(
+      //   __dirname,
+      //   `/Files/Objective-${user.id}.json`
+      // );
+      // fs.writeFileSync(chunkFilePath, JSON.stringify(json, null, 2), "utf8");
       let objective = json.PersonaCharacteristics.Objective;
       let profession = json.PersonaCharacteristics.Profession;
       let greeting = json.greeting;
@@ -215,16 +224,45 @@ Caller: "I don’t think I need this right now."
 
       let saved = await userAi.save();
 
+      //Create Assistant
+      try {
+        let assistant = await db.Assistant.findOne({
+          where: {
+            userId: user.id,
+          },
+        });
+        if (assistant && assistant.synthAssistantId != null) {
+          // assistant.WebHookForSynthflow;
+          console.log("Already present");
+        } else {
+          console.log("Creating new");
+          // create assistant in synthflow
+          let createdAssiatant = await CreateAssistantSynthflow(
+            user,
+            userAi.name,
+            "",
+            greeting,
+            ""
+          );
+        }
+      } catch (error) {
+        console.log("Error 1 ", error);
+      }
+
       try {
         await AddCommunicationInstructions(json, user, "Auto", null);
       } catch (err) {
         console.log("Error adding Com Ins");
+        WriteToFile("Error adding Com Ins");
+        WriteToFile(err);
       }
 
       try {
         await AddIntractionExample(json, user, "Auto", null);
       } catch (err) {
         console.log("Error adding Com Ins");
+        WriteToFile("Error adding  Intr");
+        WriteToFile(err);
       }
 
       //add Call Strategy. Create table
@@ -232,34 +270,23 @@ Caller: "I don’t think I need this right now."
         await AddCallStrategy(json, user, "Auto", null);
       } catch (err) {
         console.log("Error adding AddCallStrategy", err);
+        WriteToFile("Error adding AddCallStrategy");
+        WriteToFile(err);
       }
       //Add Objectionhandling. Create table
       try {
         await AddObjectionHandling(json, user, "Auto", null);
       } catch (err) {
         console.log("Error adding Objection Handling", err);
+        WriteToFile("Error adding Objection Handling");
+        WriteToFile(err);
       }
+      WriteToFile(
+        `User AI ${user.id} updated p: ${profession} & Ob: ${objective}`
+      );
       console.log(
         `User AI ${user.id} updated p: ${profession} & Ob: ${objective}`
       );
-
-      //Create Assistant
-      let assistant = await db.Assistant.findOne({
-        where: {
-          userId: user.id,
-        },
-      });
-      if (assistant && assistant.synthAssistantId != null) {
-      } else {
-        // create assistant in synthflow
-        // let createdAssiatant = await CreateAssistantSynthflow(
-        //   user,
-        //   aiName,
-        //   "",
-        //   greeting,
-        //   ""
-        // );
-      }
     } catch (error) {
       console.log("Error parsing ", error);
     }
@@ -275,7 +302,7 @@ async function CreateAssistantSynthflow(
   voice_id
 ) {
   let synthKey = process.env.SynthFlowApiKey;
-
+  console.log("Inside 1");
   const options = {
     method: "POST",
     url: "https://api.synthflow.ai/v2/assistants",
@@ -292,57 +319,70 @@ async function CreateAssistantSynthflow(
         language: "en-US",
         prompt: prompt,
         greeting_message: greeting,
-        voice_id: voice_id,
+        voice_id: "wefw5e68456wef",
+        external_webhook_url: process.env.WebHookForSynthflow,
       },
       is_recording: true,
     },
   };
+  console.log("Inside 2");
+  try {
+    let result = await axios.request(options);
+    console.log("Inside 3");
+    console.log("Create Assistant Api result ", result);
 
-  let result = await axios.request(options);
-  // console.log("Create Assistant Api result ", result);
-  if (result.status == 200) {
+    if (result.status == 200) {
+      let assistant = await db.Assistant.create({
+        name: name,
+        phone: user.phone,
+        userId: user.id,
+        synthAssistantId: result.data?.response?.model_id || null,
+        webook: process.env.WebHookForSynthflow,
+        prompt: prompt,
+      });
+    }
+    return result;
+  } catch (error) {
+    console.log("Inside error: ", error);
+    return null;
   }
-
-  return result;
 }
 
 //Objective Prompt OneTime - Yes
 export async function GetUsersHavingNoObjectiveAndProfession() {
-  const users = await db.User.findAll({
-    include: [
-      {
-        model: db.UserAi,
-        where: {
-          [db.Sequelize.Op.and]: [
-            {
-              [db.Sequelize.Op.or]: [
-                { aiObjective: { [db.Sequelize.Op.is]: null } }, // aiObjective is null
-                { aiObjective: "" }, // or aiObjective is an empty string
-              ],
-            },
-            {
-              [db.Sequelize.Op.or]: [
-                { profession: { [db.Sequelize.Op.is]: null } }, // profession is null
-                { profession: "" }, // or profession is an empty string
-              ],
-            },
+  const userAis = await db.UserAi.findAll({
+    where: {
+      [db.Sequelize.Op.and]: [
+        {
+          [db.Sequelize.Op.or]: [
+            { aiObjective: { [db.Sequelize.Op.is]: null } }, // aiObjective is null
+            { aiObjective: "" }, // or aiObjective is an empty string
           ],
         },
-      },
-    ],
-    where: {
-      role: {
-        [db.Sequelize.Op.like]: "%creator%", // Correct usage of Op.like
-      },
+        {
+          [db.Sequelize.Op.or]: [
+            { profession: { [db.Sequelize.Op.is]: null } }, // profession is null
+            { profession: "" }, // or profession is an empty string
+          ],
+        },
+      ],
     },
+    limit: 15,
   });
-  console.log("Found Users", users.length);
+  console.log("CreateObjective: Found Users", userAis.length);
+  let data = { userAis: userAis };
+  // console.log("JSon is ", JSON.stringify(data));
 
-  for (let i = 0; i < users.length; i++) {
-    let user = users[i];
-    let ai = await db.UserAi.findOne({ where: { userId: user.id } });
-    console.log("Fetching objective for ", user.id);
+  WriteToFile("CreateObjective: Found Users" + userAis.length);
+  for (let i = 0; i < userAis.length; i++) {
+    let ai = userAis[i];
+    let user = await db.User.findOne({ where: { id: ai.userId } });
+
+    // we will check if the user is subscribe or not. If not then won't run the cron job for him.
+    console.log("Fetching objective for ", ai.id);
+    WriteToFile("Fetching objective for " + ai.id);
     let data = await FetchObjectiveAndProfessionOnProfileCompletion(user, ai);
-    console.log("Fetched objective for ", user.id);
+    console.log("Fetched objective for ", ai.id);
+    WriteToFile("Fetched objective for " + ai.id);
   }
 }

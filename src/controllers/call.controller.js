@@ -74,6 +74,18 @@ export const MakeACall = async (req, res) => {
       reason: "no_such_assistant",
     });
   }
+  let assistantUser = await db.User.findByPk(assistant.userId);
+  if (assistantUser.role == "creator") {
+    //check voice added
+    let ai = await db.UserAi.findOne({ where: { userId: assistantUser.id } });
+    if (ai && ai.audio) {
+    } else {
+      return res.send({
+        status: true,
+        message: "This creator can not receive calls right now.",
+      });
+    }
+  }
 
   let user = await db.User.findOne({
     where: {

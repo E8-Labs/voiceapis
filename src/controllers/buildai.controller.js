@@ -3,6 +3,7 @@ import JWT from "jsonwebtoken";
 import db from "../models/index.js";
 import mammoth from "mammoth";
 import { CallOpenAi } from "../services/gptService.js";
+import { FetchObjectiveAndProfessionOnProfileCompletion } from "../services/OneTimeCronServices.js";
 
 // import pdfParse from 'pdf-parse';
 
@@ -16,7 +17,7 @@ import {
 import { create } from "domain";
 import { createProductAndPaymentLink } from "../services/stripe.js";
 
-const GetAiForUser = async (userId) => {
+export const GetAiForUser = async (userId) => {
   let ai = await db.UserAi.findOne({
     where: {
       userId: userId,
@@ -158,6 +159,45 @@ export const MyAi = async (req, res) => {
     }
   });
 };
+
+export const CreateProfessionAndObjectAfterProfileCompletion = async (
+  req,
+  res
+) => {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (authData) {
+      let userId = authData.user.id;
+      let user = await db.User.findByPk(userId);
+      let ai = await db.UserAi.findOne({
+        where: {
+          userId: user.id,
+        },
+      });
+      if (
+        ai &&
+        (ai.aiObjective == "" || ai.aiObjective == null) &&
+        (ai.profession == "" || ai.profession == null)
+      ) {
+        await FetchObjectiveAndProfessionOnProfileCompletion(user, ai);
+        return res.send({
+          status: true,
+          message: "Completed Objective & Profession retrieval",
+        });
+      } else {
+        return res.send({
+          status: false,
+          message: "Can not run Objective & Profession retrieval now",
+        });
+      }
+    } else {
+      return res.send({
+        status: false,
+        message: "Unauthenticated user",
+      });
+    }
+  });
+};
+
 export const BuildYourAi = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
@@ -1912,5 +1952,91 @@ export async function UpdateCommunicationCommonFaqs(req, res) {
       message: "CommunicationCommonFaqs saved",
       data: ai,
     });
+  });
+}
+
+//CommunicationStyle
+export async function AddCommunicationStyle(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { title, description } = req.body;
+    let added = await db.CommunicationStyle.create({
+      title: title,
+      description: description,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "Listing added",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Listing not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteCommunicationStyle(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.CommunicationStyle.findByPk(id);
+    let del = await db.CommunicationStyle.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "Listing deleted",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Listing not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateCommunicationStyle(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.CommunicationStyle.findByPk(id);
+
+    if (req.body.title) {
+      trait.title = req.body.title;
+    }
+    if (req.body.description) {
+      trait.description = req.body.description;
+    }
+
+    let saved = await trait.save();
+    let ai = await GetAiForUser(userId);
+    return res.send({ status: true, message: "Listing saved", data: ai });
   });
 }

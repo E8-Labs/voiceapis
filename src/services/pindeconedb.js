@@ -8,15 +8,23 @@ dotenv.config();
 
 const openai = new OpenAI({ apiKey: process.env.AIKey });
 
-const pineconeClient = new Pinecone({
-  apiKey: process.env.PineConeApiKey,
-});
+let pineconeClient = null;
+try {
+  pineconeClient = new Pinecone({
+    apiKey: process.env.PineConeApiKey,
+  });
+} catch (error) {
+  console.log("Pinecone connectin error", error);
+}
 
 const indexName = "kb-index-transcript"; // another for processed data kb_index_processed
 // const indexName = "kb-index-processed";
 // const indexNameChat = "plurawl-chat-collection";
 
 (async () => {
+  if (!pineconeClient) {
+    return;
+  }
   const existingIndexes = await pineconeClient.listIndexes();
   const indexNames = existingIndexes.indexes.map((index) => index.name);
   let indexes = [indexName];
@@ -47,6 +55,9 @@ function getChunkLength(text) {
 
 //type = web, youtube, document, text etc
 export const addToVectorDb = async (text, user, type, additionalMetaData) => {
+  if (!pineconeClient) {
+    return;
+  }
   try {
     const chunkLength = getChunkLength(text);
     console.log("Chunk Length", chunkLength);
@@ -89,6 +100,9 @@ export const findVectorData = async (
   vdbIndex = "kb-index-transcript"
 ) => {
   console.log("Fetching from ", vdbIndex);
+  if (!pineconeClient) {
+    return;
+  }
   try {
     const chunkLength = getChunkLength(text);
     console.log("FindingForVector", text);
@@ -143,6 +157,9 @@ export const findVectorData = async (
 };
 
 export const findVectorDataChat = async (text, chat, user) => {
+  if (!pineconeClient) {
+    return;
+  }
   try {
     console.log(`FindingForVector  for user ${user.id}`, text);
     // const { chatId, query } = req.body;

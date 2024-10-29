@@ -32,22 +32,22 @@ const CallModel = (sequelize, Sequelize) => {
       },
     },
     transcript: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       default: "",
       allowNull: false,
     },
     summary: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       default: "",
       allowNull: false,
     },
     duration: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       default: "",
       allowNull: false,
     },
     status: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       default: "",
       allowNull: false,
     },
@@ -71,23 +71,23 @@ const CallModel = (sequelize, Sequelize) => {
       allowNull: true,
     },
     callData: {
-      type: Sequelize.TEXT,
+      type: Sequelize.TEXT("medium"),
       allowNull: true,
     },
     promptTokens: {
       type: Sequelize.DOUBLE,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: 0,
     },
     completionTokens: {
       type: Sequelize.DOUBLE,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: 0,
     },
     totalCost: {
       type: Sequelize.DOUBLE,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: 0,
     },
 
     recordingUrl: {

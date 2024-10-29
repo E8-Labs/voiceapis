@@ -6,8 +6,8 @@ const InterpersonalSkills = (sequelize, Sequelize) => {
       defaultValue: "", //optional
     },
     description: {
-      type: Sequelize.STRING,
-      defaultValue: "",
+      type: Sequelize.TEXT("medium"),
+      allowNull: true,
     },
     type: {
       type: Sequelize.STRING,
