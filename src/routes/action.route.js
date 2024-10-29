@@ -2,7 +2,7 @@
 
 import express from "express";
 
-import { CheckCalendarAvailability } from "../controllers/action.controller";
+import { CheckCalendarAvailability } from "../controllers/action.controller.js";
 
 let actionRouter = express.Router();
 
