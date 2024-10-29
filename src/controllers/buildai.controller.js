@@ -1341,7 +1341,7 @@ export async function UpdatePhrasesAndQuotes(req, res) {
   });
 }
 
-//Phrases And Quotes
+//CommunicationInstruction
 export async function AddCommunicationInstruction(req, res) {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (error) {
@@ -1349,11 +1349,15 @@ export async function AddCommunicationInstruction(req, res) {
     }
 
     let userId = authData.user.id;
-    let { title, description } = req.body;
+    let { tone, pacing, intonation, scenario, prompt, response } = req.body;
     let added = await db.CommunicationInstructions.create({
-      description: description,
-      title: title,
+      tone: tone,
+      pacing: pacing,
       userId: userId,
+      intonation: intonation,
+      scenario: scenario,
+      prompt: prompt,
+      response: response,
       type: "manual",
     });
     if (added) {
@@ -1414,11 +1418,23 @@ export async function UpdateCommunicationInstruction(req, res) {
     let { id } = req.body;
     let trait = await db.CommunicationInstructions.findByPk(id);
 
-    if (req.body.description) {
-      trait.description = req.body.description;
+    if (req.body.intonation) {
+      trait.intonation = req.body.intonation;
     }
-    if (req.body.title) {
-      trait.title = req.body.title;
+    if (req.body.pacing) {
+      trait.pacing = req.body.pacing;
+    }
+    if (req.body.tone) {
+      trait.tone = req.body.tone;
+    }
+    if (req.body.prompt) {
+      trait.prompt = req.body.prompt;
+    }
+    if (req.body.response) {
+      trait.response = req.body.response;
+    }
+    if (req.body.scenario) {
+      trait.scenario = req.body.scenario;
     }
 
     let saved = await trait.save();
