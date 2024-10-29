@@ -122,6 +122,11 @@ export const GetAiForUser = async (userId) => {
       userId: userId,
     },
   });
+  let Communicatinstyle = await db.CommunicationStyle.findAll({
+    where: {
+      userId: userId,
+    },
+  });
   return {
     ai: ai,
     Philosophies: Philosophies,
@@ -142,6 +147,7 @@ export const GetAiForUser = async (userId) => {
     interpersonalSkills: InterpersonalSkills,
     demeanor: Demeanor,
     communicatinCommonFaqs: CommunicatinCommonFaqs,
+    Communicatinstyle: Communicatinstyle,
   };
 };
 export const MyAi = async (req, res) => {
