@@ -53,6 +53,9 @@ import {
   AddCommunicationCommonFaqs,
   UpdateCommunicationCommonFaqs,
   DeleteCommunicationCommonFaqs,
+  AddCommunicationStyle,
+  DeleteCommunicationStyle,
+  UpdateCommunicationStyle,
 } from "../controllers/buildai.controller.js";
 
 import { verifyJwtToken } from "../middleware/jwtmiddleware.js";
@@ -280,6 +283,25 @@ AiRouter.post(
   verifyJwtToken,
   uploadFiles,
   UpdateCommunicationCommonFaqs
+);
+
+AiRouter.post(
+  "/addCommunicationStyle",
+  verifyJwtToken,
+  uploadFiles,
+  AddCommunicationStyle
+);
+AiRouter.post(
+  "/deleteCommunicationStyle",
+  verifyJwtToken,
+  uploadFiles,
+  DeleteCommunicationStyle
+);
+AiRouter.post(
+  "/updateCommunicationStyle",
+  verifyJwtToken,
+  uploadFiles,
+  UpdateCommunicationStyle
 );
 
 export default AiRouter;

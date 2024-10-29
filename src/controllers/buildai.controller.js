@@ -1954,3 +1954,89 @@ export async function UpdateCommunicationCommonFaqs(req, res) {
     });
   });
 }
+
+//CommunicationStyle
+export async function AddCommunicationStyle(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { title, description } = req.body;
+    let added = await db.CommunicationStyle.create({
+      title: title,
+      description: description,
+      userId: userId,
+      type: "manual",
+    });
+    if (added) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "Listing added",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Listing not added",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function DeleteCommunicationStyle(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.CommunicationStyle.findByPk(id);
+    let del = await db.CommunicationStyle.destroy({
+      where: {
+        id: id,
+      },
+    });
+    if (del) {
+      let ai = await GetAiForUser(userId);
+      return res.send({
+        status: true,
+        message: "Listing deleted",
+        data: ai,
+      });
+    } else {
+      return res.send({
+        status: false,
+        message: "Listing not deleted",
+        data: null,
+      });
+    }
+  });
+}
+
+export async function UpdateCommunicationStyle(req, res) {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (error) {
+      return res.send({ status: false, message: "Unauthenticated User" });
+    }
+
+    let userId = authData.user.id;
+    let { id } = req.body;
+    let trait = await db.CommunicationStyle.findByPk(id);
+
+    if (req.body.title) {
+      trait.title = req.body.title;
+    }
+    if (req.body.description) {
+      trait.description = req.body.description;
+    }
+
+    let saved = await trait.save();
+    let ai = await GetAiForUser(userId);
+    return res.send({ status: true, message: "Listing saved", data: ai });
+  });
+}

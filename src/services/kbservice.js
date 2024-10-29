@@ -229,6 +229,28 @@ export async function AddFrameworks(json, user, kbtype, kbid) {
   }
 }
 
+export async function AddCommunicationStyle(json, user, kbtype, kbid) {
+  let traits = json?.Communication?.CommunicationStyle || [];
+  if (traits.length == 0) {
+    return;
+  }
+  const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
+
+  console.log("CommunicationStyle ", updatedTraits);
+  if (updatedTraits) {
+    try {
+      // Use await with bulkCreate to insert the users
+      await db.CommunicationStyle.bulkCreate(updatedTraits, {
+        updateOnDuplicate: ["title"],
+      });
+      console.log("CommunicationStyle added successfully!");
+    } catch (error) {
+      console.error("Error inserting users:", error);
+    }
+  } else {
+    console.log("No CommunicationStyle found");
+  }
+}
 export async function AddIntractionExample(json, user, kbtype, kbid) {
   let traits = json.Communication.InteractionExamples;
   const updatedTraits = getDataWithUserIdAdded(user, traits, kbtype, kbid);
@@ -553,6 +575,13 @@ export async function AddAllData(json, user, kbtype = "", kbid = null) {
   } catch (error) {
     console.log("Error Adding UserPhilosophyAndViews", error);
   }
+  //AddCommunicationStyle
+  try {
+    console.log("Adding CommunicationStyle");
+    await AddCommunicationStyle(json, user, kbtype, kbid);
+  } catch (error) {
+    console.log("Error Adding CommunicationStyle", error);
+  }
 }
 
 export async function LabelVideoTranscript(transcript, user, video) {
@@ -784,11 +813,11 @@ export const fetchVideoCaptionsAndProcessWithPrompt = async (
     if (json) {
       try {
         const metaData = {
-          MainPoints: JSON.stringify(json.AdditionalContent?.MainPoints ?? ""),
-          KeyTopics: JSON.stringify(json.AdditionalContent?.KeyTopics ?? ""),
-          FrameworksModels: JSON.stringify(
-            json.AdditionalContent?.FrameworksModels ?? ""
-          ),
+          // MainPoints: JSON.stringify(json.AdditionalContent?.MainPoints ?? ""),
+          // KeyTopics: JSON.stringify(json.AdditionalContent?.KeyTopics ?? ""),
+          // FrameworksModels: JSON.stringify(
+          //   json.AdditionalContent?.FrameworksModels ?? ""
+          // ),
           videoDbId: video?.id ?? "",
           videoTitle: video?.title ?? "",
         };
@@ -960,6 +989,12 @@ export async function ProcessDocumentAndTextKb() {
 
       let type = kb.type;
       if (type == KbTypes.Document) {
+        return;
+      }
+      if (type == KbTypes.Document) {
+        if (kb.content == null || kb.content == "") {
+          return;
+        }
         kbPrompt = kbPrompt.replace(/{document_name}/g, kb.name || "Document");
         kbPrompt = kbPrompt.replace(/{creatorname}/g, user.username || "User");
         kbPrompt = kbPrompt.replace(
@@ -1050,10 +1085,10 @@ export async function ProcessDocumentAndTextKb() {
 
         // Handle metadata (you can customize based on your requirements)
         let metaData = {
-          MainPoints: unifiedJson.AdditionalContent?.MainPoints ?? [],
-          KeyTopics: unifiedJson.AdditionalContent?.KeyTopics ?? [],
-          FrameworksModels:
-            unifiedJson.AdditionalContent?.FrameworksModels ?? [],
+          // MainPoints: unifiedJson.AdditionalContent?.MainPoints ?? [],
+          // KeyTopics: unifiedJson.AdditionalContent?.KeyTopics ?? [],
+          // FrameworksModels:
+          //   unifiedJson.AdditionalContent?.FrameworksModels ?? [],
           documentDbId: kb?.id ?? "",
           documentTitle: kb?.name ?? "",
         };
