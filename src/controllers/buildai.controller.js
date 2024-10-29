@@ -419,6 +419,12 @@ export const UpdateYourAi = async (req, res) => {
         goalTitle,
         goalUrl,
         aiObjective,
+        reassurance,
+        validateConcerns,
+        compromiseAndAlternatives,
+        positiveRedirects,
+        provideDetailedExplanation,
+        calCalendarApiKey,
       } = req.body;
 
       const updateData = {};
@@ -481,6 +487,26 @@ export const UpdateYourAi = async (req, res) => {
       if (goalUrl !== null && goalUrl !== undefined)
         updateData.goalUrl = goalUrl;
 
+      //objection handling
+      if (reassurance !== null && reassurance !== undefined)
+        updateData.reassurance = reassurance;
+      if (validateConcerns !== null && validateConcerns !== undefined)
+        updateData.validateConcerns = validateConcerns;
+      if (
+        compromiseAndAlternatives !== null &&
+        compromiseAndAlternatives !== undefined
+      )
+        updateData.compromiseAndAlternatives = compromiseAndAlternatives;
+      if (positiveRedirects !== null && positiveRedirects !== undefined)
+        updateData.positiveRedirects = positiveRedirects;
+      if (
+        provideDetailedExplanation !== null &&
+        provideDetailedExplanation !== undefined
+      )
+        updateData.provideDetailedExplanation = provideDetailedExplanation;
+
+      if (calCalendarApiKey !== null && calCalendarApiKey !== undefined)
+        updateData.calCalendarApiKey = calCalendarApiKey;
       // aiObjective
       if (aiObjective !== null && aiObjective !== undefined)
         updateData.aiObjective = aiObjective;
