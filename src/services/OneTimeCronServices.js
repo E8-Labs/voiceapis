@@ -338,7 +338,7 @@ async function UpdateAssistantSynthflow(
   let synthKey = process.env.SynthFlowApiKey;
   console.log("Inside 1");
   const options = {
-    method: "POST",
+    method: "PUT",
     url: `https://api.synthflow.ai/v2/assistants/${assistantId}`,
     headers: {
       accept: "application/json",

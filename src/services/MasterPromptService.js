@@ -229,7 +229,7 @@ async function GetPhrasesAndQuotes(user, userAi) {
 
 //Common Questions = Communication FAQs
 async function GetCommonQuestions(user, userAi) {
-  let instructions = await db.FrameworkAndTechnique.findAll({
+  let instructions = await db.CommunicationCommonFaqs.findAll({
     where: {
       userId: user.id,
     },
