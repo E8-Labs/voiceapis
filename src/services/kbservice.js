@@ -9,6 +9,8 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { MainPointsTypes } from "../models/ai/mainpointstypes.js";
+import { GetMasterPrompt } from "./MasterPromptService.js";
+import { CreateOrUpdateAssistant } from "./OneTimeCronServices.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -582,6 +584,8 @@ export async function AddAllData(json, user, kbtype = "", kbid = null) {
   } catch (error) {
     console.log("Error Adding CommunicationStyle", error);
   }
+
+  await CreateOrUpdateAssistant(user);
 }
 
 export async function LabelVideoTranscript(transcript, user, video) {
