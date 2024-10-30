@@ -406,6 +406,18 @@ export const GetMasterPrompt = async (user) => {
   let objHandling = await GetObjectionHandling(user, userAI);
   prompt += `${objHandling}\n`;
 
+  //Integrations
+  prompt += `\n#Get Tools
+###Knowledge Base: When being asked about life events, dating, how to pick up girls, reference the {get_advice} function.
+###Get_availability: You have the tool get_availability. Use get_availability in the following circumstances:
+Direct Inquiry: Activate get_availability when a user explicitly asks about available times or dates for a service, meeting, or appointment. This could be indicated by phrases like "When can I schedule...?", "What times are available?", or "Can you check if... is free on...?".
+Indirect Inquiry: Use the tool when discussions imply a need to know available times without a direct request. This can occur in planning phases or when deciding on optimal times for services or follow-ups.
+Timezone Confirmation: When confirming the booking, make sure to ask the client to confirm their timezone to ensure the appointment is scheduled correctly.
+###Create_booking: You have the tool create_booking. Use create_booking in the following circumstances:
+User is Requesting an Appointment: When a user explicitly asks to schedule an appointment or mentions needing to set a specific time for a meeting, utilize create_booking to confirm and lock in the appointment details.
+Confirmation After Availability Check: After using the get_availability tool to provide available slots to the user and the user selects or agrees to a specific time, automatically transition to using create_booking to finalize the appointment.
+Email Confirmation: Confirm their email address to send them the meeting details.`;
+
   console.log("Master Prompt Finalized", prompt);
   return prompt;
 };
