@@ -1,8 +1,8 @@
 export const CheckCalendarAvailability = async (req, res) => {
   let assistantId = req.query.assistantId;
-  console.log("Hello in Custom action", assistantId);
-  let q = req.query.question;
-  console.log("Question asked is ", q);
+  console.log("Hello in Custom action Check availability", assistantId);
+  let q = req.query.date;
+  console.log("Date that the user want to check is ", q);
   return res.send({
     status: true,
     message: "No slots are available to book",
