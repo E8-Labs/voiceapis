@@ -561,7 +561,11 @@ export const UpdateYourAi = async (req, res) => {
           let productId = p.productId || null;
           if (productId) {
             let pUpdated = await db.SellingProducts.update(
-              { name: p.name, productPrice: p.productPrice },
+              {
+                name: p.name,
+                productPrice: p.productPrice,
+                isSelling: p.isSelling,
+              },
               {
                 where: {
                   id: productId,
