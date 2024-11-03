@@ -7,6 +7,7 @@ import {
   AddKnowledgebase,
   UpdateYourAi,
   DeleteKb,
+  DeleteKyc,
   MyAi,
   AddTrait,
   DeleteTrait,
@@ -78,6 +79,7 @@ AiRouter.post(
 );
 AiRouter.post("/updateAi", verifyJwtToken, uploadFiles, UpdateYourAi);
 AiRouter.post("/deleteKb", verifyJwtToken, uploadFiles, DeleteKb);
+AiRouter.post("/deleteKyc", verifyJwtToken, uploadFiles, DeleteKyc);
 AiRouter.get("/my_ai", verifyJwtToken, uploadFiles, MyAi);
 
 AiRouter.post("/addTrait", verifyJwtToken, uploadFiles, AddTrait);
