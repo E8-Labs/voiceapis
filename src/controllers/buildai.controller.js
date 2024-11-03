@@ -419,6 +419,12 @@ export const UpdateYourAi = async (req, res) => {
         goalTitle,
         goalUrl,
         aiObjective,
+        reassurance,
+        validateConcerns,
+        compromiseAndAlternatives,
+        positiveRedirects,
+        provideDetailedExplanation,
+        calCalendarApiKey,
       } = req.body;
 
       const updateData = {};
@@ -481,6 +487,26 @@ export const UpdateYourAi = async (req, res) => {
       if (goalUrl !== null && goalUrl !== undefined)
         updateData.goalUrl = goalUrl;
 
+      //objection handling
+      if (reassurance !== null && reassurance !== undefined)
+        updateData.reassurance = reassurance;
+      if (validateConcerns !== null && validateConcerns !== undefined)
+        updateData.validateConcerns = validateConcerns;
+      if (
+        compromiseAndAlternatives !== null &&
+        compromiseAndAlternatives !== undefined
+      )
+        updateData.compromiseAndAlternatives = compromiseAndAlternatives;
+      if (positiveRedirects !== null && positiveRedirects !== undefined)
+        updateData.positiveRedirects = positiveRedirects;
+      if (
+        provideDetailedExplanation !== null &&
+        provideDetailedExplanation !== undefined
+      )
+        updateData.provideDetailedExplanation = provideDetailedExplanation;
+
+      if (calCalendarApiKey !== null && calCalendarApiKey !== undefined)
+        updateData.calCalendarApiKey = calCalendarApiKey;
       // aiObjective
       if (aiObjective !== null && aiObjective !== undefined)
         updateData.aiObjective = aiObjective;
@@ -505,24 +531,34 @@ export const UpdateYourAi = async (req, res) => {
           let p = questions[i];
           let questionId = p.questionId || null;
           if (questionId) {
-            let question = await db.KycQuestions.update(
-              { question: p.question, userId: userId },
-              {
-                where: {
-                  id: questionId,
-                },
-              }
-            );
+            let data = { question: p.question, userId: userId };
+            if (p.example1) {
+              data = { ...data, example1: p.example1 };
+            }
+            if (p.example2) {
+              data = { ...data, example2: p.example2 };
+            }
+            if (p.example3) {
+              data = { ...data, example3: p.example3 };
+            }
+            let question = await db.KycQuestions.update(data, {
+              where: {
+                id: questionId,
+              },
+            });
             if (question) {
-              //console.log(`Question ${p.question} updated`);
+              console.log(`Question ${p.question} updated`);
             }
           } else {
             let questionCreated = await db.KycQuestions.create({
               question: p.question,
               userId: userId,
+              example1: p.example1,
+              example2: p.example2,
+              example3: p.example3,
             });
             if (questionCreated) {
-              //console.log(`Question ${p.question} created`);
+              console.log(`Question ${p.question} created`);
             }
           }
         }
@@ -535,7 +571,11 @@ export const UpdateYourAi = async (req, res) => {
           let productId = p.productId || null;
           if (productId) {
             let pUpdated = await db.SellingProducts.update(
-              { name: p.name, productPrice: p.productPrice },
+              {
+                name: p.name,
+                productPrice: p.productPrice,
+                isSelling: p.isSelling,
+              },
               {
                 where: {
                   id: productId,
@@ -554,6 +594,23 @@ export const UpdateYourAi = async (req, res) => {
 
       let ai = await GetAiForUser(user.id);
       res.send({ status: true, message: "Ai Updated", data: ai });
+    } else {
+      res.send({ status: false, message: "Unauthenticated User" });
+    }
+  });
+};
+
+export const DeleteKyc = async (req, res) => {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (authData) {
+      let userId = authData.user.id;
+      let kycToDel = req.body.kycId;
+      let del = await db.KycQuestions.destroy({
+        where: {
+          id: kycToDel,
+        },
+      });
+      res.send({ status: true, message: "KYC base removed", data: null });
     } else {
       res.send({ status: false, message: "Unauthenticated User" });
     }

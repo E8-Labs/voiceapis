@@ -4,6 +4,18 @@ const KycQuestions = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       defaultValue: "",
     },
+    example1: {
+      type: Sequelize.STRING,
+      defaultValue: "",
+    },
+    example2: {
+      type: Sequelize.STRING,
+      defaultValue: "",
+    },
+    example3: {
+      type: Sequelize.STRING,
+      defaultValue: "",
+    },
 
     userId: {
       type: Sequelize.INTEGER,

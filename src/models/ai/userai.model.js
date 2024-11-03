@@ -99,6 +99,40 @@ const UserAi = (sequelize, Sequelize) => {
       //from dashboard
       type: Sequelize.TEXT("medium"),
     },
+    callCalendarApiKey: {
+      //from dashboard
+      type: Sequelize.STRING,
+    },
+    ghlCalendarApiKey: {
+      //from dashboard
+      type: Sequelize.STRING,
+    },
+    //ObjectionHandling related
+    reassurance: {
+      //from dashboard
+      type: Sequelize.DOUBLE,
+      defaultValue: 2.5,
+    },
+    validateConcerns: {
+      //from dashboard
+      type: Sequelize.DOUBLE,
+      defaultValue: 2.5,
+    },
+    compromiseAndAlternatives: {
+      //from dashboard
+      type: Sequelize.DOUBLE,
+      defaultValue: 2.5,
+    },
+    positiveRedirects: {
+      //from dashboard
+      type: Sequelize.DOUBLE,
+      defaultValue: 2.5,
+    },
+    provideDetailedExplanation: {
+      //from dashboard
+      type: Sequelize.DOUBLE,
+      defaultValue: 2.5,
+    },
   });
 
   return User;

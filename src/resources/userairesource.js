@@ -1,5 +1,6 @@
 import db from "../models/index.js";
 import UserProfileFullResource from "./userprofilefullresource.js";
+import { GetAiForUser } from "../controllers/buildai.controller.js";
 
 const Op = db.Sequelize.Op;
 
@@ -22,6 +23,9 @@ const UserAiResource = async (user, currentUser = null) => {
 };
 
 async function getUserData(ai, currentUser = null) {
+  let ai = GetAiForUser(ai.userId);
+  // return ai;
+
   let ownerRes = null;
   if (ai.userId) {
     let owner = await db.User.findOne({

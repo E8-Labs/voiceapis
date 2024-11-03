@@ -12,6 +12,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { WriteToFile } from "./FileService.js";
+import { GetMasterPrompt } from "./MasterPromptService.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // import { use } from "express/lib/application";
@@ -224,31 +225,9 @@ Caller: "I don’t think I need this right now."
 
       let saved = await userAi.save();
 
+      let masterPrompt = await GetMasterPrompt(user);
       //Create Assistant
-      try {
-        let assistant = await db.Assistant.findOne({
-          where: {
-            userId: user.id,
-          },
-        });
-        if (assistant && assistant.synthAssistantId != null) {
-          // assistant.WebHookForSynthflow;
-          console.log("Already present");
-          //update
-        } else {
-          console.log("Creating new");
-          // create assistant in synthflow
-          let createdAssiatant = await CreateAssistantSynthflow(
-            user,
-            userAi.name,
-            prompt,
-            greeting,
-            ""
-          );
-        }
-      } catch (error) {
-        console.log("Error 1 ", error);
-      }
+      await CreateOrUpdateAssistant(user);
 
       try {
         await AddCommunicationInstructions(json, user, "Auto", null);
@@ -348,6 +327,104 @@ async function CreateAssistantSynthflow(
     return null;
   }
 }
+async function UpdateAssistantSynthflow(
+  user,
+  name,
+  prompt,
+  greeting,
+  voice_id,
+  assistantId
+) {
+  let synthKey = process.env.SynthFlowApiKey;
+  console.log("Inside 1");
+  const options = {
+    method: "PUT",
+    url: `https://api.synthflow.ai/v2/assistants/${assistantId}`,
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      Authorization: `Bearer ${synthKey}`,
+    },
+    data: {
+      type: "outbound",
+      name: name,
+      external_webhook_url: process.env.WebHookForSynthflow,
+      agent: {
+        llm: "gpt-4o",
+        language: "en-US",
+        prompt: prompt,
+        greeting_message: greeting,
+        voice_id: "wefw5e68456wef",
+      },
+      is_recording: true,
+    },
+  };
+  console.log("Inside 2");
+  try {
+    let result = await axios.request(options);
+    console.log("Inside 3");
+    console.log("Create Assistant Api result ", result);
+
+    if (result.status == 200) {
+      console.log("Assitant updated");
+      // let assistant = await db.Assistant.create({
+      //   name: name,
+      //   phone: user.phone,
+      //   userId: user.id,
+      //   synthAssistantId: result.data?.response?.model_id || null,
+      //   webook: process.env.WebHookForSynthflow,
+      //   prompt: prompt,
+      // });
+    }
+    return result;
+  } catch (error) {
+    console.log("Inside error: ", error);
+    return null;
+  }
+}
+
+export const CreateOrUpdateAssistant = async (user) => {
+  try {
+    let assistant = await db.Assistant.findOne({
+      where: {
+        userId: user.id,
+      },
+    });
+    let userAi = await db.UserAi.findOne({
+      where: {
+        userId: user.id,
+      },
+    });
+    let masterPrompt = await GetMasterPrompt(user);
+    if (assistant && assistant.synthAssistantId != null) {
+      // assistant.WebHookForSynthflow;
+      console.log("Already present");
+      let createdAssiatant = await UpdateAssistantSynthflow(
+        user,
+        userAi.name,
+        masterPrompt,
+        userAi.greeting,
+        "", //voice id
+        assistant.synthAssistantId
+      );
+      assistant.prompt = masterPrompt;
+      let saved = await assistant.save();
+      //update
+    } else {
+      console.log("Creating new");
+      // create assistant in synthflow
+      let createdAssiatant = await CreateAssistantSynthflow(
+        user,
+        userAi.name,
+        masterPrompt,
+        userAi.greeting,
+        ""
+      );
+    }
+  } catch (error) {
+    console.log("Error 1 ", error);
+  }
+};
 
 //Objective Prompt OneTime - Yes
 export async function GetUsersHavingNoObjectiveAndProfession() {
