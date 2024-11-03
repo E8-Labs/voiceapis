@@ -627,7 +627,8 @@ export const DeleteKb = async (req, res) => {
           id: kbToDel,
         },
       });
-      res.send({ status: true, message: "Knowledge base removed", data: null });
+      let ai = await GetAiForUser(userId);
+      res.send({ status: true, message: "Knowledge base removed", data: ai });
     } else {
       res.send({ status: false, message: "Unauthenticated User" });
     }
