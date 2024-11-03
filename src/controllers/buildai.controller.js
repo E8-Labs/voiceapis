@@ -600,6 +600,23 @@ export const UpdateYourAi = async (req, res) => {
   });
 };
 
+export const DeleteKyc = async (req, res) => {
+  JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    if (authData) {
+      let userId = authData.user.id;
+      let kycToDel = req.body.kycId;
+      let del = await db.KycQuestions.destroy({
+        where: {
+          id: kycToDel,
+        },
+      });
+      res.send({ status: true, message: "KYC base removed", data: null });
+    } else {
+      res.send({ status: false, message: "Unauthenticated User" });
+    }
+  });
+};
+
 export const DeleteKb = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
