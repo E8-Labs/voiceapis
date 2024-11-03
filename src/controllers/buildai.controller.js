@@ -531,24 +531,34 @@ export const UpdateYourAi = async (req, res) => {
           let p = questions[i];
           let questionId = p.questionId || null;
           if (questionId) {
-            let question = await db.KycQuestions.update(
-              { question: p.question, userId: userId },
-              {
-                where: {
-                  id: questionId,
-                },
-              }
-            );
+            let data = { question: p.question, userId: userId };
+            if (p.example1) {
+              data = { ...data, example1: p.example1 };
+            }
+            if (p.example2) {
+              data = { ...data, example2: p.example2 };
+            }
+            if (p.example3) {
+              data = { ...data, example3: p.example3 };
+            }
+            let question = await db.KycQuestions.update(data, {
+              where: {
+                id: questionId,
+              },
+            });
             if (question) {
-              //console.log(`Question ${p.question} updated`);
+              console.log(`Question ${p.question} updated`);
             }
           } else {
             let questionCreated = await db.KycQuestions.create({
               question: p.question,
               userId: userId,
+              example1: p.example1,
+              example2: p.example2,
+              example3: p.example3,
             });
             if (questionCreated) {
-              //console.log(`Question ${p.question} created`);
+              console.log(`Question ${p.question} created`);
             }
           }
         }
