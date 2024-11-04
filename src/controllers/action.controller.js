@@ -65,7 +65,7 @@ export async function AddCalendar(req, res) {
             eventId15Min = actualEventTypes[0].id;
           }
         }
-        let created = db.CalIntegration.create({
+        let created = await db.CalIntegration.create({
           type: calendarType,
           apiKey: apiKey,
           userId: userId,
