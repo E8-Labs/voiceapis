@@ -16,6 +16,6 @@ let actionRouter = express.Router();
 // callRouter.post("/gen_summary", GenSummary);
 actionRouter.get("/getCustomActionData", GetKb);
 actionRouter.get("/checkAvailability", CheckCalendarAvailability);
-actionRouter.post("/getCalendars", verifyJwtToken, uploadFiles, AddCalendar);
+actionRouter.post("/addCalendar", verifyJwtToken, uploadFiles, AddCalendar);
 
 export default actionRouter;
