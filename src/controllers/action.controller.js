@@ -165,7 +165,7 @@ async function CreateRealTimeBookingAction(
       },
       {
         headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
+          Authorization: `Bearer ${process.env.SynthFlowApiKey}`,
           Accept: "application/json",
           "Content-Type": "application/json",
         },
@@ -192,7 +192,7 @@ async function AttachActionToModel(actionId, modelId) {
       },
       {
         headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
+          Authorization: `Bearer ${process.env.SynthFlowApiKey}`,
           Accept: "application/json",
           "Content-Type": "application/json",
         },
