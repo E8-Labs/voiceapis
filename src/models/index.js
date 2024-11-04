@@ -11,6 +11,7 @@ import KnowledgeBase from "./ai/knowledgebase.model.js";
 import YouTubeVideo from "./videos.model.js";
 import PurchasedProduct from "./ai/purchasedproducts.model.js";
 import UserCallSummary from "./usercallsummary.model.js";
+import CalIntegration from "./ai/calintegration.model.js";
 
 import AIProfile from "./ai/aiprofile.model.js";
 
@@ -178,6 +179,9 @@ models["CommunicationCommonFaqs"] = db.CommunicationCommonFaqs;
 
 db.GptCost = GptCostModel(sequelize, Sequelize);
 models["GptCost"] = db.GptCost;
+
+db.CalIntegration = CalIntegration(sequelize, Sequelize);
+models["CalIntegration"] = db.CalIntegration;
 
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {
