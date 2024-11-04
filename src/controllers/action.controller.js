@@ -1,5 +1,6 @@
 import axios from "axios";
 import db from "../models/index.js";
+import JWT from "jsonwebtoken";
 
 const API_TOKEN = "cal_live_b983ff59c6bdf60aa77797acbd31a05f";
 const CAL_API_URL = "https://api.cal.com/v2";
