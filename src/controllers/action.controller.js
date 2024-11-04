@@ -15,6 +15,7 @@ function getApiClient(apiKey) {
       "Content-Type": "application/json",
     },
   });
+  return apiClient;
 }
 
 export const CheckCalendarAvailability = async (req, res) => {
@@ -97,10 +98,7 @@ export async function AddCalendar(req, res) {
         // Return both calendars and event types
         return res.send({ status: true, calendars, eventTypes });
       } catch (error) {
-        console.error(
-          "Error retrieving calendars or event types:",
-          error.response ? error.response.data : error.message
-        );
+        console.error("Error retrieving calendars or event types:", error);
         return res.send({
           status: false,
           message: error.message,
