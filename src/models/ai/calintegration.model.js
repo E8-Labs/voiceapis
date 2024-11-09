@@ -6,6 +6,7 @@ const CalIntegration = (sequelize, Sequelize) => {
       defaultValue: "cal_dot_com", // "cal_dot_com", "ghl"
     },
     eventId: {
+      //Event id is the meeting event on cal.com
       type: Sequelize.STRING,
       allowNull: true,
     },

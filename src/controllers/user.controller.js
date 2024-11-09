@@ -18,6 +18,8 @@ import {
 import * as stripe from "../services/stripe.js";
 
 import { MakeACall } from "./paymentController.js";
+import { CreateAndAttachAction } from "./action.controller.js";
+import { CreateAssistantSynthflow } from "../services/OneTimeCronServices.js";
 
 // lib/firebase-admin.js
 // const admin = require('firebase-admin');
@@ -369,26 +371,13 @@ export const RegisterOrLogin = async (req, res) => {
         model_id: modelId,
       });
       let customer = await stripe.createCustomer(user);
-      // let assistant = await db.Assistant.create({
-      //   name: username,
-      //   phone: phone,
-      //   userId: user.id,
-      // });
-      // if(modelId){
-      //   //initiate call
-      //   let assistant = await db.Assistant.findOne({
-      //     where:{
-      //       userId: modelId
-      //     }
-      //   })
-      //   if(assistant && assistant.allowTrial){
-      //     let call = await MakeACall(user.id, modelId)
-      //   }
-      //   else{
-      //     console.log('"Found Assistant. Doesnt Allow Trial"')
-      //   }
-
-      // }
+      // let createdAssiatant = await CreateAssistantSynthflow(
+      //   user,
+      //   user.name,
+      //   "",
+      //   "",
+      //   ""
+      // );
       let signedData = await SignUser(user);
       // await db.PhoneVerificationCodeModel.destroy({
       //     where: {
@@ -397,6 +386,7 @@ export const RegisterOrLogin = async (req, res) => {
       //         }
       //     },
       // })
+
       res.send({
         status: true,
         data: signedData,

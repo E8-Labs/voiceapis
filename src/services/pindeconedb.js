@@ -101,7 +101,7 @@ export const findVectorData = async (
 ) => {
   console.log("Fetching from ", vdbIndex);
   if (!pineconeClient) {
-    return;
+    return null;
   }
   try {
     const chunkLength = getChunkLength(text);

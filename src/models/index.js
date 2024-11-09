@@ -39,6 +39,7 @@ import ProductFaqs from "./ai/ProductFaqs.model.js";
 import CommunicationCommonFaqs from "./ai/CommunicationCommonFaqs.model.js";
 import GptCostModel from "./gptcost.model.js";
 import CommunicationStyle from "./ai/communicationstyle.model.js";
+import CustomAction from "./ai/CustomAction.model.js";
 
 const sequelize = new Sequelize(
   dbConfig.MYSQL_DB,
@@ -182,6 +183,9 @@ models["GptCost"] = db.GptCost;
 
 db.CalIntegration = CalIntegration(sequelize, Sequelize);
 models["CalIntegration"] = db.CalIntegration;
+
+db.CustomAction = CustomAction(sequelize, Sequelize);
+models["CustomAction"] = db.CustomAction;
 
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {

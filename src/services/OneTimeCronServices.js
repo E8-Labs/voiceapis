@@ -13,6 +13,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { WriteToFile } from "./FileService.js";
 import { GetMasterPrompt } from "./MasterPromptService.js";
+import { CreateAndAttachAction } from "../controllers/action.controller.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // import { use } from "express/lib/application";
@@ -274,7 +275,7 @@ Caller: "I don’t think I need this right now."
 };
 
 //Create Synthflow Assistant
-async function CreateAssistantSynthflow(
+export async function CreateAssistantSynthflow(
   user,
   name,
   prompt,
@@ -316,10 +317,28 @@ async function CreateAssistantSynthflow(
         name: name,
         phone: user.phone,
         userId: user.id,
+        modelId: result.data?.response?.model_id || null,
         synthAssistantId: result.data?.response?.model_id || null,
         webook: process.env.WebHookForSynthflow,
         prompt: prompt,
       });
+      if (assistant) {
+        try {
+          let createdAction = await CreateAndAttachAction(user, "kb");
+        } catch (error) {
+          console.log("Error creating action kb ", error);
+        }
+        try {
+          let createdAction = await CreateAndAttachAction(user, "booking");
+        } catch (error) {
+          console.log("Error creating action booking ", error);
+        }
+        try {
+          let createdAction = await CreateAndAttachAction(user, "availability");
+        } catch (error) {
+          console.log("Error creating action availability ", error);
+        }
+      }
     }
     return result;
   } catch (error) {
@@ -396,7 +415,7 @@ export const CreateOrUpdateAssistant = async (user) => {
       },
     });
     let masterPrompt = await GetMasterPrompt(user);
-    if (assistant && assistant.synthAssistantId != null) {
+    if (assistant && assistant.modelId != null) {
       // assistant.WebHookForSynthflow;
       console.log("Already present");
       let createdAssiatant = await UpdateAssistantSynthflow(
@@ -405,7 +424,8 @@ export const CreateOrUpdateAssistant = async (user) => {
         masterPrompt,
         userAi.greeting,
         "", //voice id
-        assistant.synthAssistantId
+
+        assistant.modelId
       );
       assistant.prompt = masterPrompt;
       let saved = await assistant.save();

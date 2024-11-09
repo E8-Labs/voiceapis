@@ -11,6 +11,7 @@ const Assistant = (sequelize, Sequelize) => {
 
     modelId: {
       type: Sequelize.STRING,
+      allowNull: true,
     },
     apikey: {
       type: Sequelize.STRING,
@@ -40,7 +41,7 @@ const Assistant = (sequelize, Sequelize) => {
       },
     },
     synthAssistantId: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING, // same as modelId. No purpose as of now
       allowNull: true,
     },
   });

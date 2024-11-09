@@ -4,7 +4,7 @@ import db from "../models/index.js";
 import mammoth from "mammoth";
 import { CallOpenAi } from "../services/gptService.js";
 import { FetchObjectiveAndProfessionOnProfileCompletion } from "../services/OneTimeCronServices.js";
-
+import { CreateAssistantSynthflow } from "../services/OneTimeCronServices.js";
 // import pdfParse from 'pdf-parse';
 
 import pdfExtract from "pdf-extraction";
@@ -262,6 +262,14 @@ export const BuildYourAi = async (req, res) => {
         discordUrl: discord_url,
         twitterUrl: twitter_url,
       });
+
+      let createdAssiatant = await CreateAssistantSynthflow(
+        user,
+        createdAI.name,
+        "",
+        createdAI.greeting,
+        ""
+      );
 
       res.send({ status: true, message: "Ai created", data: createdAI });
     } else {
