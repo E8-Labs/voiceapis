@@ -32,7 +32,8 @@ export const CheckCalendarAvailability = async (req, res) => {
 
 export async function ScheduleEvent(req, res) {
   let { user_email, date } = req.body;
-
+  let reqData = { user_email, date };
+  console.log("Schedule meeting ", reqData);
   let modelId = req.params.modelId;
 
   //Check if a valid model | assistant
