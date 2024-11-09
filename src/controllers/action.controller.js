@@ -141,6 +141,7 @@ export const GetKb = async (req, res) => {
   return res.send({
     status: true,
     message: context ? context : `Nothing found related to question: ${q}`,
+    req: req.query,
   });
 };
 
