@@ -217,6 +217,8 @@ export async function ScheduleEvent(req, res) {
     },
     metadata: {}, // Ensure metadata is an object
   };
+
+  console.log("Data sent to schedule ", JSON.stringify(inputData));
   try {
     const response = await fetch(`${CAL_API_URL}/bookings`, {
       method: "POST",
