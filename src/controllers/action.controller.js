@@ -42,7 +42,7 @@ export const CheckCalendarAvailability = async (req, res) => {
 // const CAL_API_URL = "https://api.cal.com/v2";
 
 export async function ScheduleEvent(req, res) {
-  let { user_email, date, time } = req.body; // Accept 'time' from the request body
+  let { user_email, date, time } = req.body;
   console.log("Schedule meeting with date and time: ", {
     user_email,
     date,
@@ -81,24 +81,45 @@ export async function ScheduleEvent(req, res) {
     });
   }
 
-  // Validate and format date and time
+  // Validate and parse date and time
   const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-  const timePattern = /^\d{2}:\d{2}$/;
-
-  if (!datePattern.test(date) || !timePattern.test(time)) {
+  if (!datePattern.test(date)) {
     return res.send({
       status: false,
-      message:
-        "Invalid date or time format. Use 'YYYY-MM-DD' for date and 'HH:MM' for time.",
+      message: "Invalid date format. Use 'YYYY-MM-DD' for date.",
     });
   }
 
-  // Combine date and time into ISO format
-  const startDateTime = new Date(`${date}T${time}:00Z`);
-  if (isNaN(startDateTime)) {
+  // Handle time parsing
+  let parsedTime;
+  const time24HourPattern = /^\d{1,2}:\d{2}$/; // Matches "HH:MM" or "H:MM"
+  const time12HourPattern = /^\d{1,2}:\d{2}\s?(AM|PM)$/i; // Matches "HH:MM AM/PM" or "H:MM AM/PM"
+
+  if (time24HourPattern.test(time)) {
+    // If 24-hour format, create a parsed Date object
+    parsedTime = `${date}T${time}:00Z`; // UTC format
+  } else if (time12HourPattern.test(time)) {
+    // If 12-hour format, convert to 24-hour format
+    const [timePart, modifier] = time.split(" ");
+    let [hours, minutes] = timePart.split(":");
+    hours = parseInt(hours, 10);
+    if (modifier.toUpperCase() === "PM" && hours < 12) hours += 12;
+    if (modifier.toUpperCase() === "AM" && hours === 12) hours = 0;
+    parsedTime = `${date}T${String(hours).padStart(2, "0")}:${minutes}:00Z`;
+  } else {
     return res.send({
       status: false,
-      message: "Invalid date or time value",
+      message:
+        "Invalid time format. Use 'HH:MM' (24-hour) or 'HH:MM AM/PM' (12-hour) format.",
+    });
+  }
+
+  // Try creating a Date object to validate the datetime
+  const startDateTime = new Date(parsedTime);
+  if (isNaN(startDateTime.getTime())) {
+    return res.send({
+      status: false,
+      message: "Invalid date or time value.",
     });
   }
   const startTimeISO = startDateTime.toISOString();
