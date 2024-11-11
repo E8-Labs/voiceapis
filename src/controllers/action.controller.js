@@ -40,7 +40,6 @@ export const CheckCalendarAvailability = async (req, res) => {
 };
 
 import { parse, isValid, format } from "date-fns";
-// const CAL_API_URL = "https://api.cal.com/v2";
 
 export async function ScheduleEvent(req, res) {
   let { user_email, date, time } = req.body;
@@ -82,7 +81,7 @@ export async function ScheduleEvent(req, res) {
     });
   }
 
-  // Define possible date and time formats
+  // Define all possible date and time formats
   const dateFormats = [
     "yyyy-MM-dd",
     "MM-dd-yyyy",
@@ -114,55 +113,55 @@ export async function ScheduleEvent(req, res) {
     "MM.dd.yy",
     "yyyy MMM dd",
     "yyyy MMMM dd",
-    "EEE, MMM d, yyyy", // e.g., Tue, Mar 14, 2023
-    "EEE, MMM dd, yyyy", // e.g., Tue, Mar 14, 2023
-    "EEEE, MMMM d, yyyy", // e.g., Tuesday, March 14, 2023
-    "EEEE, MMMM dd, yyyy", // e.g., Tuesday, March 14, 2023
-    "d/M/yyyy", // e.g., 5/6/2023
-    "M/d/yyyy", // e.g., 6/5/2023
-    "M/d/yy", // e.g., 6/5/23
-    "dd-MMM-yyyy", // e.g., 14-Nov-2023
-    "dd-MMMM-yyyy", // e.g., 14-November-2023
-    "yyyyMMdd", // e.g., 20231114 (compact format)
-    "MMddyyyy", // e.g., 11142023 (compact US format)
-    "ddMMyyyy", // e.g., 14112023 (compact EU format)
-    "yyMMdd", // e.g., 231114 (compact format with short year)
+    "EEE, MMM d, yyyy",
+    "EEE, MMM dd, yyyy",
+    "EEEE, MMMM d, yyyy",
+    "EEEE, MMMM dd, yyyy",
+    "d/M/yyyy",
+    "M/d/yyyy",
+    "M/d/yy",
+    "dd-MMM-yyyy",
+    "dd-MMMM-yyyy",
+    "yyyyMMdd",
+    "MMddyyyy",
+    "ddMMyyyy",
+    "yyMMdd",
     "dd MMM yyyy",
-    "MMMM yyyy", // e.g., March 2023 (month and year)
-    "MMM yyyy", // e.g., Mar 2023 (abbreviated month and year)
-    "yyyy", // Just the year, e.g., 2023
-    "yyyy-MM", // e.g., 2023-11 (year and month only)
+    "MMMM yyyy",
+    "MMM yyyy",
+    "yyyy",
+    "yyyy-MM",
   ];
 
   const timeFormats = [
-    "HH:mm", // 24-hour format, e.g., 14:30
-    "HH:mm:ss", // 24-hour format with seconds, e.g., 14:30:45
-    "H:mm", // 24-hour format without leading zero, e.g., 4:30
-    "H:mm:ss", // 24-hour format without leading zero, with seconds, e.g., 4:30:45
-    "hh:mm a", // 12-hour format with AM/PM, e.g., 02:30 PM
-    "hh:mm:ss a", // 12-hour format with AM/PM and seconds, e.g., 02:30:45 PM
-    "h:mm a", // 12-hour format without leading zero, with AM/PM, e.g., 2:30 PM
-    "h:mm:ss a", // 12-hour format without leading zero, with seconds and AM/PM, e.g., 2:30:45 PM
-    "hh:mmA", // 12-hour format with uppercase AM/PM, no space, e.g., 02:30PM
-    "hh:mm:ssA", // 12-hour format with uppercase AM/PM and seconds, no space, e.g., 02:30:45PM
-    "h:mmA", // 12-hour format without leading zero, uppercase AM/PM, no space, e.g., 2:30PM
-    "h:mm:ssA", // 12-hour format without leading zero, with seconds and uppercase AM/PM, no space, e.g., 2:30:45PM
-    "hh:mm a", // 12-hour format with lowercase AM/PM, with space, e.g., 02:30 pm
-    "hh:mm:ss a", // 12-hour format with lowercase AM/PM and seconds, with space, e.g., 02:30:45 pm
-    "h:mm a", // 12-hour format without leading zero, lowercase AM/PM, with space, e.g., 2:30 pm
-    "h:mm:ss a", // 12-hour format without leading zero, with seconds and lowercase AM/PM, with space, e.g., 2:30:45 pm
-    "HHmm", // Compact 24-hour format without colon, e.g., 1430
-    "HHmmss", // Compact 24-hour format without colon and with seconds, e.g., 143045
-    "hhmm a", // Compact 12-hour format without colon, e.g., 0230 PM
-    "hhmmss a", // Compact 12-hour format without colon and with seconds, e.g., 023045 PM
-    "hmm a", // Compact 12-hour format without leading zero and colon, e.g., 230 PM
-    "hmmss a", // Compact 12-hour format without leading zero, no colon, with seconds, e.g., 23045 PM
-    "h:mm", // 12-hour format without AM/PM, e.g., 2:30
-    "h:mm:ss", // 12-hour format without AM/PM, with seconds, e.g., 2:30:45
-    "H", // Single hour in 24-hour format, e.g., 5
-    "HH", // Double hour in 24-hour format, e.g., 05
-    "hh a", // Hour with AM/PM, e.g., 02 PM
-    "h a", // Single-digit hour with AM/PM, e.g., 2 PM
+    "HH:mm",
+    "HH:mm:ss",
+    "H:mm",
+    "H:mm:ss",
+    "hh:mm a",
+    "hh:mm:ss a",
+    "h:mm a",
+    "h:mm:ss a",
+    "hh:mmA",
+    "hh:mm:ssA",
+    "h:mmA",
+    "h:mm:ssA",
+    "hh:mm a",
+    "hh:mm:ss a",
+    "h:mm a",
+    "h:mm:ss a",
+    "HHmm",
+    "HHmmss",
+    "hhmm a",
+    "hhmmss a",
+    "hmm a",
+    "hmmss a",
+    "h:mm",
+    "h:mm:ss",
+    "H",
+    "HH",
+    "hh a",
+    "h a",
   ];
 
   // Parse the date
@@ -215,7 +214,7 @@ export async function ScheduleEvent(req, res) {
         attendee: {
           name: "Caller",
           email: user_email,
-          timeZone: "America/New_York", // Correct timeZone format
+          timeZone: "America/New_York", // Ensure it's a valid IANA time-zone
           language: "en", // Ensure this is a string
         },
         guests: [user.email], // Add any other guests here if needed
