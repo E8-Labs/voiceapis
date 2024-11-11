@@ -20,8 +20,17 @@ function getApiClient(apiKey) {
 }
 
 export const CheckCalendarAvailability = async (req, res) => {
-  let assistantId = req.query.assistantId;
-  console.log("Hello in Custom action Check availability", assistantId);
+  let modelId = req.query.assistantId || null;
+  if (!modelId) {
+    modelId = req.query.modelId;
+  }
+  if (!modelId) {
+    return res.send({
+      status: false,
+      message: "No such model Id",
+    });
+  }
+  console.log("Hello in Custom action Check availability", modelId);
   let q = req.query.date;
   console.log("Date that the user want to check is ", q);
   return res.send({
@@ -34,7 +43,16 @@ export async function ScheduleEvent(req, res) {
   let { user_email, date } = req.body;
   let reqData = { user_email, date };
   console.log("Schedule meeting ", reqData);
-  let modelId = req.params.modelId;
+  let modelId = req.query.assistantId || null;
+  if (!modelId) {
+    modelId = req.query.modelId;
+  }
+  if (!modelId) {
+    return res.send({
+      status: false,
+      message: "No such model Id",
+    });
+  }
 
   //Check if a valid model | assistant
   let assistant = await db.Assistant.findOne({
@@ -326,7 +344,7 @@ function GetActionApiData(user, assistant, type = "kb") {
         "https://www.blindcircle.com/voice/api/action/getKb?modelId=" +
         assistant.modelId,
       run_action_before_call_start: false,
-      name: `Get_Data_From_${user.name}'s_Knowledgebase`,
+      name: `Get Data From ${user.name} Knowledgebase`,
       description: "Gets knowledgebase for " + user.name,
       variables_during_the_call: [
         {
@@ -354,7 +372,7 @@ function GetActionApiData(user, assistant, type = "kb") {
         "https://www.blindcircle.com/voice/api/action/bookAppointment?modelId=" +
         assistant.modelId,
       run_action_before_call_start: false,
-      name: `Book Appointment With ${user.name}'`,
+      name: `Book Appointment With ${user.name}`,
       description: "Book Appointment With " + user.name,
       variables_during_the_call: [
         {
@@ -367,8 +385,7 @@ function GetActionApiData(user, assistant, type = "kb") {
           name: `user_email`,
           description:
             "The email of the user who will receive the meeting invite",
-          example:
-            "User provides his email (abc@gmail.com) to schedule a meeting.",
+          example: "my email is (abc@gmail.com).",
           type: "string",
         },
       ],
@@ -392,7 +409,7 @@ function GetActionApiData(user, assistant, type = "kb") {
         "https://www.blindcircle.com/voice/api/action/checkAvailability?modelId=" +
         assistant.modelId,
       run_action_before_call_start: false,
-      name: `Check Availability For ${user.name}'`,
+      name: `Check Availability For ${user.name}`,
       description: "Check Availability For " + user.name,
       variables_during_the_call: [
         {
