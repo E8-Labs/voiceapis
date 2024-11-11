@@ -39,6 +39,7 @@ export const CheckCalendarAvailability = async (req, res) => {
   });
 };
 
+import { parse, isValid, format } from "date-fns";
 // const CAL_API_URL = "https://api.cal.com/v2";
 
 export async function ScheduleEvent(req, res) {
@@ -81,48 +82,50 @@ export async function ScheduleEvent(req, res) {
     });
   }
 
-  // Validate and parse date and time
-  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-  if (!datePattern.test(date)) {
+  // Define possible date and time formats
+  const dateFormats = [
+    "yyyy-MM-dd",
+    "MM-dd-yyyy",
+    "MM-dd-yy",
+    "dd-MM-yyyy",
+    "MMM, dd yyyy",
+    "yyyy/MM/dd",
+    "MM/dd/yyyy",
+    "dd/MM/yyyy",
+  ];
+  const timeFormats = ["HH:mm", "hh:mm a", "h:mm a"];
+
+  // Parse the date
+  let parsedDate;
+  for (let format of dateFormats) {
+    parsedDate = parse(date, format, new Date());
+    if (isValid(parsedDate)) break;
+  }
+
+  if (!isValid(parsedDate)) {
     return res.send({
       status: false,
-      message: "Invalid date format. Use 'YYYY-MM-DD' for date.",
+      message: "Invalid date format. Please provide a recognizable date.",
     });
   }
 
-  // Handle time parsing
+  // Parse the time
   let parsedTime;
-  const time24HourPattern = /^\d{1,2}:\d{2}$/; // Matches "HH:MM" or "H:MM"
-  const time12HourPattern = /^\d{1,2}:\d{2}\s?(AM|PM)$/i; // Matches "HH:MM AM/PM" or "H:MM AM/PM"
+  for (let format of timeFormats) {
+    parsedTime = parse(time, format, new Date());
+    if (isValid(parsedTime)) break;
+  }
 
-  if (time24HourPattern.test(time)) {
-    // If 24-hour format, create a parsed Date object
-    parsedTime = `${date}T${time}:00Z`; // UTC format
-  } else if (time12HourPattern.test(time)) {
-    // If 12-hour format, convert to 24-hour format
-    const [timePart, modifier] = time.split(" ");
-    let [hours, minutes] = timePart.split(":");
-    hours = parseInt(hours, 10);
-    if (modifier.toUpperCase() === "PM" && hours < 12) hours += 12;
-    if (modifier.toUpperCase() === "AM" && hours === 12) hours = 0;
-    parsedTime = `${date}T${String(hours).padStart(2, "0")}:${minutes}:00Z`;
-  } else {
+  if (!isValid(parsedTime)) {
     return res.send({
       status: false,
-      message:
-        "Invalid time format. Use 'HH:MM' (24-hour) or 'HH:MM AM/PM' (12-hour) format.",
+      message: "Invalid time format. Please provide a recognizable time.",
     });
   }
 
-  // Try creating a Date object to validate the datetime
-  const startDateTime = new Date(parsedTime);
-  if (isNaN(startDateTime.getTime())) {
-    return res.send({
-      status: false,
-      message: "Invalid date or time value.",
-    });
-  }
-  const startTimeISO = startDateTime.toISOString();
+  // Combine parsed date and time into a single Date object
+  parsedDate.setHours(parsedTime.getHours(), parsedTime.getMinutes(), 0, 0);
+  const startTimeISO = format(parsedDate, "yyyy-MM-dd'T'HH:mm:ssXXX");
 
   // Consider the calendar is cal.com
   let apiKey = calIntegration.apiKey;
