@@ -88,27 +88,37 @@ export async function ScheduleEvent(req, res) {
 
   try {
     let apiClient = getApiClient(apiKey);
-    const response = await apiClient.post("/events", {
-      // Customize the following fields based on your meeting details
-      title: "CreatorX Sync-up",
-      description: "Meeting schedule on CreatorX",
-      start_time: date, // ISO 8601 format
-      // end_time: "2024-11-01T11:00:00Z",
-      attendees: [
-        {
-          email: user_email,
-          name: "Caller",
+    const response = await axios.post(
+      CAL_API_URL + "/events",
+      {
+        // Customize the following fields based on your meeting details
+        title: "CreatorX Sync-up",
+        description: "Meeting schedule on CreatorX",
+        start_time: date, // ISO 8601 format
+        // end_time: "2024-11-01T11:00:00Z",
+        attendees: [
+          {
+            email: user_email,
+            name: "Caller",
+          },
+          {
+            email: user.email,
+            name: "Creator",
+          },
+        ],
+        location: "Zoom",
+        custom_fields: {
+          field_key: "field_value", // Replace with any additional custom fields if required
         },
-        {
-          email: user.email,
-          name: "Creator",
-        },
-      ],
-      location: "Zoom",
-      custom_fields: {
-        field_key: "field_value", // Replace with any additional custom fields if required
       },
-    });
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     console.log("Event scheduled successfully:", response.data);
     return res.send({
