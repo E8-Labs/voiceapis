@@ -200,6 +200,23 @@ export async function ScheduleEvent(req, res) {
   let apiKey = calIntegration.apiKey;
   let eventTypeId = Number(calIntegration.eventId); // Ensure this is a number
 
+  let inputData = {
+    start: startTimeISO, // Use combined ISO date-time string for the start time
+    eventTypeId: eventTypeId,
+    attendee: {
+      name: "Caller",
+      email: user_email,
+      timeZone: "America/New_York", // Ensure it's a valid IANA time-zone
+      language: "en", // Ensure this is a string
+    },
+    guests: [user.email], // Add any other guests here if needed
+    meetingUrl: "https://example.com/meeting",
+    location: "Zoom", // Specify location or meeting link
+    bookingFieldsResponses: {
+      customField: "customValue", // Include any custom fields if required
+    },
+    metadata: {}, // Ensure metadata is an object
+  };
   try {
     const response = await fetch(`${CAL_API_URL}/bookings`, {
       method: "POST",
@@ -208,23 +225,7 @@ export async function ScheduleEvent(req, res) {
         "Content-Type": "application/json",
         "cal-api-version": "<cal-api-version>", // Update this if necessary
       },
-      body: JSON.stringify({
-        start: startTimeISO, // Use combined ISO date-time string for the start time
-        eventTypeId: eventTypeId,
-        attendee: {
-          name: "Caller",
-          email: user_email,
-          timeZone: "America/New_York", // Ensure it's a valid IANA time-zone
-          language: "en", // Ensure this is a string
-        },
-        guests: [user.email], // Add any other guests here if needed
-        meetingUrl: "https://example.com/meeting",
-        location: "Zoom", // Specify location or meeting link
-        bookingFieldsResponses: {
-          customField: "customValue", // Include any custom fields if required
-        },
-        metadata: {}, // Ensure metadata is an object
-      }),
+      body: JSON.stringify(inputData),
     });
 
     const responseData = await response.json();
