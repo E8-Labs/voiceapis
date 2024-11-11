@@ -81,8 +81,26 @@ export async function ScheduleEvent(req, res) {
     });
   }
 
-  // Combine date and time to create an ISO 8601 start time
-  const startDateTime = new Date(`${date}T${time}:00`);
+  // Validate and format date and time
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+  const timePattern = /^\d{2}:\d{2}$/;
+
+  if (!datePattern.test(date) || !timePattern.test(time)) {
+    return res.send({
+      status: false,
+      message:
+        "Invalid date or time format. Use 'YYYY-MM-DD' for date and 'HH:MM' for time.",
+    });
+  }
+
+  // Combine date and time into ISO format
+  const startDateTime = new Date(`${date}T${time}:00Z`);
+  if (isNaN(startDateTime)) {
+    return res.send({
+      status: false,
+      message: "Invalid date or time value",
+    });
+  }
   const startTimeISO = startDateTime.toISOString();
 
   // Consider the calendar is cal.com
