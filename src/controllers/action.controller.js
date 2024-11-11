@@ -39,14 +39,14 @@ export const CheckCalendarAvailability = async (req, res) => {
   });
 };
 
+// const CAL_API_URL = "https://api.cal.com/v2";
+
 export async function ScheduleEvent(req, res) {
   let { user_email, date } = req.body;
   let reqData = { user_email, date };
   console.log("Schedule meeting ", reqData);
-  let modelId = req.query.assistantId || null;
-  if (!modelId) {
-    modelId = req.query.modelId;
-  }
+
+  let modelId = req.query.assistantId || req.query.modelId || null;
   if (!modelId) {
     return res.send({
       status: false,
@@ -54,88 +54,83 @@ export async function ScheduleEvent(req, res) {
     });
   }
 
-  //Check if a valid model | assistant
+  // Check if a valid model | assistant
   let assistant = await db.Assistant.findOne({
-    where: {
-      modelId: modelId,
-    },
+    where: { modelId: modelId },
   });
   if (!assistant) {
     return res.send({
       status: false,
-      message: "Meeting can not be scheduled",
-      data: "Meeting can not be scheduled",
+      message: "Meeting cannot be scheduled",
+      data: "Meeting cannot be scheduled",
     });
   }
-  let user = await db.User.findByPk(assistant.userId);
 
+  let user = await db.User.findByPk(assistant.userId);
   let calIntegration = await db.CalIntegration.findOne({
-    where: {
-      userId: user.id,
-    },
+    where: { userId: user.id },
   });
   if (!calIntegration) {
     return res.send({
       status: false,
-      message: "Meeting can not be scheduled",
-      data: "Meeting can not be scheduled",
+      message: "Meeting cannot be scheduled",
+      data: "Meeting cannot be scheduled",
     });
   }
 
-  //consider the calendar is cal.com
+  // Consider the calendar is cal.com
   let apiKey = calIntegration.apiKey;
-  let eventId = calIntegration.eventId; //Event id is the meeting event on cal.com
+  let eventTypeId = calIntegration.eventId; // Event ID for the specific meeting event on cal.com
 
   try {
-    let apiClient = getApiClient(apiKey);
-    const response = await axios.post(
-      CAL_API_URL + "/events",
-      {
-        // Customize the following fields based on your meeting details
-        title: "CreatorX Sync-up",
-        description: "Meeting schedule on CreatorX",
-        start_time: date, // ISO 8601 format
-        // end_time: "2024-11-01T11:00:00Z",
-        attendees: [
-          {
-            email: user_email,
-            name: "Caller",
-          },
-          {
-            email: user.email,
-            name: "Creator",
-          },
-        ],
-        location: "Zoom",
-        custom_fields: {
-          field_key: "field_value", // Replace with any additional custom fields if required
-        },
+    const response = await fetch(`${CAL_API_URL}/bookings`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "cal-api-version": "<cal-api-version>", // Update this if necessary
       },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
+      body: JSON.stringify({
+        start: date, // Ensure this is in ISO 8601 format, e.g., "2024-08-13T09:00:00Z"
+        eventTypeId: eventTypeId,
+        attendee: {
+          name: "Caller",
+          email: user_email,
+          timeZone: "America/New_York",
+          language: "en", // Adjust based on preference
         },
-      }
-    );
-
-    console.log("Event scheduled successfully:", response.data);
-    return res.send({
-      status: true,
-      message: "Event scheduled successfully:",
-      data: "Event scheduled successfully:",
+        guests: [user.email], // Add any other guests here if needed
+        // meetingUrl: "https://example.com/meeting",
+        location: "Zoom", // Specify location or meeting link
+        bookingFieldsResponses: {
+          customField: "customValue", // Include any custom fields if required
+        },
+      }),
     });
+
+    const responseData = await response.json();
+    if (response.ok) {
+      console.log("Event scheduled successfully:", responseData);
+      return res.send({
+        status: true,
+        message: "Event scheduled successfully",
+        data: responseData,
+      });
+    } else {
+      console.error("Error scheduling event:", responseData);
+      return res.send({
+        status: false,
+        message: "Meeting cannot be scheduled",
+        data: responseData,
+      });
+    }
   } catch (error) {
-    console.error(
-      "Error scheduling event:",
-      error.response ? error.response.data : error.message
-    );
+    console.error("Error scheduling event:", error.message);
     return res.send({
       status: false,
-      message: "Meeting can not be scheduled",
-      data: "Meeting can not be scheduled",
-      error: error,
+      message: "Meeting cannot be scheduled",
+      data: "Meeting cannot be scheduled",
+      error: error.message,
     });
   }
 }
