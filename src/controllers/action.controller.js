@@ -42,9 +42,12 @@ export const CheckCalendarAvailability = async (req, res) => {
 // const CAL_API_URL = "https://api.cal.com/v2";
 
 export async function ScheduleEvent(req, res) {
-  let { user_email, date } = req.body;
-  let reqData = { user_email, date };
-  console.log("Schedule meeting ", reqData);
+  let { user_email, date, time } = req.body; // Accept 'time' from the request body
+  console.log("Schedule meeting with date and time: ", {
+    user_email,
+    date,
+    time,
+  });
 
   let modelId = req.query.assistantId || req.query.modelId || null;
   if (!modelId) {
@@ -78,9 +81,13 @@ export async function ScheduleEvent(req, res) {
     });
   }
 
+  // Combine date and time to create an ISO 8601 start time
+  const startDateTime = new Date(`${date}T${time}:00`);
+  const startTimeISO = startDateTime.toISOString();
+
   // Consider the calendar is cal.com
   let apiKey = calIntegration.apiKey;
-  let eventTypeId = calIntegration.eventId; // Event ID for the specific meeting event on cal.com
+  let eventTypeId = Number(calIntegration.eventId); // Ensure this is a number
 
   try {
     const response = await fetch(`${CAL_API_URL}/bookings`, {
@@ -91,20 +98,21 @@ export async function ScheduleEvent(req, res) {
         "cal-api-version": "<cal-api-version>", // Update this if necessary
       },
       body: JSON.stringify({
-        start: date, // Ensure this is in ISO 8601 format, e.g., "2024-08-13T09:00:00Z"
+        start: startTimeISO, // Use combined ISO date-time string for the start time
         eventTypeId: eventTypeId,
         attendee: {
           name: "Caller",
           email: user_email,
-          timeZone: "America/New_York",
-          language: "en", // Adjust based on preference
+          timeZone: "America/New_York", // Correct timeZone format
+          language: "en", // Ensure this is a string
         },
         guests: [user.email], // Add any other guests here if needed
-        // meetingUrl: "https://example.com/meeting",
+        meetingUrl: "https://example.com/meeting",
         location: "Zoom", // Specify location or meeting link
         bookingFieldsResponses: {
           customField: "customValue", // Include any custom fields if required
         },
+        metadata: {}, // Ensure metadata is an object
       }),
     });
 
@@ -387,6 +395,12 @@ function GetActionApiData(user, assistant, type = "kb") {
           type: "string",
         },
         {
+          name: `time`,
+          description: "The time at which the meeting would take place",
+          example: "9:00 pm",
+          type: "string",
+        },
+        {
           name: `user_email`,
           description:
             "The email of the user who will receive the meeting invite",
@@ -398,6 +412,10 @@ function GetActionApiData(user, assistant, type = "kb") {
         {
           key: "date",
           value: "11-08-2024",
+        },
+        {
+          key: "time",
+          value: "9:00 pm",
         },
         {
           key: "user_email",
