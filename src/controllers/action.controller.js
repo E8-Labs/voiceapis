@@ -215,7 +215,7 @@ export async function ScheduleEvent(req, res) {
     // bookingFieldsResponses: {
     //   customField: "customValue", // Include any custom fields if required
     // },
-    // metadata: {}, // Ensure metadata is an object
+    metadata: {}, // Ensure metadata is an object
   };
 
   console.log("Data sent to schedule ", JSON.stringify(inputData));
@@ -225,7 +225,7 @@ export async function ScheduleEvent(req, res) {
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "cal-api-version": "<cal-api-version>", // Update this if necessary
+        "cal-api-version": "v2", // Update this if necessary
       },
       body: JSON.stringify(inputData),
     });
