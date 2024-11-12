@@ -210,11 +210,11 @@ export async function ScheduleEvent(req, res) {
       language: "en", // Ensure this is a string
     },
     guests: [user.email], // Add any other guests here if needed
-    meetingUrl: "https://example.com/meeting",
+    // meetingUrl: "https://example.com/meeting",
     location: "Zoom", // Specify location or meeting link
-    bookingFieldsResponses: {
-      customField: "customValue", // Include any custom fields if required
-    },
+    // bookingFieldsResponses: {
+    //   customField: "customValue", // Include any custom fields if required
+    // },
     metadata: {}, // Ensure metadata is an object
   };
 
