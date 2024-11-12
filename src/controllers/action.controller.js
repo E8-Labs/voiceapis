@@ -207,15 +207,15 @@ export async function ScheduleEvent(req, res) {
       name: "Caller",
       email: user_email,
       timeZone: "America/New_York", // Ensure it's a valid IANA time-zone
-      language: "en", // Ensure this is a string
+      // language: "en", // Ensure this is a string
     },
-    guests: [user.email], // Add any other guests here if needed
+    // guests: [user.email], // Add any other guests here if needed
     // meetingUrl: "https://example.com/meeting",
-    location: "Zoom", // Specify location or meeting link
+    // location: "Zoom", // Specify location or meeting link
     // bookingFieldsResponses: {
     //   customField: "customValue", // Include any custom fields if required
     // },
-    metadata: {}, // Ensure metadata is an object
+    // metadata: {}, // Ensure metadata is an object
   };
 
   console.log("Data sent to schedule ", JSON.stringify(inputData));
