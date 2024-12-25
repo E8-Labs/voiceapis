@@ -19,6 +19,14 @@ function getApiClient(apiKey) {
   return apiClient;
 }
 
+// Function to get tomorrow's date in "YYYY-MM-DD" format
+function getTomorrowDate() {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  return tomorrow.toISOString().split("T")[0];
+}
+
 export const CheckCalendarAvailability = async (req, res) => {
   let modelId = req.query.assistantId || null;
   if (!modelId) {
@@ -257,39 +265,6 @@ export async function ScheduleEvent(req, res) {
   }
 }
 
-export const GetKb = async (req, res) => {
-  let assistantId = req.query.assistantId || null;
-  if (!assistantId) {
-    assistantId = req.query.modelId;
-  }
-  if (!assistantId) {
-    return res.send({
-      status: false,
-      message: "No such model Id",
-    });
-  }
-  let assistant = await db.Assistant.findOne({
-    where: {
-      modelId: assistantId,
-    },
-  });
-  let user = await db.User.findOne({
-    where: {
-      id: assistant.userId,
-    },
-  });
-  console.log("Hello in Custom action KB", assistantId);
-  let q = req.query.user_question;
-  console.log("Question asked is ", q);
-
-  let context = await findVectorData(q, user);
-  return res.send({
-    status: true,
-    message: context ? context : `Nothing found related to question: ${q}`,
-    req: req.query,
-  });
-};
-
 export async function AddCalendar(req, res) {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
@@ -359,15 +334,40 @@ export async function AddCalendar(req, res) {
   });
 }
 
-// const API_TOKEN = "1711297163700x837250103348559900";
+export const GetKb = async (req, res) => {
+  let assistantId = req.query.assistantId || null;
+  if (!assistantId) {
+    assistantId = req.query.modelId;
+  }
+  if (!assistantId) {
+    return res.send({
+      status: false,
+      message: "No such model Id",
+    });
+  }
+  let assistant = await db.Assistant.findOne({
+    where: {
+      modelId: assistantId,
+    },
+  });
+  let user = await db.User.findOne({
+    where: {
+      id: assistant.userId,
+    },
+  });
+  console.log("Hello in Custom action KB", assistantId);
+  let q = req.query.user_question;
+  console.log("Question asked is ", q);
 
-// Function to get tomorrow's date in "YYYY-MM-DD" format
-function getTomorrowDate() {
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  return tomorrow.toISOString().split("T")[0];
-}
+  let context = await findVectorData(q, user);
+  return res.send({
+    status: true,
+    message: context ? context : `Nothing found related to question: ${q}`,
+    req: req.query,
+  });
+};
+
+// const API_TOKEN = "1711297163700x837250103348559900";
 
 async function CreateRealTimeBookingAction(
   event_id,

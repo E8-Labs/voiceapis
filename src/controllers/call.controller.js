@@ -106,7 +106,7 @@ export const MakeACall = async (req, res) => {
       console.log("Assistant allows trial");
       //If yes
       //check the number of calls of this user with this model
-      if (calls && calls.length >= 3) {
+      if (calls && calls.length >= 30) {
         return res.send({
           status: false,
           message: "You've reached your maximum of 3 free calls.",
